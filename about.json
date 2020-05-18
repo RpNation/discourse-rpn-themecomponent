@@ -8,7 +8,8 @@
   "minimum_discourse_version": null,
   "maximum_discourse_version": null,
   "assets": {
-    "skulls": "assets/skulls.png"
+    "skulls": "assets/skulls.png",
+    "sayagata": "assets/sayagata.png"
   },
   "color_schemes": {
   },
