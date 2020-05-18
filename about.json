@@ -9,8 +9,7 @@
   "maximum_discourse_version": null,
   "assets": {
     "skulls": "assets/skulls.png",
-    "sayagata": "assets/sayagata.png",
-    "diamonds": "assets/diamonds.png"
+    "linen": "assets/linen.png"
   },
   "color_schemes": {
   },
