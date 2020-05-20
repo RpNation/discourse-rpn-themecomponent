@@ -19,7 +19,7 @@
   }
 }
 
-.admin-content {
+.boxed white admin-content {
   @if is-dark-color-scheme() {
     background: rgba(28,42,53,0.74);
   }
