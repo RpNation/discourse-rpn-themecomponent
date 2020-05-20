@@ -28,14 +28,6 @@ $bg: rgba(28,42,53,0.74);
     }
   }
 
-#main-outlet {
+#main-outlet, .user-content, .boxed-white {
   @include rpndark;
-}
-
-.user-content {
-  @include rpndark;
-}
-
-.boxed-white {
-  @extend .rpndark;
 }
