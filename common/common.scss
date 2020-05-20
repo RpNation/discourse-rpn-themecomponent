@@ -17,7 +17,7 @@ $bg: rgb(28,42,53);
   }
 }
 
-#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about .about.collapsed-info .details {
+#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details, .user-main .about .details {
   @if is-dark-color-scheme() {
     background: $bga;
   }
