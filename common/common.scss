@@ -1,4 +1,5 @@
-$bg: rgba(28,42,53,0.74);
+$bga: rgba(28,42,53,0.74);
+$bg: rgb(28,42,53);
 
 
 #fad-cookie .fa-primary {
@@ -16,22 +17,14 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-@mixin rpndark {
+#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details {
   @if is-dark-color-scheme() {
-    background: $bg;
+    background: $bga;
   }
 }
 
-#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details {
-  @include rpndark;
-}
-
-.menu-panel {
-  @include rpndark;
-  background: rgb(28,42,53);
-}
-
-.d-header {
-  @include rpndark;
-  background: rgb(28,42,53);
+.menu-panel, .d-header {
+  @if is-dark-color-scheme() {
+    background: $bg;
+  }
 }
