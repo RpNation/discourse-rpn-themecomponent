@@ -26,8 +26,8 @@ $bg: rgba(28,42,53,0.74);
     @if is-dark-color-scheme() {
       background: $bg;
     }
-  }
+}
 
-#main-outlet, .user-content, .boxed-white {
-  @include rpndark;
+#main-outlet, .user-content, .boxed.white {
+  @extend .rpndark;
 }
