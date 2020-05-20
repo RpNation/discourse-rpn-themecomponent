@@ -8,7 +8,13 @@
 
 .background-container {
   @if is-dark-color-scheme() {
-  background-image: url($linen) !important;
+  background-image: url($linen);
   background-color: #1a262f;
+  }
+}
+
+#main-outlet {
+  @if is-dark-color-scheme() {
+    background: rgba(28,42,53,0.74);
   }
 }
