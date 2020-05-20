@@ -22,6 +22,6 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream-item {
+#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item {
   @include rpndark;
 }
