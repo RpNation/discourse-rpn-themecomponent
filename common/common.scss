@@ -7,5 +7,7 @@
 }
 
 .background-container {
+  @if is-dark-color-scheme() {
   background-image: url($linen) !important;
+  }
 }
