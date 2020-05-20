@@ -21,7 +21,7 @@ $bg: rgba(28,42,53,0.74);
     background: $bg;
   }
 
-  $--boxed.white {
+  &boxed.white {
     @extend #main-outlet;
   }
 }
