@@ -26,10 +26,6 @@ $bg: rgba(28,42,53,0.74);
   @include rpndark;
 }
 
-  &boxed.white {
-  }
-}
-
 .user-content {
   @if is-dark-color-scheme() {
     background: $bg;
