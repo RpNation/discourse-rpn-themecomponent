@@ -16,18 +16,14 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-@mixin rpndark {
+rpndark {
   @if is-dark-color-scheme() {
     background: $bg;
   }
 }
 
 #main-outlet {
-  @include rpndark;
-
-  &boxed.white {
-  @include rpndark;
-  }
+  @extend rpndark;
 }
 
 .user-content {
