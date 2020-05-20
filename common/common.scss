@@ -7,7 +7,7 @@
 }
 
 .background-container {
-  @is-dark-color-scheme() {
+  @if is-dark-color-scheme() {
   background-image: url($linen) !important;
   background-color: #1a262f;
   }
