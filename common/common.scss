@@ -22,12 +22,12 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-.rpndark {
+.rpndark2 {
     @if is-dark-color-scheme() {
       background: $bg;
     }
 }
 
 #main-outlet, .user-content, .boxed.white {
-  @extend .rpndark;
+  @incl, .rpndark2;
 }
