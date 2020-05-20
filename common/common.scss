@@ -20,12 +20,8 @@ $bg: rgba(28,42,53,0.74);
   @if is-dark-color-scheme() {
     background: $bg;
   }
-}
-
-.boxed.white {
-  @if is-dark-color-scheme() {
-    background: $bg;
-  }
+  $--boxed.white
+    @extend #main-outlet;
 }
 
 .user-content {
