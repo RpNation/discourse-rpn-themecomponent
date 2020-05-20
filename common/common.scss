@@ -1,3 +1,6 @@
+$bg: rgba(28,42,53,0.74);
+
+
 #fad-cookie .fa-primary {
   color: #8C4932;
 }
@@ -15,12 +18,12 @@
 
 #main-outlet {
   @if is-dark-color-scheme() {
-    background: rgba(28,42,53,0.74);
+    background: $bg;
   }
 }
 
 .boxed.white {
   @if is-dark-color-scheme() {
-    background: rgba(28,42,53,0.74);
+    background: $bg;
   }
 }
