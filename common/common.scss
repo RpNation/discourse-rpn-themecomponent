@@ -9,5 +9,6 @@
 .background-container {
   @if is-dark-color-scheme() {
   background-image: url($linen) !important;
+  background-color: #2980b9;
   }
 }
