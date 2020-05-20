@@ -16,7 +16,7 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-@mixin #main-outlet {
+@mixin main-outlet {
   @if is-dark-color-scheme() {
     background: $bg;
   }
