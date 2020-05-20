@@ -22,11 +22,16 @@ $bg: rgba(28,42,53,0.74);
   }
 }
 
-#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details, .d-header {
+#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details {
   @include rpndark;
 }
 
 .menu-panel {
-  @include rpndark
-  background: rgb(28,42,53)
+  @include rpndark;
+  background: rgb(28,42,53);
+}
+
+.d-header {
+  @include rpndark;
+  background: rgb(28,42,53);
 }
