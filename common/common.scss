@@ -24,6 +24,10 @@ $bg: rgba(28,42,53,0.74);
 
 #main-outlet {
   @include rpndark;
+
+  &boxed.white {
+  @include rpndark;
+  }
 }
 
 .user-content {
