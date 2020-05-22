@@ -28,3 +28,26 @@ $bg: rgb(28,42,53);
     background: $bg;
   }
 }
+
+
+@media screen and (min-width: 1260px) {
+.topic-body{
+    width:  75%;
+}
+
+.timeline-container .topic-timeline {
+    margin-left: 27em;
+}
+
+.topic-avatar {
+    margin-left: -45px;
+}
+
+#main-outlet {
+    max-width: 1600px;
+}
+
+.d-header .panel {
+    margin-left: 1060px;
+}
+}
