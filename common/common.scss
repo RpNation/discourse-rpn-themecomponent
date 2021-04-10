@@ -7,11 +7,6 @@
   // max-width: 1600px;
 }
 
-.d-toc-article > .row:last-of-type {
-  :not(.rtl) & {
-    border-right: 1px solid var(--primary-low, $primary-low);
-  }
-  .rtl & {
-    border-left: 1px solid var(--primary-low, $primary-low);
-  }
+.d-toc-article > .row:first-of-type {
+  border-width: 0;
 }
