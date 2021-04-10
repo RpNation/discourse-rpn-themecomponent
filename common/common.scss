@@ -4,7 +4,5 @@
 }
 
 #main-outlet {
-  @if is-dark-color-scheme() {
-    background-color: rgba(28,42,53,0.74) !important;
-  }
+  background-color: rgba(28, 42, 53, 0.74) !important;
 }
