@@ -1,0 +1,8 @@
+.wrap {
+  max-width: 1600px;
+  width: 80vw;
+}
+
+.topic-post:not(.d-toc-post) .topic-body {
+  width: calc(80vw - 400px);
+}
