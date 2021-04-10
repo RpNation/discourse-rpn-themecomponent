@@ -7,6 +7,23 @@
   overflow: hidden;
 }
 
-.d-toc-article > .row:first-of-type {
-  border-width: 0 !important;
+.d-toc-article {
+  & > .row {
+    border-width: 0 !important;
+    &:last-of-type {
+      display: flex;
+      flex: 1 1 0;
+      .topic-body {
+        width: auto;
+        flex: 1;
+      }
+    }
+  }
+  & > .d-toc {
+    margin-right: calc(-1 * (235px));
+  }
+}
+
+.category-list .category-logo.aspect-image {
+  max-width: 30px;
 }
