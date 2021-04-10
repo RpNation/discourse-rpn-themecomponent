@@ -11,9 +11,7 @@
     "skulls": "assets/skulls.png",
     "linen": "assets/linen.png"
   },
-  "color_schemes": {
-    "secondary": "222222"
-  },
+  "color_schemes": {},
   "modifiers": {},
   "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966"
 }
