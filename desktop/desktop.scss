@@ -22,7 +22,7 @@
       border-width: 0 !important;
     }
     & > .d-toc {
-      max-width: 175px;
+      max-width: 175px !important;
       margin-right: calc(-1 * (175px + 2.5em + 10px));
       margin-left: 0 !important;
       z-index: 900;
