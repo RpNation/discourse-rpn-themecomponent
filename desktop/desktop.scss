@@ -11,13 +11,6 @@
 .d-toc-article {
   & > .row {
     border-width: 0 !important;
-    &:last-of-type {
-      display: flex;
-      flex: 1 1 0;
-      .topic-body {
-        flex: 1 0 0;
-      }
-    }
   }
   & > .d-toc {
     margin-right: calc(-1 * (235px + 2.5em + 10px));
