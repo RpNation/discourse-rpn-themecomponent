@@ -1,3 +1,4 @@
+@import "common/foundation/variables";
 .wrap {
   max-width: 1400px;
   width: 80vw !important;
@@ -13,17 +14,19 @@
   }
 }
 
-.d-toc-article {
-  & > .row {
-    border-width: 0 !important;
-  }
-  & > .d-toc {
-    margin-right: calc(-1 * (235px + 2.5em + 10px));
-    margin-left: 0 !important;
-    z-index: 900;
-    border-left: 1px solid var(--primary-med-or-secondary-high, #e8e7ee);
-    & > .d-toc-heading {
-      margin-left: -1px;
+@media screen and (min-width: $large-width) {
+  .d-toc-article {
+    & > .row {
+      border-width: 0 !important;
+    }
+    & > .d-toc {
+      margin-right: calc(-1 * (235px + 2.5em + 10px));
+      margin-left: 0 !important;
+      z-index: 900;
+      border-left: 1px solid var(--primary-med-or-secondary-high, #e8e7ee);
+      & > .d-toc-heading {
+        margin-left: -1px;
+      }
     }
   }
 }
