@@ -3,7 +3,24 @@
   width: 80vw !important;
 }
 
-.topic-post:not(.d-toc-post) .topic-body {
+.topic-post .topic-body {
   width: calc(80vw - 400px);
   max-width: 1100px;
+}
+
+.d-toc-article {
+  & > .row {
+    border-width: 0 !important;
+    &:last-of-type {
+      display: flex;
+      flex: 1 1 0;
+      .topic-body {
+        width: auto;
+        flex: 1;
+      }
+    }
+  }
+  & > .d-toc {
+    margin-right: calc(-1 * (235px));
+  }
 }
