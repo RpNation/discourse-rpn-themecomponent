@@ -23,7 +23,8 @@
   & > .d-toc {
     margin-right: calc(-1 * (235px + 2.5em + 10px));
     margin-left: 0;
-    border-left: 1px solid var(--primary-low, #e8e7ee);
+    z-index: 10;
+    border-left: 1px solid var(--primary-med-or-secondary-high, #e8e7ee);
     & > .d-toc-heading {
       margin-left: -1px;
     }
