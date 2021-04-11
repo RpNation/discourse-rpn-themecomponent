@@ -3,9 +3,14 @@
   width: 80vw !important;
 }
 
-.topic-post .topic-body {
-  width: calc(80vw - 400px);
-  max-width: 1100px;
+.topic-post .row {
+  display: flex;
+  flex: 1 1 0;
+  .topic-body {
+    flex: 1 1 0;
+    width: calc(80vw - 400px);
+    max-width: 1100px;
+  }
 }
 
 .d-toc-article {
@@ -14,11 +19,16 @@
   }
   & > .d-toc {
     margin-right: calc(-1 * (235px + 2.5em + 10px));
-    margin-left: 0;
+    margin-left: 0 !important;
     z-index: 900;
     border-left: 1px solid var(--primary-med-or-secondary-high, #e8e7ee);
     & > .d-toc-heading {
       margin-left: -1px;
     }
   }
+}
+
+.cloaked-post {
+  width: calc(80vw - 400px);
+  max-width: 1190px;
 }
