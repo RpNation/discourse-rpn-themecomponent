@@ -6,9 +6,13 @@
 
 .topic-post .row {
   flex: 1 1 0;
+  display: flex;
+  flex-flow: row;
   .topic-body {
-    width: calc(80vw - 400px);
-    max-width: 1100px;
+    flex: 1;
+    width: calc(80vw - 235px - 45px);
+    max-width: 1150px;
+    margin-right: 25px;
   }
 }
 
@@ -18,7 +22,8 @@
       border-width: 0 !important;
     }
     & > .d-toc {
-      margin-right: calc(-1 * (235px + 2.5em + 10px));
+      max-width: 175px;
+      margin-right: calc(-1 * (175px + 2.5em + 10px));
       margin-left: 0 !important;
       z-index: 900;
       border-left: 1px solid var(--primary-med-or-secondary-high, #e8e7ee);
