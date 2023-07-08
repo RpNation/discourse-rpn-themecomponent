@@ -11,8 +11,7 @@ $bg: rgb(28,42,53);
 }
 
 .background-container {
-  background-image: url($linen);
-  background-color: #213442;
+  background-color: #213442 !important
 }
 
 #main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details, .user-main .about .details {
