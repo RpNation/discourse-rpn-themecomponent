@@ -11,10 +11,8 @@ $bg: rgb(28,42,53);
 }
 
 .background-container {
-  @if is-dark-color-scheme() {
   background-image: url($linen);
   background-color: #213442;
-  }
 }
 
 #main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details, .user-main .about .details {
@@ -30,5 +28,5 @@ $bg: rgb(28,42,53);
 }
 
 .d-header {
-  background-color: var(--secondary) !important;
+  background-color: #5B5B66 !important;
 }
