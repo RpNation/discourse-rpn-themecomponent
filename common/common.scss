@@ -16,3 +16,43 @@ $bg: rgb(28, 42, 53);
 .d-header {
   background-color: #222222 !important;
 }
+
+/* Category Groups */
+
+.category-list{
+  display: flex;
+  flex-direction: column;
+}
+.category-list thead tr{
+  display: flex;
+}
+.category-list .topics {
+  width: 95px;
+  margin-left: auto;
+  min-width: 95px;
+  white-space: nowrap;
+}
+.category-list tbody tr {
+  background-color: var(--primary-very-low);
+  box-sizing: border-box;
+  display: flex;
+}
+body .category-list [data-category-id="2"],body .category-list [data-category-id="4"] {
+  position: relative;
+  margin-top: 50px;
+}
+body [data-category-id="2"]::before {
+  content: "Category Group 1";
+}
+body [data-category-id="4"]::before {
+  content: "Category Group 2";
+}
+body [data-category-id="2"]::before,body [data-category-id="4"]::before {
+  position: absolute;
+  top: -35px;
+  left: 0;
+  font-weight: bold;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: var(--primary-medium);
+}
