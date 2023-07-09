@@ -37,17 +37,17 @@ $bg: rgb(28, 42, 53);
   box-sizing: border-box;
   display: flex;
 }
-body .category-list [data-category-id="2"],body .category-list [data-category-id="4"] {
+body .category-list [data-category-id="3"],body .category-list [data-category-id="4"] {
   position: relative;
   margin-top: 50px;
 }
-body [data-category-id="2"]::before {
-  content: "Category Group 1";
+body [data-category-id="3"]::before {
+  content: "The Secret Passage";
 }
 body [data-category-id="4"]::before {
   content: "Category Group 2";
 }
-body [data-category-id="2"]::before,body [data-category-id="4"]::before {
+body [data-category-id="3"]::before,body [data-category-id="4"]::before {
   position: absolute;
   top: -35px;
   left: 0;
