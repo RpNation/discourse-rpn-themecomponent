@@ -1,29 +1,16 @@
-$bga: rgba(28,42,53,0.74);
-$bg: rgb(28,42,53);
-
+$bga: rgba(28, 42, 53, 0.74);
+$bg: rgb(28, 42, 53);
 
 #fad-cookie .fa-primary {
-  color: #8C4932;
+  color: #8c4932;
 }
 
 #fad-cookie .fa-secondary {
-  color: #DCA285;
+  color: #dca285;
 }
 
 .background-container {
-  background-color: #27282a !important
-}
-
-#main-outlet, .user-content, .boxed.white, .badge-card, .user-stream .item, .user-stream .user-stream-item, .user-main .about.collapsed-info .details, .user-main .about .details {
-  @if is-dark-color-scheme() {
-    background: $bga;
-  }
-}
-
-.menu-panel, .d-header {
-  @if is-dark-color-scheme() {
-    background: $bg;
-  }
+  background-color: #27282a !important;
 }
 
 .d-header {
