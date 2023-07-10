@@ -42,10 +42,10 @@ body .category-list [data-category-id="4"] {
   position: relative;
   margin-top: 50px;
 }
-body list-area [data-category-id="3"]::before {
+body [data-category-id="3"]::before {
   content: "The Secret Passage";
 }
-body list-area [data-category-id="4"]::before {
+body [data-category-id="4"]::before {
   content: "RpNation";
 }
 body [data-category-id="3"]::before,
