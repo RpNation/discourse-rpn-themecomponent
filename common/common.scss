@@ -38,14 +38,14 @@ $bg: rgb(28, 42, 53);
   display: flex;
 }
 body .category-list [data-category-id="3"],
-body .category-list [data-category-id="4"] {
+body .category-list [data-category-id="6"] {
   position: relative;
   margin-top: 50px;
 }
 body .category-list [data-category-id="3"]::before {
   content: "The Secret Passage";
 }
-body .category-list [data-category-id="4"]::before {
+body .category-list [data-category-id="6"]::before {
   content: "RpNation";
 }
 body [data-category-id="3"]::before,
