@@ -76,3 +76,10 @@ body [data-category-id="18"]::before {
   text-transform: uppercase;
   color: var(--primary-medium);
 }
+
+/* Changing the size of Avatars on the Category List */
+
+body .category-list img.avatar {
+  max-width: 36px;
+  max-height: 36px;
+}
