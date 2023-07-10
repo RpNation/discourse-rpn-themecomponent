@@ -41,7 +41,7 @@ body .category-list [data-category-id="3"],body .category-list [data-category-id
   position: relative;
   margin-top: 50px;
 }
-body [data-category-id="3"]::before {
+#list-area body [data-category-id="3"]::before {
   content: "The Secret Passage";
 }
 body [data-category-id="4"]::before {
