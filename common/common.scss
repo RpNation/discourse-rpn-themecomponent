@@ -1,6 +1,7 @@
 $bga: rgba(28, 42, 53, 0.74);
 $bg: rgb(28, 42, 53);
 
+/* Like Button */
 #fad-cookie .fa-primary {
   color: #8c4932;
 }
@@ -9,12 +10,21 @@ $bg: rgb(28, 42, 53);
   color: #dca285;
 }
 
-.background-container {
-  background-color: #27282a !important;
+/* Site Logo & Header */
+
+.d-header {
+  max-height: unset;
+  height: 3em;
 }
 
 .d-header {
   background-color: #222222 !important;
+}
+
+/* Background */
+
+.background-container {
+  background-color: #27282a !important;
 }
 
 /* Category Groups */
