@@ -37,8 +37,8 @@ $bg: rgb(28, 42, 53);
   box-sizing: border-box;
   display: flex;
 }
-body .category-list [data-category-id="3"],
-body .category-list [data-category-id="4"] {
+body .category-list .with-topics [data-category-id="3"],
+body .category-list .with-topics [data-category-id="4"] {
   position: relative;
   margin-top: 50px;
 }
