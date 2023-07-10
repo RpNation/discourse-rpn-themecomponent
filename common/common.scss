@@ -13,8 +13,8 @@ $bg: rgb(28, 42, 53);
 /* Site Logo & Header */
 
 .d-header {
-  max-height: unset;
-  height: 3em;
+  max-height: unset !important;
+  height: 3em !important;
 }
 
 .d-header {
