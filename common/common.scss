@@ -19,11 +19,11 @@ $bg: rgb(28, 42, 53);
 
 /* Category Groups */
 
-.category-list{
+.category-list {
   display: flex;
   flex-direction: column;
 }
-.category-list thead tr{
+.category-list thead tr {
   display: flex;
 }
 .category-list .topics {
@@ -37,7 +37,8 @@ $bg: rgb(28, 42, 53);
   box-sizing: border-box;
   display: flex;
 }
-body .category-list [data-category-id="3"],body .category-list [data-category-id="4"] {
+body .category-list [data-category-id="3"],
+body .category-list [data-category-id="4"] {
   position: relative;
   margin-top: 50px;
 }
@@ -47,7 +48,8 @@ body list-area [data-category-id="3"]::before {
 body list-area [data-category-id="4"]::before {
   content: "RpNation";
 }
-body [data-category-id="3"]::before,body [data-category-id="4"]::before {
+body [data-category-id="3"]::before,
+body [data-category-id="4"]::before {
   position: absolute;
   top: -35px;
   left: 0;
