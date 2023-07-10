@@ -44,7 +44,7 @@ body .category-list [data-category-id="3"],body .category-list [data-category-id
 body list-area [data-category-id="3"]::before {
   content: "The Secret Passage";
 }
-body [data-category-id="4"]::before {
+body list-area [data-category-id="4"]::before {
   content: "RpNation";
 }
 body [data-category-id="3"]::before,body [data-category-id="4"]::before {
