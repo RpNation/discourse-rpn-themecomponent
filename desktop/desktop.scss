@@ -6,6 +6,5 @@
 /* Desktop Width */
 
 #main-outlet {
-  width: auto;
-  max-width: 1500px; /* This makes the container as wide as the logo/header controls */
+  max-width: #{$site_width}px;
 }
