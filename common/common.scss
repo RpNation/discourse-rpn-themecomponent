@@ -23,9 +23,10 @@ $bg: rgb(28, 42, 53);
   display: flex;
   flex-direction: column;
 }
-.category-list thead tr {
+/* .category-list thead tr {
   display: flex;
 }
+*/
 .category-list .topics {
   width: 95px;
   margin-left: auto;
@@ -39,7 +40,8 @@ $bg: rgb(28, 42, 53);
 }
 body .category-list [data-category-id="3"],
 body .category-list [data-category-id="4"],
-body .category-list [data-category-id="9"] {
+body .category-list [data-category-id="9"],
+body .category-list [data-category-id="12"] {
   position: relative;
   margin-top: 50px;
 }
@@ -49,6 +51,10 @@ body .category-list [data-category-id="3"]::before {
 body .category-list [data-category-id="4"]::before {
   content: "RpNation";
 }
+body .category-list [data-category-id="9"]::before {
+  content: "Creativity";
+}
+
 body .category-list [data-category-id="9"]::before {
   content: "Creativity";
 }
