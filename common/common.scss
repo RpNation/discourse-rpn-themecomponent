@@ -19,14 +19,15 @@ $bg: rgb(28, 42, 53);
 
 /* Category Groups */
 
+/*
 .category-list {
   display: flex;
   flex-direction: column;
 }
-/* .category-list thead tr {
+.category-list thead tr {
   display: flex;
 }
-*/
+
 .category-list .topics {
   width: 95px;
   margin-left: auto;
@@ -38,6 +39,7 @@ $bg: rgb(28, 42, 53);
   box-sizing: border-box;
   display: flex;
 }
+*/
 body .category-list [data-category-id="3"],
 body .category-list [data-category-id="4"],
 body .category-list [data-category-id="9"],
