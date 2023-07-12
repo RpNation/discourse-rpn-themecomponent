@@ -44,6 +44,10 @@ $bg: rgb(28, 42, 53);
   white-space: nowrap;
 }
 
+.category-list tbody .latest {
+  max-width: 20vw;
+}
+
 .category-list tbody tr {
   background-color: var(--primary-very-low);
   box-sizing: border-box;
