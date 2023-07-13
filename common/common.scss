@@ -30,7 +30,7 @@ $bg: rgb(28, 42, 53);
 
 .background-container {
   @if is-light-color-scheme() {
-    background-color: unset;
+    background-color: #ffffff;
   }
 }
 
