@@ -1,8 +1,17 @@
+/* Mobile Width */
 
 #main-outlet {
   width: 100% !important;
 }
 
+/* Mobile Category Color Line for Category */
+
+body .category-list-item.category tr:first-of-type {
+  border-bottom: 1px solid var(--darkreader-border--primary-low);
+  border-left: 7px solid #0081c2;
+}
+
+/* Mobile Category Groups */
 
 body .category-list-item.category .posts {
   width: auto;
@@ -45,4 +54,3 @@ body .category-list-item {
 .subcategory-list-item > footer {
   border-top: none;
 }
-
