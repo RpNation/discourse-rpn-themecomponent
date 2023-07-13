@@ -69,7 +69,8 @@ body .category-list [data-category-id="3"],
 body .category-list [data-category-id="4"],
 body .category-list [data-category-id="9"],
 body .category-list [data-category-id="12"],
-body .category-list [data-category-id="18"] {
+body .category-list [data-category-id="18"],
+body .category-list [data-category-id="26"] {
   position: relative;
   margin-top: 50px;
 }
@@ -92,7 +93,7 @@ body .category-list [data-category-id="18"]::before {
 }
 
 body .category-list [data-category-id="26"]::before {
-  content: "Roleplaysd";
+  content: "Roleplays";
 }
 
 body [data-category-id="3"]::before,
