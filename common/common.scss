@@ -24,6 +24,7 @@ $bg: rgb(28, 42, 53);
 /* Background */
 
 .background-container {
+  @if is-dark-color-scheme()
   background-color: #27282a !important;
 }
 
