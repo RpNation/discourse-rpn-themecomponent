@@ -84,17 +84,23 @@ body .category-list [data-category-id="9"]::before {
 }
 
 body .category-list [data-category-id="12"]::before {
-  content: "Creativity";
+  content: "Discussion";
 }
 
 body .category-list [data-category-id="18"]::before {
-  content: "Creativity";
+  content: "Recruitment";
 }
+
+body .category-list [data-category-id="26"]::before {
+  content: "Roleplaysd";
+}
+
 body [data-category-id="3"]::before,
 body [data-category-id="4"]::before,
 body [data-category-id="9"]::before,
 body [data-category-id="12"]::before,
-body [data-category-id="18"]::before {
+body [data-category-id="18"]::before,
+body [data-category-id="26"]::before {
   position: absolute;
   top: -35px;
   left: 0;
