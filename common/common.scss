@@ -43,7 +43,12 @@ $bg: rgb(28, 42, 53);
 }
 
 .category-list tbody .latest {
-  max-width: 20vw;
+  max-width: 40%;
+}
+
+span.relative-date {
+  white-space: nowrap;
+  margin: 5px;
 }
 
 .category-list tbody tr {
