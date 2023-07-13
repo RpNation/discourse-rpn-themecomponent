@@ -50,7 +50,20 @@ body .category-list-item {
   padding: 0;
   border: 1px solid var(--primary-low) !important;
 }
+body .category-list img.avatar {
+  max-width: 36px;
+  max-height: 36px;
+  margin: 5px 10px 5px 5px;
+}
 .category-list-item > footer,
 .subcategory-list-item > footer {
   border-top: none;
+}
+tr.category-topic-link {
+  border-bottom: 1px solid var(--darkreader-border--primary-low);
+  padding: 5px 2px;
+}
+span.relative-date {
+  white-space: nowrap;
+  margin: 5px 5px 5px 10px;
 }
