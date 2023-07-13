@@ -111,6 +111,13 @@ body [data-category-id="26"]::before {
   color: var(--primary-medium);
 }
 
+.rs-component {
+  margin-bottom: 1.5em;
+  border: 1px solid var(--primary-low);
+  padding: 10px;
+  background-color: var(--primary-very-low);
+}
+
 /* Changing the size of Avatars on the Category List */
 
 body .category-list img.avatar {
