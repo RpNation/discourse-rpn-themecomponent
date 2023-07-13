@@ -27,6 +27,12 @@ $bg: rgb(28, 42, 53);
   background-color: #27282a !important;
 }
 
+.background-container {
+  @if is-light-color-scheme() {
+    background-color: unset;
+  }
+}
+
 /* Category Groups */
 
 .category-list {
