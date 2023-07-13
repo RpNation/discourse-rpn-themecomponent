@@ -15,10 +15,3 @@
   <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
 {{/if}}
 </script>
-
-#!/bin/bash
-grep -r -A 1 -e plugin-outlet -e PluginOutlet /var/www/discourse/app/|grep name|grep -o -e 'name=".*'|awk -F\" '{print $2}'|sort|uniq | while read p ; do
-  echo "<script type=\"text/x-handlebars\" data-template-name=\"/connectors/$p/plugin-outlet-component\">"
-  echo "<div class=\"outlet\">$p</div>"
-  echo "</script>"
-done
