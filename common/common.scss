@@ -17,9 +17,9 @@ $bg: rgb(28, 42, 53);
   height: 4em !important;
 }
 
-.d-header {
-  background-color: #222222 !important;
-}
+// .d-header {
+//   background-color: var(--primary) !important;
+// }
 
 /* Background */
 
@@ -65,43 +65,43 @@ span.relative-date {
   display: flex;
 }
 
-body .category-list [data-category-id="3"],
-body .category-list [data-category-id="4"],
-body .category-list [data-category-id="9"],
-body .category-list [data-category-id="12"],
-body .category-list [data-category-id="18"],
-body .category-list [data-category-id="26"] {
+body .category-list [data-category-id='3'],
+body .category-list [data-category-id='4'],
+body .category-list [data-category-id='9'],
+body .category-list [data-category-id='12'],
+body .category-list [data-category-id='18'],
+body .category-list [data-category-id='26'] {
   position: relative;
   margin-top: 50px;
 }
-body .category-list [data-category-id="3"]::before {
-  content: "The Secret Passage";
+body .category-list [data-category-id='3']::before {
+  content: 'The Secret Passage';
 }
-body .category-list [data-category-id="4"]::before {
-  content: "RpNation";
+body .category-list [data-category-id='4']::before {
+  content: 'RpNation';
 }
-body .category-list [data-category-id="9"]::before {
-  content: "Creativity";
-}
-
-body .category-list [data-category-id="12"]::before {
-  content: "Discussion";
+body .category-list [data-category-id='9']::before {
+  content: 'Creativity';
 }
 
-body .category-list [data-category-id="18"]::before {
-  content: "Recruitment";
+body .category-list [data-category-id='12']::before {
+  content: 'Discussion';
 }
 
-body .category-list [data-category-id="26"]::before {
-  content: "Roleplays";
+body .category-list [data-category-id='18']::before {
+  content: 'Recruitment';
 }
 
-body [data-category-id="3"]::before,
-body [data-category-id="4"]::before,
-body [data-category-id="9"]::before,
-body [data-category-id="12"]::before,
-body [data-category-id="18"]::before,
-body [data-category-id="26"]::before {
+body .category-list [data-category-id='26']::before {
+  content: 'Roleplays';
+}
+
+body [data-category-id='3']::before,
+body [data-category-id='4']::before,
+body [data-category-id='9']::before,
+body [data-category-id='12']::before,
+body [data-category-id='18']::before,
+body [data-category-id='26']::before {
   position: absolute;
   top: -35px;
   left: 0;
@@ -139,4 +139,14 @@ body .category-list img.avatar {
   max-height: 2.8rem;
   margin-left: auto;
   margin-right: auto;
+}
+
+// enforce button flat style
+.btn-flat {
+  border: unset !important;
+}
+
+// reduce gap size
+body.has-sidebar-page #main-outlet-wrapper {
+  gap: 0 1em;
 }
