@@ -17,9 +17,16 @@ $bg: rgb(28, 42, 53);
   height: 4em !important;
 }
 
-// .d-header {
-//   background-color: var(--primary) !important;
-// }
+// override graceful header transparencies
+.d-header {
+  background-color: var(--header_background) !important;
+}
+
+// enforce max width through https://github.com/Canapin/Discourse-custom-width.git
+// make sure it applies to graceful theme
+#main-outlet {
+  max-width: var(--d-max-width) !important;
+}
 
 /* Background */
 
@@ -27,9 +34,6 @@ $bg: rgb(28, 42, 53);
   @if is-dark-color-scheme() {
     background-color: #27282a !important;
   }
-}
-
-.background-container {
   @if is-light-color-scheme() {
     background-color: unset;
   }
@@ -40,29 +44,26 @@ $bg: rgb(28, 42, 53);
 .category-list {
   display: flex;
   flex-direction: column;
-}
-.category-list thead tr {
-  display: flex;
-}
-
-.category-list .topics {
-  width: 60px;
-  white-space: nowrap;
-}
-
-.category-list tbody .latest {
-  max-width: 40%;
+  thead tr {
+    display: flex;
+  }
+  .topics {
+    width: 60px;
+    white-space: nowrap;
+  }
+  tbody .latest {
+    max-width: 40%;
+  }
+  tbody tr {
+    background-color: var(--primary-very-low);
+    box-sizing: border-box;
+    display: flex;
+  }
 }
 
 span.relative-date {
   white-space: nowrap;
   margin: 5px;
-}
-
-.category-list tbody tr {
-  background-color: var(--primary-very-low);
-  box-sizing: border-box;
-  display: flex;
 }
 
 body .category-list [data-category-id='3'],
