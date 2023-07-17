@@ -5,12 +5,12 @@
 }
 
 /* Mobile Category Color Line for Category */
-
+/*
 body .category-list-item.category tr:first-of-type {
   border-bottom: 1px solid var(--darkreader-border--primary-low);
   border-left: 7px solid #0081c2;
 }
-
+*/
 /* Mobile Category Groups */
 
 // see https://github.com/discourse/discourse/blob/main/app/assets/javascripts/discourse/app/templates/mobile/components/parent-category-row.hbs
@@ -61,12 +61,12 @@ body .category-list img.avatar {
 .subcategory-list-item > footer {
   border-top: none;
 }
-/* Uncommenting
+
 tr.category-topic-link {
   border-bottom: 1px solid var(--darkreader-border--primary-low);
   padding: 5px 2px;
 }
-*/
+
 span.relative-date {
   white-space: nowrap;
   margin: 5px 5px 5px 10px;
