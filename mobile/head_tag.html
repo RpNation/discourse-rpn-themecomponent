@@ -19,8 +19,8 @@
   {{/if}}
 </script>
 
-<script type="text/x-handlebars" data-template-name="app/assets/javascripts/discourse/app/components/parent-category-row.hbs">
-{{#unless this.isHidden}}
+<script type='text/x-handlebars' data-template-name='parent-category-row>
+  {{#unless this.isHidden}}
   <PluginOutlet
     @name="category-list-above-each-category"
     @outletArgs={{hash category=this.category}}
@@ -69,9 +69,16 @@
             {{/each}}
           </tbody>
         </table>
-
+      {{else if this.category.subcategories}}
+        <div class="subcategories">
+          {{#each this.category.subcategories as |subcategory|}}
+            <SubCategoryItem
+              @category={{subcategory}}
+              @listType={{this.listType}}
+            />
+          {{/each}}
         </div>
-      
+      {{/if}}
     </td>
 
     <td class="topics">
