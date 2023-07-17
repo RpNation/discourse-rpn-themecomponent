@@ -17,7 +17,7 @@ body .category-list-item.category tr:first-of-type {
 
 .categories-list .category h3, .categories-list .category h4 {
   margin-bottom: 0;
-  border-left: 6px solid var(--category-color, var(--primary-low));
+  border-left: 6px solid var(--category-color);
 }
 
 body .category-list-item.category .posts {
