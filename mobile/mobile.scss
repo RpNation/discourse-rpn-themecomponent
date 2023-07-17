@@ -15,7 +15,7 @@ body .category-list-item.category tr:first-of-type {
 
 // see https://github.com/discourse/discourse/blob/main/app/assets/javascripts/discourse/app/templates/mobile/components/parent-category-row.hbs
 .category-list-item {
-  border-left: unset;
+  border-left: inherit !important;
 }
 body .category-list-item.category .posts {
   width: auto;
