@@ -1,17 +1,50 @@
-<script type='text/x-handlebars' data-template-name='components/mobile-category-topic'>
+<script
+  type="text/x-handlebars"
+  data-template-name="components/mobile-category-topic"
+>
   {{#user-link user=topic.last_poster}}
       {{avatar topic.last_poster imageSize="medium"}}
   {{/user-link}}
   {{raw "topic-status" topic=topic}}
   <a class='title' href="{{unbound topic.lastUnreadUrl}}">{{{unbound topic.fancyTitle}}}</a>
   {{topic-post-badges newPosts=topic.totalUnread unseen=topic.unseen url=topic.lastUnreadUrl}}
-  
+
   {{#if latestTopicOnly}}
     <div class='last-user-info'>
       {{i18n 'categories.latest_by'}} <a href="{{{unbound topic.lastPosterUrl}}}">{{unbound topic.last_poster.username}}</a>
       <a href="{{unbound topic.lastPostUrl}}">{{format-age topic.last_posted_at}}</a>
-    </div>    
+    </div>
   {{else}}
     <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
   {{/if}}
-  </script>
+</script>
+
+<script
+  type="text/x-handlebars"
+  data-template-name="subcategories-with-featured-topics"
+>
+      {{#each this.categories as |category|}}
+    <table class="category-list subcategory-list with-topics">
+      <tbody aria-labelledby="categories-only-category">
+        {{#each category.subcategories as |subCategory|}}
+          <ParentCategoryRow @category={{subCategory}} @showTopics={{true}} />
+        {{else}}
+          {{! No subcategories... so just show the parent to avoid confusion }}
+          <ParentCategoryRow @category={{category}} @showTopics={{true}} />
+        {{/each}}
+      </tbody>
+      <thead>
+        <tr>
+          <th class="parent-category">
+            <CategoryTitleLink @category={{category}} />
+            <span class="stat" title={{category.statTitle}}>{{html-safe
+                category.stat
+              }}</span>
+          </th>
+          <th class="topics">{{i18n "categories.topics"}}</th>
+          <th class="latest">{{i18n "categories.latest"}}</th>
+        </tr>
+      </thead>
+    </table>
+  {{/each}}
+</script>
