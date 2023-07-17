@@ -70,11 +70,7 @@
           </tbody>
         </table>
       {{else if this.category.subcategories}}
-        <div class="subcategories">
-          {{#each this.category.subcategories as |subcategory|}}
-            <SubCategoryItem
-              @category={{subcategory}}
-              @listType={{this.listType}}
+        
             />
           {{/each}}
         </div>
