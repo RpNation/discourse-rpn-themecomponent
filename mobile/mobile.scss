@@ -69,3 +69,7 @@ span.relative-date {
   white-space: nowrap;
   margin: 5px 5px 5px 10px;
 }
+
+.category-list.with-topics .category-list-item .category-description {
+  display: unset;
+}
