@@ -61,27 +61,10 @@
       </div>
     {{/if}}
 
-    {{#if this.category.isGrandParent}}
-      <table class="category-list subcategories-with-subcategories">
-        <tbody>
-          {{#each this.category.subcategories as |subcategory|}}
-            <SubCategoryRow
-              @category={{subcategory}}
-              @listType={{this.listType}}
-            />
-          {{/each}}
+    
         </tbody>
       </table>
-    {{else if this.category.subcategories}}
-      <div class="subcategories">
-        {{#each this.category.subcategories as |subcategory|}}
-          <SubCategoryItem
-            @category={{subcategory}}
-            @listType={{this.listType}}
-          />
-        {{/each}}
-      </div>
-    {{/if}}
+    
   </td>
 
   <td class="topics">
