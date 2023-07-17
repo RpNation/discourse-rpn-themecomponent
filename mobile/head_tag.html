@@ -36,15 +36,7 @@
       }}
       {{if this.category.uploaded_logo.url 'has-logo' 'no-logo'}}"
   >
-    <td
-      class="category
-        {{if this.isMuted 'muted'}}
-        {{if this.noCategoryStyle 'no-category-style'}}"
-      style={{unless
-        this.noCategoryStyle
-        (category-color-variable this.category.color)
-      }}
-    >
+        >
       <CategoryTitleLink @category={{this.category}} />
       <PluginOutlet
         @name="below-category-title-link"
