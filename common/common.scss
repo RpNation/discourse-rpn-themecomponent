@@ -10,13 +10,6 @@ $bg: rgb(28, 42, 53);
   color: #dca285;
 }
 
-/* Site Logo & Header */
-
-#site-logo .logo-big {
-  max-height: unset !important;
-  height: 4em !important;
-}
-
 // override graceful header transparencies
 .d-header {
   background-color: var(--header_background) !important;
@@ -36,28 +29,6 @@ $bg: rgb(28, 42, 53);
   }
   @if is-light-color-scheme() {
     background-color: unset;
-  }
-}
-
-/* Category Groups */
-
-.category-list {
-  display: flex;
-  flex-direction: column;
-  thead tr {
-    display: flex;
-  }
-  .topics {
-    width: 60px;
-    white-space: nowrap;
-  }
-  tbody .latest {
-    max-width: 40%;
-  }
-  tbody tr {
-    background-color: var(--primary-very-low);
-    box-sizing: border-box;
-    display: flex;
   }
 }
 
