@@ -22,19 +22,18 @@ body .category-list-item.category tr:first-of-type {
     display: flex;
     flex-direction: column;
   }
+
   .subcategories-list {
     order: -1;
   }
+
   tr:first-child {
     // this is category title section
     order: -1;
   }
 }
 
-.mobile-view
-  .category-list.with-topics
-  .category-list-item
-  .category-description {
+.mobile-view .category-list.with-topics .category-list-item .category-description {
   display: flex;
   flex-direction: column;
   order: -1;
@@ -50,59 +49,86 @@ body .category-list-item.category .posts {
   width: auto;
   margin-left: auto;
 }
-body .category-list-item > footer,
-body .subcategory-list-item > footer {
+
+body .category-list-item>footer,
+body .subcategory-list-item>footer {
   background-color: var(--primary-very-low);
 }
+
 .categories-list .category-list th {
   padding: 0;
 }
-.category-list-item > footer .category-stat,
-.subcategory-list-item > footer .category-stat {
+
+.category-list-item>footer .category-stat,
+.subcategory-list-item>footer .category-stat {
   float: right;
 }
-.category-list-item > footer .category-stat:first-child,
-.subcategory-list-item > footer .category-stat:first-child {
+
+.category-list-item>footer .category-stat:first-child,
+.subcategory-list-item>footer .category-stat:first-child {
   margin-right: 0;
 }
+
 body .category-list-item.category tr:first-of-type {
   padding: 10px 0;
   border-bottom: 1px solid var(--primary-low);
 }
+
 body tr.category-topic-link:last-of-type {
   border-bottom: 1px solid var(--primary-low);
+
 }
+
 body .categories-list .category-list th {
   padding: 0;
 }
+
 body .category-list-item {
   border-top: none;
   margin-bottom: 10px;
 }
+
 body .category-list-item {
   padding: 0;
   border: 1px solid var(--primary-low) !important;
 }
+
 body .category-list img.avatar {
   max-width: 36px;
   max-height: 36px;
   margin: 5px 10px 5px 5px;
 }
-.category-list-item > footer,
-.subcategory-list-item > footer {
+
+.category-list-item>footer,
+.subcategory-list-item>footer {
   border-top: none;
 }
 
 tr.category-topic-link {
-  border-bottom: 1px solid var(--darkreader-border--primary-low);
-  padding: 5px 2px;
+  border-bottom: 1px solid var(--primary-low);
+  padding: 5px 2px 0px;
 }
 
 span.relative-date {
   white-space: nowrap;
-  margin: 5px 5px 5px 10px;
+  margin: 3px;
+  float: right;
 }
 
 .category-list.with-topics .category-list-item .category-description {
   display: unset;
+}
+
+.topic-statuses {
+  float: right;
+}
+
+.title {
+  width: 70%;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+img {
+  vertical-align: top;
 }
