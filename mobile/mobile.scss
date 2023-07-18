@@ -40,7 +40,7 @@ body .category-list-item.category tr:first-of-type {
 
     .category-description {
       order: 1;
-      display: flex;
+      display: flex !important;
       flex-direction: column;
     }
 
