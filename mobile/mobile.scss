@@ -74,6 +74,11 @@ body .category-list-item.category tr:first-of-type {
         font-size: var(--font-down-1);
         margin-left: auto;
       }
+      .topic-statuses {
+        display: inline-block;
+        padding: 0;
+        margin: auto 0;
+      }
 
       &:last-of-type {
         border-bottom: 1px solid var(--primary-low);
