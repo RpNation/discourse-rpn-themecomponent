@@ -122,3 +122,11 @@ body .category-list img.avatar {
 body.has-sidebar-page #main-outlet-wrapper {
   gap: 0 1em;
 }
+
+// limiting user signature to 3 lines
+.user-signature {
+  overflow: clip;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
