@@ -126,6 +126,7 @@ body.has-sidebar-page #main-outlet-wrapper {
 // limiting user signature to 3 lines
 .user-signature {
   overflow: clip;
+  word-break: break-all;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
