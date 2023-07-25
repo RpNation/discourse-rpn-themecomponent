@@ -123,11 +123,14 @@ body.has-sidebar-page #main-outlet-wrapper {
   gap: 0 1em;
 }
 
-// limiting user signature to 3 lines
+// limiting user signature to 5 lines
 .user-signature {
   overflow: clip;
   word-break: break-all;
   display: -webkit-box;
   -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
+}
+.user-signature br:first-of-type {
+  display: none;
 }
