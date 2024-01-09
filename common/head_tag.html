@@ -15,21 +15,3 @@
     <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
   {{/if}}
 </script>
-
-<script type="text/x-handlebars" data-template-name="javascripts/components/category-topics">
-    {{category-link category}}
-
-  <div class="category-topics--content">
-    {{#each topics as |topic|}}
-    {{#user-link user=topic.last_poster}}
-      {{avatar topic.last_poster imageSize="medium"}}
-    {{/user-link}}
-      <a href={{topic.url}} class="category-topics--topic">
-        {{html-safe (replace-emoji topic.fancy_title)}}
-        <span class="category-topics--posts-count">
-          ({{topic.posts_count}})
-        </span>
-      </a>
-    {{/each}}
-  </div>
-</script>
