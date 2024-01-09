@@ -135,6 +135,23 @@ body.has-sidebar-page #main-outlet-wrapper {
   display: none;
 }
 
+// Right Sidebar Changes
+
 .rs-component {
   border-top: 6px solid #0088cc;
+}
+
+.tc-right-sidebar .badge-category__wrapper {
+  color: var(--primary-high);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--font-down-1);
+  white-space: nowrap;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  margin-bottom: 2%;
+  border-bottom: 1px solid red;
+  width: 100%;
+  padding-bottom: 1%;
 }
