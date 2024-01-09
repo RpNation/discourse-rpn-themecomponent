@@ -1,17 +1,35 @@
-<script type='text/x-handlebars' data-template-name='components/featured-topic'>
-{{#user-link user=topic.last_poster}}
-    {{avatar topic.last_poster imageSize="medium"}}
-{{/user-link}}
-{{raw "topic-status" topic=topic}}
-<a class='title' href="{{unbound topic.lastUnreadUrl}}">{{{unbound topic.fancyTitle}}}</a>
-{{topic-post-badges newPosts=topic.totalUnread unseen=topic.unseen url=topic.lastUnreadUrl}}
+<script type="text/x-handlebars" data-template-name="components/featured-topic">
+  {{#user-link user=topic.last_poster}}
+      {{avatar topic.last_poster imageSize="medium"}}
+  {{/user-link}}
+  {{raw "topic-status" topic=topic}}
+  <a class='title' href="{{unbound topic.lastUnreadUrl}}">{{{unbound topic.fancyTitle}}}</a>
+  {{topic-post-badges newPosts=topic.totalUnread unseen=topic.unseen url=topic.lastUnreadUrl}}
 
-{{#if latestTopicOnly}}
-  <div class='last-user-info'>
-    {{i18n 'categories.latest_by'}} <a href="{{{unbound topic.lastPosterUrl}}}">{{unbound topic.last_poster.username}}</a>
-    <a href="{{unbound topic.lastPostUrl}}">{{format-age topic.last_posted_at}}</a>
-  </div>    
-{{else}}
-  <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
-{{/if}}
+  {{#if latestTopicOnly}}
+    <div class='last-user-info'>
+      {{i18n 'categories.latest_by'}} <a href="{{{unbound topic.lastPosterUrl}}}">{{unbound topic.last_poster.username}}</a>
+      <a href="{{unbound topic.lastPostUrl}}">{{format-age topic.last_posted_at}}</a>
+    </div>
+  {{else}}
+    <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
+  {{/if}}
+</script>
+
+<script type="text/x-handlebars" data-template-name="components/category-">
+    {{category-link category}}
+
+  <div class="category-topics--content">
+    {{#each topics as |topic|}}
+    {{#user-link user=topic.last_poster}}
+      {{avatar topic.last_poster imageSize="medium"}}
+    {{/user-link}}
+      <a href={{topic.url}} class="category-topics--topic">
+        {{html-safe (replace-emoji topic.fancy_title)}}
+        <span class="category-topics--posts-count">
+          ({{topic.posts_count}})
+        </span>
+      </a>
+    {{/each}}
+  </div>
 </script>
