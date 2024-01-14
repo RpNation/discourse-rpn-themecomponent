@@ -161,3 +161,7 @@ body.has-sidebar-page #main-outlet-wrapper {
   margin: 0 5%;
   font-size: 0.9em;
 }
+
+.post-stream .topic-post:nth-child(even) {
+  background-color: red;
+}
