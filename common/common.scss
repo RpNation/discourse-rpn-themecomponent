@@ -162,6 +162,6 @@ body.has-sidebar-page #main-outlet-wrapper {
   font-size: 0.9em;
 }
 
-article:nth-child(even) {
-  background-color: red;
+.post-even {
+  background-color: #ffffff; // or any other style you want
 }
