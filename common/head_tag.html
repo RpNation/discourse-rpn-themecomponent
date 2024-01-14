@@ -15,16 +15,3 @@
     <a href="{{unbound topic.lastPostUrl}}" class="last-posted-at">{{format-age topic.last_posted_at}}</a>
   {{/if}}
 </script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-      const posts = document.querySelectorAll('.post');
-
-      posts.forEach((post) => {
-          const postIdNumber = parseInt(post.id.replace('post_', ''));
-          if (postIdNumber % 2 === 0) {
-              post.classList.add('post-even');
-          }
-      });
-  });
-</script>
