@@ -1,0 +1,17 @@
+$fa6b: "Font Awesome 6 Brands";
+
+$categories: (
+  3: (color: red, content: "\f41c", font-family: $fa6b),
+  4: (color: blue, content: "\f41c", font-family: $fa6b),
+  29: (color: green, content: "\f41c", font-family: $fa6b),
+  // Add more categories as needed
+);
+
+@each $id, $properties in $categories {
+  [data-category-id="#{$id}"] .category-text-title::before {
+    font-family: map-get($properties, font-family) !important;
+    content: map-get($properties, content) !important;
+    color: map-get($properties, color);
+    padding-right: 8px;
+  }
+}
