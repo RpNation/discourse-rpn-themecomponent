@@ -15,6 +15,7 @@ $categories: (
     font-weight: map-get($properties, font-weight) !important;
     content: map-get($properties, content) !important;
     color: map-get($properties, color);
+    font-size: 26px;
     padding-right: 8px;
   }
 }
