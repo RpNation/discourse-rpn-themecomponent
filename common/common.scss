@@ -172,3 +172,9 @@ body.has-sidebar-page #main-outlet-wrapper {
 .topic-body {
   min-width: 115% !important;
 }
+
+@media screen and (min-width: 925px) {
+  .container.posts .topic-navigation {
+    z-index: 0 !important;
+  }
+}
