@@ -3,17 +3,15 @@
   "component": true,
   "license_url": null,
   "about_url": "https://www.rpnation.com",
+  "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966",
   "authors": "TheDarkWizard",
-  "theme_version": null,
+  "theme_version": "0.0.1",
   "minimum_discourse_version": null,
   "maximum_discourse_version": null,
   "assets": {
     "skulls": "assets/skulls.png",
     "linen": "assets/linen.png"
   },
-  "color_schemes": {
-  },
-  "modifiers": {
-  },
-  "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966"
+  "color_schemes": {},
+  "modifiers": {}
 }
