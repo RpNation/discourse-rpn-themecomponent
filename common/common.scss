@@ -1,4 +1,4 @@
-@import 'common/categoryicons';
+@import "common/categoryicons";
 
 $bga: rgba(28, 42, 53, 0.74);
 $bg: rgb(28, 42, 53);
@@ -39,43 +39,43 @@ span.relative-date {
   margin: 5px;
 }
 
-body .category-list [data-category-id='3'],
-body .category-list [data-category-id='4'],
-body .category-list [data-category-id='9'],
-body .category-list [data-category-id='12'],
-body .category-list [data-category-id='18'],
-body .category-list [data-category-id='26'] {
+body .category-list [data-category-id="3"],
+body .category-list [data-category-id="4"],
+body .category-list [data-category-id="9"],
+body .category-list [data-category-id="12"],
+body .category-list [data-category-id="18"],
+body .category-list [data-category-id="26"] {
   position: relative;
   margin-top: 50px;
 }
-body .category-list [data-category-id='3']::before {
-  content: 'The Secret Passage';
+body .category-list [data-category-id="3"]::before {
+  content: "The Secret Passage";
 }
-body .category-list [data-category-id='4']::before {
-  content: 'RpNation';
+body .category-list [data-category-id="4"]::before {
+  content: "RpNation";
 }
-body .category-list [data-category-id='9']::before {
-  content: 'Creativity';
-}
-
-body .category-list [data-category-id='12']::before {
-  content: 'Discussion';
+body .category-list [data-category-id="9"]::before {
+  content: "Creativity";
 }
 
-body .category-list [data-category-id='18']::before {
-  content: 'Recruitment';
+body .category-list [data-category-id="12"]::before {
+  content: "Discussion";
 }
 
-body .category-list [data-category-id='26']::before {
-  content: 'Roleplays';
+body .category-list [data-category-id="18"]::before {
+  content: "Recruitment";
 }
 
-body [data-category-id='3']::before,
-body [data-category-id='4']::before,
-body [data-category-id='9']::before,
-body [data-category-id='12']::before,
-body [data-category-id='18']::before,
-body [data-category-id='26']::before {
+body .category-list [data-category-id="26"]::before {
+  content: "Roleplays";
+}
+
+body [data-category-id="3"]::before,
+body [data-category-id="4"]::before,
+body [data-category-id="9"]::before,
+body [data-category-id="12"]::before,
+body [data-category-id="18"]::before,
+body [data-category-id="26"]::before {
   position: absolute;
   top: -35px;
   left: 0;

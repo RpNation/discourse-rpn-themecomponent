@@ -1,44 +1,44 @@
-$fa6p: 'Font Awesome 6 Pro';
-$fa6b: 'Font Awesome 6 Brands';
+$fa6p: "Font Awesome 6 Pro";
+$fa6b: "Font Awesome 6 Brands";
 
 $categories: (
   // Round table of Memes
   3:
     (
       color: red,
-      content: '\f000',
+      content: "\f000",
       font-family: $fa6p,
-      font-weight: 300
+      font-weight: 300,
     ),
   // The Cabinet
   5:
     (
       color: blue,
-      content: '\f21e',
+      content: "\f21e",
       font-family: $fa6p,
-      font-weight: 300
+      font-weight: 300,
     ),
   // News & Updates
   4:
     (
       color: blue,
-      content: '\f1ea',
+      content: "\f1ea",
       font-family: $fa6p,
-      font-weight: 300
+      font-weight: 300,
     ),
   //Community Hub
   6:
     (
       color: green,
-      content: '\e3dd',
+      content: "\e3dd",
       font-family: $fa6p,
-      font-weight: 300
+      font-weight: 300,
     ),
   // Add more categories as needed
 );
 
 @each $id, $properties in $categories {
-  [data-category-id='#{$id}'] .category-text-title::before {
+  [data-category-id="#{$id}"] .category-text-title::before {
     font-family: map-get($properties, font-family) !important;
     font-weight: map-get($properties, font-weight) !important;
     content: map-get($properties, content) !important;
