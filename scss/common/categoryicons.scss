@@ -3,13 +3,37 @@ $fa6b: "Font Awesome 6 Brands";
 
 $categories: (
   // Round table of Memes
-  3: (color: red, content: "\f000", font-family: $fa6p, font-weight: 300),
+  3:
+    (
+      color: red,
+      content: "\f000",
+      font-family: $fa6p,
+      font-weight: 300,
+    ),
   // The Cabinet
-  5: (color: blue, content: "\f21e", font-family: $fa6p, font-weight: 300),
+  5:
+    (
+      color: blue,
+      content: "\f21e",
+      font-family: $fa6p,
+      font-weight: 300,
+    ),
   // News & Updates
-  4: (color: blue, content: "\f1ea", font-family: $fa6p, font-weight: 300),
+  4:
+    (
+      color: blue,
+      content: "\f1ea",
+      font-family: $fa6p,
+      font-weight: 300,
+    ),
   //Community Hub
-  6: (color: green, content: "\e3dd", font-family: $fa6p, font-weight: 300),
+  6:
+    (
+      color: green,
+      content: "\e3dd",
+      font-family: $fa6p,
+      font-weight: 300,
+    ),
   // Add more categories as needed
 );
 

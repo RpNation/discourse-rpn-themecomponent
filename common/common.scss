@@ -130,6 +130,7 @@ body.has-sidebar-page #main-outlet-wrapper {
   overflow: clip;
   word-break: break-all;
   display: -webkit-box;
+  line-clamp: 6;
   -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
 }
