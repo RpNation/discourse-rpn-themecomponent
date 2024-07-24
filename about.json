@@ -10,7 +10,8 @@
   "maximum_discourse_version": null,
   "assets": {
     "skulls": "assets/skulls.png",
-    "linen": "assets/linen.png"
+    "linen": "assets/linen.png",
+    "categoryicons": "/assets/categoryicons.svg"
   },
   "color_schemes": {},
   "modifiers": {}
