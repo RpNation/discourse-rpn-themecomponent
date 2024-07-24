@@ -1,2 +1,8 @@
 node_modules
 .discourse-site
+/.idea/.gitignore
+/.idea/discourse-rpn-themecomponent.iml
+/.idea/git_toolbox_blame.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
