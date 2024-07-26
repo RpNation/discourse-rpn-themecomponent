@@ -1,0 +1,5 @@
+enable_sort_by_created_date_nav_bar_item:
+  default: true
+  type: bool
+  description:
+    en: Add a "Sort by Created Date" nav bar item.

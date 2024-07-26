@@ -1,0 +1,10 @@
+en:
+  theme_metadata:
+    description: "A theme that allows you to customize the look and feel of your Discourse forum."
+    settings:
+      enable_sort_by_created_date_nav_bar_item:
+        description: "Add a 'Sort by Created Date' nav bar item and sort dropdown."
+  filters:
+    created_date:
+      title: "Created"
+      help: "topics sorted by creation date"
