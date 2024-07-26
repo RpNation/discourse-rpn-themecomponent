@@ -1,9 +1,5 @@
 /* Mobile Width */
 
-#main-outlet {
-  width: 100% !important;
-}
-
 /* Mobile Category Color Line for Category */
 /*
 body .category-list-item.category tr:first-of-type {
@@ -116,4 +112,9 @@ span.relative-date {
   white-space: nowrap;
   margin: 3px;
   float: right;
+}
+
+// DiscoTOC doesn't properly respective mobile
+.container.posts {
+  grid-template-columns: auto;
 }
