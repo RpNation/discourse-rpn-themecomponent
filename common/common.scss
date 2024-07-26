@@ -17,7 +17,7 @@ $bg: rgb(28, 42, 53);
 
 // enforce max width through https://github.com/Canapin/Discourse-custom-width.git
 // make sure it applies to graceful theme
-#main-outlet {
+body.has-sidebar-page #main-outlet {
   max-width: var(--d-max-width) !important;
 }
 
@@ -136,44 +136,6 @@ body.has-sidebar-page #main-outlet-wrapper {
   display: none;
 }
 
-// Right Sidebar Changes
-
-.rs-component {
-  border-top: 6px solid #0088cc;
-}
-
-.tc-right-sidebar .badge-category__wrapper {
-  color: var(--primary-high);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--font-down-1);
-  white-space: nowrap;
-  position: relative;
-  display: inline-flex;
-  align-items: baseline;
-  margin-bottom: 2%;
-  border-bottom: 1px solid #0088cc;
-  width: 100%;
-  padding-bottom: 1%;
-}
-
-.tc-right-sidebar .category-topics--content {
-  padding: 0.5em 0;
-  margin: 0 5%;
-  font-size: 0.9em;
-}
-
-.timeline-container {
-  float: right;
-  margin-left: 150px;
-}
-
-.topic-body {
-  min-width: 115% !important;
-}
-
-@media screen and (min-width: 925px) {
-  .container.posts .topic-navigation {
-    z-index: 0 !important;
-  }
+.d-toc-mini button.btn {
+  background-color: var(--secondary) !important;
 }

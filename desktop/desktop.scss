@@ -23,3 +23,19 @@
     display: flex;
   }
 }
+
+// Post width
+// Overrides the width set by the discourse toc component to better fit the max width post component
+@media screen and (min-width: 925px) {
+  .container.posts {
+    grid-template-columns: 1fr min(200px, 20%);
+    .d-toc-main {
+      // allow the toc to bite into the right margin of the body
+      margin-right: -2.5em;
+    }
+  }
+}
+
+.topic-body {
+  width: calc(var(--topic-body-width) + var(--topic-body-width-padding) * 2);
+}
