@@ -1,6 +1,7 @@
 {
   "name": "RpNation's Official Theme Component",
-  "component": [
+  "component": true,
+  "components": [
     "https://github.com/discourse/discourse-category-icons",
     "https://github.com/discourse/discourse-category-banners",
     "https://github.com/Canapin/Discourse-custom-width",
