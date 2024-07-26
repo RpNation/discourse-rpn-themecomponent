@@ -5,3 +5,19 @@ To connect remotely to a site for active development, use the [Discourse Theme C
 ```sh
 discourse_theme
 ```
+
+## Dependencies
+
+Below are theme component dependencies that this relies on:
+
+https://github.com/discourse/discourse-category-icons
+
+https://github.com/discourse/discourse-category-banners
+
+https://github.com/Canapin/Discourse-custom-width
+
+https://github.com/discourse/discourse-clickable-topic
+
+https://github.com/discourse/DiscoTOC
+
+https://github.com/discourse/discourse-color-scheme-toggle
