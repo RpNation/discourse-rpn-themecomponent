@@ -1,6 +1,13 @@
 {
   "name": "RpNation's Official Theme Component",
-  "component": true,
+  "component": [
+    "https://github.com/discourse/discourse-category-icons",
+    "https://github.com/discourse/discourse-category-banners",
+    "https://github.com/Canapin/Discourse-custom-width",
+    "https://github.com/discourse/discourse-clickable-topic",
+    "https://github.com/discourse/DiscoTOC",
+    "https://github.com/discourse/discourse-color-scheme-toggle"
+  ],
   "license_url": null,
   "about_url": "https://www.rpnation.com",
   "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966",
