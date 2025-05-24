@@ -95,3 +95,7 @@ body.has-sidebar-page #main-outlet-wrapper {
 .d-toc-mini button.btn {
   background-color: var(--secondary) !important;
 }
+
+.post-menu-area {
+  z-index: 9999;
+}
