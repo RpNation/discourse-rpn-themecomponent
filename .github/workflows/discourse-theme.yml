@@ -3,9 +3,26 @@ name: Discourse Theme
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  ci:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  tests:
     uses: discourse/.github/.github/workflows/discourse-theme.yml@v1
+    with:
+      skip_linting: true

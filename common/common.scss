@@ -1,101 +1,173 @@
-@import "common/categoryparents";
+@import "common/integrations";
 
-$bga: rgba(28, 42, 53, 0.74);
-$bg: rgb(28, 42, 53);
+:root {
+  --rpn-page-background: #1b1c1d;
+  --rpn-header-background: #151616;
+  --rpn-sidebar-background: #242526;
+  --rpn-panel-background: #222323;
+  --rpn-row-background: #292a2b;
+  --rpn-row-background-alt: #262728;
+  --rpn-row-background-hover: #2e3031;
 
-/* Like Button */
-#fad-cookie .fa-primary {
-  color: #8c4932;
+  // Keep the component compatible with Foundation while presenting the
+  // dark RPNation palette from the original site.
+  --header_background: var(--rpn-header-background);
+  --header_primary: #b4b6b8;
+  --header_primary-low-mid: #8c8f92;
+  --header_primary-medium: #d3d5d6;
+  --secondary: var(--rpn-panel-background);
+  --secondary-rgb: 34, 35, 35;
+  --primary: #d0d2d3;
+  --primary-high: #a9acae;
+  --primary-medium: #898d90;
+  --primary-low-mid: #707477;
+  --primary-low: #3b3d3f;
+  --primary-very-low: #292b2c;
+  --primary-med-or-secondary-high: #939699;
+  --primary-low-mid-or-secondary-high: #85898c;
+  --tertiary: #00aeef;
+  --tertiary-hover: #39c1f4;
+  --content-border-color: #3a3c3e;
+  --d-content-background: var(--rpn-panel-background);
+  --d-hover: #303234;
+  --d-selected: #35383a;
+  --d-selected-text-color: #f1f2f2;
+
+  // Foundation design tokens used by the current sidebar.
+  --token-color-surface: var(--rpn-sidebar-background);
+  --token-color-surface-hovered: #303234;
+  --token-color-surface-selected: #35383a;
+  --token-color-surface-pressed: #3b3e40;
+  --token-color-text-default: #d0d2d3;
+  --token-color-text-subtle: #a3a6a8;
+  --token-color-icon-default: #c0c2c4;
+  --token-color-icon-subtle: #929699;
+  --token-color-border-default: #393b3d;
+  --token-color-background-accent-subtle: var(--tertiary);
+  --d-sidebar-background: var(--token-color-surface);
+  --d-sidebar-border-color: var(--token-color-border-default);
+  --d-topic-list-header-text-color: #777b7e;
+  --input-border-color: #55585a;
+  --d-button-primary-icon-color: #c5c7c9;
+  --d-button-primary-icon-color--hover: #f1f2f2;
 }
 
-#fad-cookie .fa-secondary {
-  color: #dca285;
+html,
+body {
+  background-color: var(--rpn-page-background);
 }
 
-// override graceful header transparencies
+body {
+  color: var(--primary-high);
+  background-image:
+    url($rpn-linen),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 0.012) 0,
+      rgb(255 255 255 / 0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.009) 0,
+      rgb(255 255 255 / 0.009) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  background-attachment: fixed;
+  background-size:
+    256px 256px,
+    auto,
+    auto;
+}
+
+a,
+a:visited {
+  color: var(--tertiary);
+}
+
 .d-header {
-  background-color: var(--header_background) !important;
+  background: var(--rpn-header-background);
+  border-top: 1px solid #343638;
+  box-shadow: none;
 }
 
-// enforce max width through https://github.com/Canapin/Discourse-custom-width.git
-// make sure it applies to graceful theme
-body.has-sidebar-page #main-outlet {
-  max-width: var(--d-max-width) !important;
+.d-header-icons .icon:hover,
+.header-sidebar-toggle button:hover {
+  background: #292b2d;
 }
 
-/* Background */
+.btn,
+.select-kit .select-kit-header {
+  border-radius: 4px;
+}
 
-.background-container {
-  @if is-dark-color-scheme() {
-    background-color: #27282a !important;
+.btn-default,
+.btn-icon-text,
+.select-kit .select-kit-header {
+  color: var(--primary-high);
+  background: transparent;
+  border-color: #606366;
+}
+
+.btn-default:hover,
+.btn-icon-text:hover {
+  color: var(--primary);
+  background: var(--d-hover);
+}
+
+.rpn-category-latest {
+  .rpn-featured-topic {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.2rem 0;
+
+    &__poster {
+      position: relative;
+      width: 2rem;
+      height: 2rem;
+
+      img.avatar {
+        display: block;
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .avatar-flair {
+        position: absolute;
+        right: -0.15rem;
+        bottom: -0.1rem;
+      }
+    }
+
+    &__content {
+      display: flex;
+      align-items: baseline;
+      min-width: 0;
+    }
+
+    .topic-statuses {
+      display: flex;
+      flex: 0 0 auto;
+      margin-right: 0.25rem;
+    }
+
+    .title {
+      overflow: hidden;
+      color: var(--tertiary);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .last-posted-at,
+    .last-posted-at:visited {
+      color: #73777a;
+      font-size: var(--font-down-1);
+      white-space: nowrap;
+    }
   }
-  @if is-light-color-scheme() {
-    background-color: unset;
-  }
-}
-
-span.relative-date {
-  white-space: nowrap;
-  margin: 5px;
-}
-
-.rs-component {
-  margin-bottom: 1.5em;
-  border: 1px solid var(--primary-low);
-  padding: 10px;
-  background-color: var(--primary-very-low);
-}
-
-/* Changing the size of Avatars on the Category List */
-
-body .category-list img.avatar {
-  max-width: 36px;
-  max-height: 36px;
-  margin: 0 10px 0 10px;
-}
-
-.category-list .featured-topic {
-  margin: 10px 10px 0 0;
-  display: flex;
-  align-items: baseline;
-}
-
-/* Patreon Button Sidebar */
-
-.patreonimg {
-  display: block;
-  max-height: 2.8rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-// enforce button flat style
-.btn-flat {
-  border: unset !important;
-}
-
-// reduce gap size
-body.has-sidebar-page #main-outlet-wrapper {
-  gap: 0 1em;
-}
-
-// limiting user signature to 5 lines
-.user-signature {
-  overflow: clip;
-  word-break: break-all;
-  display: -webkit-box;
-  line-clamp: 6;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-}
-.user-signature br:first-of-type {
-  display: none;
-}
-
-.d-toc-mini button.btn {
-  background-color: var(--secondary) !important;
-}
-
-.post-menu-area {
-  z-index: 1000;
 }

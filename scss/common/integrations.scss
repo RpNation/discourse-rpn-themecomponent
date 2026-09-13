@@ -1,0 +1,36 @@
+// Optional RpNation content/plugin hooks, independent of the parent theme.
+.rs-component {
+  margin-bottom: 1.5em;
+  padding: 10px;
+  background: var(--primary-very-low);
+  border: 1px solid var(--primary-low);
+}
+
+.patreonimg {
+  display: block;
+  max-height: 2.8rem;
+  margin-inline: auto;
+}
+
+.user-signature {
+  display: -webkit-box;
+  overflow: clip;
+  word-break: break-all;
+  line-clamp: 6;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+
+  br:first-of-type {
+    display: none;
+  }
+}
+
+#fad-cookie {
+  .fa-primary {
+    color: #8c4932;
+  }
+
+  .fa-secondary {
+    color: #dca285;
+  }
+}

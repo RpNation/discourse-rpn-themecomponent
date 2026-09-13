@@ -1,26 +1,13 @@
 {
-  "name": "RpNation's Official Theme Component",
+  "name": "RpNation — Foundation Component",
   "component": true,
-  "components": [
-    "https://github.com/discourse/discourse-category-icons",
-    "https://github.com/discourse/discourse-category-banners",
-    "https://github.com/Canapin/Discourse-custom-width",
-    "https://github.com/discourse/discourse-clickable-topic",
-    "https://github.com/discourse/DiscoTOC",
-    "https://github.com/discourse/discourse-color-scheme-toggle"
-  ],
   "license_url": null,
-  "about_url": "https://www.rpnation.com",
+  "about_url": "https://github.com/RpNation/discourse-rpn-themecomponent",
   "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966",
   "authors": "TheDarkWizard",
-  "theme_version": "0.0.1",
-  "minimum_discourse_version": null,
-  "maximum_discourse_version": null,
+  "theme_version": "1.0.0",
   "assets": {
-    "skulls": "assets/skulls.png",
-    "linen": "assets/linen.png",
-    "icons-sprite": "/assets/categoryicons.svg"
-  },
-  "color_schemes": {},
-  "modifiers": {}
+    "rpn-linen": "assets/linen.png",
+    "icons-sprite": "assets/categoryicons.svg"
+  }
 }
