@@ -1,41 +1,358 @@
-.category-list tbody tr {
-  margin-bottom: 15px;
-  border: 1px solid var(--primary-low);
+:root {
+  --d-sidebar-width: 17rem;
+  --d-max-width: #{$site_max_width}px;
+  --d-main-content-gap: 1rem;
+  --rpn-topic-content-width: #{$topic_content_width}px;
 }
 
-/* Category Groups */
-.category-list {
-  display: flex;
-  flex-direction: column;
-  thead tr {
-    display: flex;
+.d-header {
+  height: 4.5rem;
+
+  .title {
+    --d-logo-height: 2.55rem;
   }
-  .topics {
-    width: 60px;
-    white-space: nowrap;
-  }
-  tbody .latest {
-    max-width: 40%;
-  }
-  tbody tr {
-    background-color: var(--primary-very-low);
-    box-sizing: border-box;
-    display: flex;
+
+  > .wrap {
+    padding-inline: 0.75rem;
   }
 }
 
-// Post width
-// Overrides the width set by the discourse toc component to better fit the max width post component
-@media screen and (min-width: 925px) {
-  .container.posts {
-    grid-template-columns: 1fr min(200px, 20%);
-    .d-toc-main {
-      // allow the toc to bite into the right margin of the body
-      margin-right: -2.5em;
+body.has-sidebar-page {
+  #main-outlet-wrapper {
+    gap: 0 1rem;
+  }
+
+  .sidebar-wrapper {
+    top: calc(var(--main-outlet-offset) + 2rem);
+    height: calc(
+      var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset, 0px) - 4rem
+    );
+    margin-top: 2rem;
+    background: var(--rpn-sidebar-background);
+    border-radius: 0.6rem;
+
+    .sidebar-container {
+      border-right: 1px solid #343638;
+    }
+
+    .sidebar-sections {
+      padding-top: 1.25rem;
     }
   }
 }
 
-.topic-body {
-  width: calc(var(--topic-body-width) + var(--topic-body-width-padding) * 2);
+body.has-sidebar-page {
+  .welcome-banner {
+    display: none;
+  }
+
+  #main-outlet {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: calc(
+      var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset, 0px) - 2rem
+    );
+    margin-top: 2rem;
+    padding: 3rem 3.5rem 4rem;
+    background: var(--rpn-panel-background);
+    border: 1px solid #2b2d2e;
+    border-radius: 0.6rem 0.6rem 0 0;
+  }
+}
+
+// Keep full-page chat inside the centered forum shell, but make its pane use
+// the same vertical inset and height as the sidebar beside it.
+body.has-full-page-chat.has-sidebar-page {
+  #main-outlet-wrapper {
+    gap: 0 1rem;
+  }
+
+  #main-outlet {
+    height: calc(
+      var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset, 0px) - 4rem
+    );
+    min-height: 0;
+    margin-top: 2rem;
+    padding: 0;
+    overflow: hidden;
+    background: var(--d-content-background);
+    border: 1px solid #2b2d2e;
+    border-radius: 0.6rem;
+  }
+
+  #main-chat-outlet.chat-view .c-routes.--channel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    > .chat-channel {
+      flex: 1 1 auto;
+      height: auto;
+      min-height: 0;
+    }
+  }
+}
+
+body:is(.archetype-regular, .archetype-private_message) {
+  --topic-body-width: clamp(
+    640px,
+    calc(100vw - var(--d-sidebar-width) - 24rem),
+    var(--rpn-topic-content-width)
+  );
+
+  #topic-title {
+    margin-bottom: 1.5rem;
+  }
+
+  .topic-post .topic-body {
+    border-top-color: #414345;
+  }
+
+  .more-topics__container {
+    max-width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--content-border-color);
+  }
+}
+
+body:is(.navigation-topics, .navigation-category, .tags-page) {
+  .list-controls {
+    background: transparent;
+  }
+
+  .topic-list {
+    border-collapse: separate;
+    border-spacing: 0;
+
+    tbody tr {
+      background: var(--rpn-row-background);
+
+      &:nth-child(even) td {
+        background: var(--rpn-row-background-alt);
+      }
+
+      + tr td {
+        border-top: 1px solid #414345;
+      }
+    }
+
+    tbody tr:hover td {
+      background: var(--rpn-row-background-hover);
+    }
+
+    tbody td {
+      background: var(--rpn-row-background);
+      transition: background-color 120ms ease-in-out;
+    }
+  }
+}
+
+body.has-sidebar-page #reply-control:not(.fullscreen) {
+  left: calc(var(--d-sidebar-width) + var(--d-main-content-gap));
+  right: 0;
+  margin-inline: auto;
+
+  &:not(.hide-preview) {
+    width: calc(
+      100% - var(--d-sidebar-width) - (var(--d-main-content-gap) * 2)
+    );
+    max-width: var(--d-max-width);
+  }
+}
+
+body.navigation-categories {
+  .list-controls {
+    margin-bottom: 2.5rem;
+    background: transparent;
+  }
+
+  .navigation-container {
+    width: 100%;
+    padding: 0;
+  }
+
+  #navigation-bar.nav-pills > li > a {
+    padding: 0.75rem 0.85rem;
+    color: var(--primary-high);
+    background: transparent;
+    border-radius: 0;
+
+    &:hover {
+      color: var(--primary);
+      background: transparent;
+    }
+
+    &.active {
+      color: var(--tertiary);
+      border-bottom: 2px solid var(--tertiary);
+    }
+  }
+
+  .category-breadcrumb {
+    padding-right: 1rem;
+    margin-right: 0.25rem;
+    border-right: 1px solid #5a5d60;
+  }
+
+  .category-list.with-topics {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+    border: 0;
+
+    thead,
+    tbody {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    tbody {
+      gap: 0.85rem;
+    }
+
+    .category-list-header tr,
+    tbody tr {
+      display: flex;
+      width: 100%;
+    }
+
+    .category-list-header th,
+    tbody td {
+      box-sizing: border-box;
+    }
+
+    .category-list-header th {
+      padding-top: 0;
+      padding-bottom: 0.3rem;
+      color: #74787b;
+      font-weight: normal;
+      border-bottom: 2px solid #36383a;
+    }
+
+    .category-list-header .category,
+    tbody .category {
+      flex: 1 1 45%;
+      width: auto;
+    }
+
+    tbody tr {
+      box-sizing: border-box;
+      position: relative;
+      background: var(--rpn-row-background);
+
+      &:hover td {
+        background: var(--rpn-row-background-hover);
+      }
+    }
+
+    tbody td {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      background: var(--rpn-row-background);
+      border-top: 1px solid #353739;
+      border-bottom: 1px solid #353739;
+      transition: background-color 120ms ease-in-out;
+    }
+
+    tbody .category {
+      padding-left: 0.8rem;
+      border-left-width: 5px;
+      border-radius: 3px 0 0 3px;
+
+      h3 {
+        margin-bottom: 0.35rem;
+        font-size: var(--font-up-1);
+
+        a[href] {
+          color: var(--primary-high);
+          font-weight: normal;
+        }
+      }
+
+      .category-description {
+        color: #9b9ea0;
+        line-height: 1.45;
+      }
+
+      .subcategories {
+        margin-top: 0.7rem;
+      }
+    }
+
+    .topics {
+      flex: 0 0 3.75rem;
+      width: 3.75rem;
+      color: #777b7e;
+      text-align: center;
+    }
+
+    .latest {
+      flex: 0 0 43%;
+      width: 43%;
+      padding-right: 1rem;
+      border-radius: 0 3px 3px 0;
+    }
+
+    $category-sections: (
+      ($secret_passage_category_id, "The Secret Passage"),
+      ($rpnation_category_id, "RpNation"),
+      ($creativity_category_id, "Creativity"),
+      ($discussion_category_id, "Discussion"),
+      ($recruitment_category_id, "Recruitment"),
+      ($roleplays_category_id, "Roleplays")
+    );
+
+    @each $category-id, $heading in $category-sections {
+      @if "#{$category-id}" != "0" {
+        tbody tr[data-category-id="#{$category-id}"] {
+          margin-top: 2.5rem;
+
+          &::before {
+            position: absolute;
+            top: -2rem;
+            left: 0;
+            color: var(--primary-medium);
+            font-size: var(--font-down-1);
+            font-weight: bold;
+            text-transform: uppercase;
+            content: $heading;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (width <= 1050px) {
+  body.has-sidebar-page {
+    #main-outlet {
+      padding-inline: 1.75rem;
+    }
+  }
+
+  body.navigation-categories .category-list.with-topics {
+    tbody .category {
+      width: 43%;
+    }
+
+    .latest {
+      width: 45%;
+    }
+
+    .rpn-featured-topic {
+      grid-template-columns: 1.7rem minmax(0, 1fr);
+
+      &__poster,
+      &__poster img.avatar {
+        width: 1.7rem;
+        height: 1.7rem;
+      }
+
+      .last-posted-at {
+        display: none;
+      }
+    }
+  }
 }

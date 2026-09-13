@@ -1,17 +1,25 @@
 {
   "name": "discourse-rpn-themecomponent",
   "version": "1.0.0",
-  "description": "",
+  "description": "RPN Foundation Discourse theme component",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "pnpm lint:js && pnpm lint:css && pnpm lint:prettier",
+    "lint:js": "eslint javascripts test --no-error-on-unmatched-pattern --max-warnings 0",
+    "lint:css": "stylelint '{javascripts,desktop,mobile,common,scss,stylesheets}/**/*.scss' --allow-empty-input",
+    "lint:prettier": "prettier '{javascripts,desktop,mobile,common,scss,stylesheets}/**/*.scss' '{javascripts,test}/**/*.{js,gjs}' --check --no-error-on-unmatched-pattern"
   },
   "devDependencies": {
-    "@discourse/lint-configs": "1.3.9",
-    "ember-template-lint": "6.0.0",
-    "eslint": "8.57.0",
-    "prettier": "^3.3.2"
+    "@discourse/lint-configs": "3.2.0",
+    "eslint": "10.6.0",
+    "prettier": "3.8.1",
+    "stylelint": "17.5.0"
   },
+  "engines": {
+    "node": "^22.18.0 || >=24.11.0",
+    "pnpm": "^10"
+  },
+  "packageManager": "pnpm@10.28.0",
   "author": "",
   "license": "ISC"
 }
