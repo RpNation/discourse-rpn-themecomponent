@@ -1,0 +1,13 @@
+en:
+  theme_metadata:
+    settings:
+      category_sections:
+        description: "Add your own headings above category rows on desktop. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
+        schema:
+          properties:
+            heading:
+              label: Heading
+              description: "The section heading to display as plain text."
+            category_id:
+              label: Category ID
+              description: "The positive numeric ID of the category that starts this section. Find it in the category URL, for example 123 in /c/category-name/123. Use each ID once; the first matching entry wins."

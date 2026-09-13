@@ -5,7 +5,7 @@
   "about_url": "https://github.com/RpNation/discourse-rpn-themecomponent",
   "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966",
   "authors": "TheDarkWizard",
-  "theme_version": "1.0.0",
+  "theme_version": "1.1.0",
   "assets": {
     "rpn-linen": "assets/linen.png",
     "icons-sprite": "assets/categoryicons.svg"

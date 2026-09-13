@@ -10,7 +10,7 @@ standalone theme and no longer requires Graceful.
 - Dark linen background, inset sidebar, and centered content panel.
 - Adjustable site and topic/post widths.
 - Category rows with latest-poster avatars, topic status, unread badges, and dates.
-- Configurable category-section headings using the existing RpNation labels.
+- Custom category-section headings for any category ID, with no preset names or IDs.
 - Subtle topic-list shading and post dividers, without boxed posts.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
@@ -30,7 +30,7 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    separate two-column categories/latest layout is not this layout.
 4. To use Categories as the homepage, put `categories` first in the site's
    `top_menu` setting.
-5. Check the component settings below before using it on a different database.
+5. Optionally add your own category sections in the component settings below.
 
 Use a current Discourse release with Foundation and the
 `category-list-latest-wrapper` outlet. This component is developed against
@@ -41,22 +41,39 @@ native layout with the shared RpNation colors.
 
 ## Component settings
 
-| Setting                      | Default | Purpose                                                                                        |
-| ---------------------------- | ------- | ---------------------------------------------------------------------------------------------- |
-| `site_max_width`             | `1280`  | Main site content maximum in pixels; Discourse adds the sidebar alongside it. Range: 960–1920. |
-| `topic_content_width`        | `900`   | Topic/post content maximum in pixels, subject to available viewport space. Range: 640–1200.    |
-| `secret_passage_category_id` | `3`     | Category above which to display The Secret Passage.                                            |
-| `rpnation_category_id`       | `4`     | Category above which to display RpNation.                                                      |
-| `creativity_category_id`     | `10`    | Category above which to display Creativity.                                                    |
-| `discussion_category_id`     | `12`    | Category above which to display Discussion.                                                    |
-| `recruitment_category_id`    | `18`    | Category above which to display Recruitment.                                                   |
-| `roleplays_category_id`      | `26`    | Category above which to display Roleplays.                                                     |
+| Setting               | Default | Purpose                                                                                        |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| `site_max_width`      | `1280`  | Main site content maximum in pixels; Discourse adds the sidebar alongside it. Range: 960–1920. |
+| `topic_content_width` | `900`   | Topic/post content maximum in pixels, subject to available viewport space. Range: 640–1200.    |
+| `category_sections`   | Empty   | A list of your own section headings and the category IDs they appear above.                    |
 
-Section IDs default to the old RpNation mappings. Set any heading's ID to `0` to
-disable it. Match each ID to the first category in that section and avoid assigning
-two headings to the same ID. These headings are desktop visual labels: they do not
-create categories, reorder them, or change their permissions. Category ordering
-and access remain site administration settings.
+### Adding category sections
+
+In **Admin → Appearance → Themes & components**, open this component and edit
+**Category sections**. Add an entry with:
+
+- **Heading**: the text to display, for example `Resources`.
+- **Category ID**: the positive numeric ID of the category that starts the
+  section. For example, `/c/category-name/123` has ID `123`.
+
+Add as many entries as you need. The list starts empty and contains no
+RpNation-specific headings or category IDs. Remove an entry to remove its
+heading, or clear the list to hide all section headings. IDs are entered directly
+so Uncategorized and other categories excluded from Discourse's category picker
+can also be used.
+
+Headings appear above matching visible category rows in desktop table-based
+category layouts, including Categories only and the featured-topic layout. They
+are not added to mobile or category boxes. Nested category badges do not become
+separate rows; a subcategory heading appears only in a view where that category
+has its own row. Missing or inaccessible categories do not produce a heading.
+
+The first valid entry for a repeated category ID wins. Entries do not reorder
+categories, create them, or change their permissions. Category ordering and access
+remain site administration settings. Headings are plain text, not HTML.
+
+Version 1.1 removes the six old, site-specific ID settings and their defaults.
+They are intentionally not migrated; add any sections you want in the new list.
 
 ## Upgrading from the Graceful-era component
 
@@ -69,7 +86,8 @@ Git history.
 - The legacy Handlebars overrides for featured topics and mobile category topics
   are replaced by a modern `.gjs` outlet initializer. The old custom mobile
   layout and Graceful/DiscoTOC layout workarounds are removed.
-- Category headings move from hardcoded SCSS IDs into component settings.
+- Category headings move from hardcoded SCSS IDs into the optional, initially
+  empty **Category sections** setting.
 - Custom site/topic width settings replace the need for Discourse-custom-width.
 - This component no longer declares dependencies on category-icons,
   category-banners, Discourse-custom-width, clickable-topic, DiscoTOC, or

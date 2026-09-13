@@ -14,44 +14,22 @@ topic_content_width:
   refresh: true
   description: "Maximum width of topic and post content in pixels."
 
-secret_passage_category_id:
-  type: integer
-  default: 3
-  min: 0
+category_sections:
+  type: objects
+  default: []
   refresh: true
-  description: "Show The Secret Passage heading above this category ID. Set to 0 to disable."
-
-rpnation_category_id:
-  type: integer
-  default: 4
-  min: 0
-  refresh: true
-  description: "Show RpNation heading above this category ID. Set to 0 to disable."
-
-creativity_category_id:
-  type: integer
-  default: 10
-  min: 0
-  refresh: true
-  description: "Show Creativity heading above this category ID. Set to 0 to disable."
-
-discussion_category_id:
-  type: integer
-  default: 12
-  min: 0
-  refresh: true
-  description: "Show Discussion heading above this category ID. Set to 0 to disable."
-
-recruitment_category_id:
-  type: integer
-  default: 18
-  min: 0
-  refresh: true
-  description: "Show Recruitment heading above this category ID. Set to 0 to disable."
-
-roleplays_category_id:
-  type: integer
-  default: 26
-  min: 0
-  refresh: true
-  description: "Show Roleplays heading above this category ID. Set to 0 to disable."
+  schema:
+    name: category section
+    identifier: heading
+    properties:
+      heading:
+        type: string
+        required: true
+        validations:
+          min_length: 1
+          max_length: 120
+      category_id:
+        type: integer
+        required: true
+        validations:
+          min: 1
