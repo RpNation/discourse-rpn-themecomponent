@@ -171,3 +171,51 @@ a:visited {
     }
   }
 }
+
+.rpn-category-section--mobile {
+  padding: 1rem 0 0.5rem;
+
+  .rpn-category-section__heading {
+    margin: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: bold;
+    overflow-wrap: anywhere;
+    text-transform: uppercase;
+  }
+}
+
+.rpn-mobile-category-avatar-anchor {
+  display: none;
+}
+
+.category-topic-link td.main-link:has(> .rpn-mobile-category-topic__poster) {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+
+  > .topic-inset {
+    flex: 1;
+    min-width: 0;
+  }
+
+  > .rpn-mobile-category-topic__poster {
+    order: -1;
+    position: relative;
+    flex: 0 0 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+
+    img.avatar {
+      display: block;
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    .avatar-flair {
+      position: absolute;
+      right: -0.15rem;
+      bottom: -0.1rem;
+    }
+  }
+}

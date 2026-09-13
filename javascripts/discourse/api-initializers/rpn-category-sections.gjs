@@ -21,7 +21,7 @@ class RpnCategorySection extends Component {
   @service siteSettings;
 
   get heading() {
-    if (this.site.mobileView || !Array.isArray(settings.category_sections)) {
+    if (!Array.isArray(settings.category_sections)) {
       return null;
     }
 
@@ -68,14 +68,23 @@ class RpnCategorySection extends Component {
 
   <template>
     {{#if this.heading}}
-      <tr
-        class="rpn-category-section"
-        data-rpn-section-category-id={{@outletArgs.category.id}}
-      >
-        <td colspan={{this.columnCount}}>
+      {{#if this.site.mobileView}}
+        <div
+          class="rpn-category-section rpn-category-section--mobile"
+          data-rpn-section-category-id={{@outletArgs.category.id}}
+        >
           <h2 class="rpn-category-section__heading">{{this.heading}}</h2>
-        </td>
-      </tr>
+        </div>
+      {{else}}
+        <tr
+          class="rpn-category-section"
+          data-rpn-section-category-id={{@outletArgs.category.id}}
+        >
+          <td colspan={{this.columnCount}}>
+            <h2 class="rpn-category-section__heading">{{this.heading}}</h2>
+          </td>
+        </tr>
+      {{/if}}
     {{/if}}
   </template>
 }
