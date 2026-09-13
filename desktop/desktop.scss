@@ -160,6 +160,27 @@ body.has-sidebar-page #reply-control:not(.fullscreen) {
   }
 }
 
+.category-list tr.rpn-category-section {
+  background: transparent;
+
+  > td {
+    flex: 1;
+    padding: 1rem 0 0.25rem;
+    background: transparent;
+    border: 0;
+    text-align: start;
+  }
+
+  .rpn-category-section__heading {
+    margin: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: bold;
+    overflow-wrap: anywhere;
+    text-transform: uppercase;
+  }
+}
+
 body.navigation-categories {
   .list-controls {
     margin-bottom: 2.5rem;
@@ -237,17 +258,17 @@ body.navigation-categories {
       width: auto;
     }
 
-    tbody tr {
+    tbody tr[data-category-id] {
       box-sizing: border-box;
       position: relative;
       background: var(--rpn-row-background);
 
-      &:hover td {
+      &:hover > td {
         background: var(--rpn-row-background-hover);
       }
     }
 
-    tbody td {
+    tbody tr[data-category-id] > td {
       padding-top: 1rem;
       padding-bottom: 1rem;
       background: var(--rpn-row-background);
@@ -293,34 +314,6 @@ body.navigation-categories {
       width: 43%;
       padding-right: 1rem;
       border-radius: 0 3px 3px 0;
-    }
-
-    $category-sections: (
-      ($secret_passage_category_id, "The Secret Passage"),
-      ($rpnation_category_id, "RpNation"),
-      ($creativity_category_id, "Creativity"),
-      ($discussion_category_id, "Discussion"),
-      ($recruitment_category_id, "Recruitment"),
-      ($roleplays_category_id, "Roleplays")
-    );
-
-    @each $category-id, $heading in $category-sections {
-      @if "#{$category-id}" != "0" {
-        tbody tr[data-category-id="#{$category-id}"] {
-          margin-top: 2.5rem;
-
-          &::before {
-            position: absolute;
-            top: -2rem;
-            left: 0;
-            color: var(--primary-medium);
-            font-size: var(--font-down-1);
-            font-weight: bold;
-            text-transform: uppercase;
-            content: $heading;
-          }
-        }
-      }
     }
   }
 }
