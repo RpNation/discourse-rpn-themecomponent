@@ -180,6 +180,183 @@ acceptance("RPN Foundation | Category layout | mobile", function (needs) {
   });
 });
 
+for (const style of [
+  "categories_with_featured_topics",
+  "subcategories_with_featured_topics",
+]) {
+  acceptance(
+    `RPN Foundation | Mobile category avatars | ${style}`,
+    function (needs) {
+      needs.mobileView();
+      needs.settings({ mobile_category_page_style: style });
+      stubCategories(needs);
+
+      const mobileCategory = 'div.category-list [data-category-id="1"]';
+
+      test("shows the last poster without replacing native mobile topic links and counts", async function (assert) {
+        await visit("/categories");
+
+        const row = findAll(`${mobileCategory} tr.category-topic-link`)[0];
+        assert
+          .dom(".rpn-mobile-category-topic__poster a", row)
+          .hasAttribute("href", "/u/latest_replier")
+          .hasAttribute("data-user-card", "latest_replier");
+        assert
+          .dom("img.avatar", row)
+          .hasAttribute("src", /\/images\/rpn-latest-replier\.png$/);
+        assert.dom('[data-user-card="original_author"]', row).doesNotExist();
+        assert
+          .dom('a[data-topic-id="11994"]', row)
+          .hasText("A featured topic")
+          .hasAttribute("href", "/t/rpn-featured-topic/11994/4");
+        assert
+          .dom(".relative-date", row)
+          .hasAttribute("data-time", String(new Date(lastPostedAt).getTime()));
+        assert.dom("td.main-link", row).exists({ count: 1 });
+        assert.dom("td.posts", row).exists({ count: 1 });
+        assert.dom("td.latest").doesNotExist();
+      });
+
+      test("keeps the mobile topic usable when its last poster is unavailable", async function (assert) {
+        await visit("/categories");
+
+        const row = findAll(`${mobileCategory} tr.category-topic-link`)[1];
+        assert.dom(".rpn-mobile-category-topic__poster", row).exists();
+        assert.dom("img.avatar", row).doesNotExist();
+        assert
+          .dom('a[data-topic-id="11888"]', row)
+          .hasAttribute("href", "/t/rpn-missing-poster/11888/2");
+        assert.dom("td.posts", row).exists();
+      });
+
+      test("cleans up avatars when leaving and recreates them once on return", async function (assert) {
+        const avatar = `${mobileCategory} [data-user-card="latest_replier"]`;
+
+        await visit("/categories");
+        assert.dom(avatar).exists({ count: 1 });
+
+        await visit("/latest");
+        assert.dom(".rpn-mobile-category-avatar-anchor").doesNotExist();
+        assert.dom(".rpn-mobile-category-topic__poster").doesNotExist();
+
+        await visit("/categories");
+        assert.dom(avatar).exists({ count: 1 });
+
+        for (const row of findAll(`${mobileCategory} tr.category-topic-link`)) {
+          assert
+            .dom(".rpn-mobile-category-topic__poster", row)
+            .exists({ count: 1 });
+        }
+      });
+    }
+  );
+}
+
+acceptance(
+  "RPN Foundation | Mobile category avatars | profile privacy",
+  function (needs) {
+    needs.mobileView();
+    needs.settings({
+      mobile_category_page_style: "categories_with_featured_topics",
+      hide_user_profiles_from_public: true,
+    });
+    stubCategories(needs);
+
+    test("keeps avatars without public profile links for anonymous visitors", async function (assert) {
+      await visit("/categories");
+
+      const poster =
+        'div.category-list [data-category-id="1"] .rpn-mobile-category-topic__poster';
+      assert
+        .dom(`${poster} img[src$="rpn-latest-replier.png"]`)
+        .exists({ count: 1 });
+      assert
+        .dom(`${poster} a[data-user-card="latest_replier"]`)
+        .hasClass("non-clickable")
+        .doesNotHaveAttribute("href");
+      assert
+        .dom(
+          'div.category-list [data-category-id="1"] a[data-topic-id="11994"]'
+        )
+        .hasAttribute("href", "/t/rpn-featured-topic/11994/4");
+    });
+  }
+);
+
+for (const mutedParent of [true, false]) {
+  acceptance(
+    `RPN Foundation | Mobile category avatars | muted ${mutedParent ? "parent" : "child"}`,
+    function (needs) {
+      needs.mobileView();
+      needs.settings({
+        mobile_category_page_style: "categories_with_featured_topics",
+      });
+      needs.pretender((server, helper) => {
+        server.get("/categories.json", () => {
+          const response = cloneJSON(discoveryFixtures["/categories.json"]);
+          const parent = response.category_list.categories.find(
+            (category) => category.id === 2
+          );
+          const child = cloneJSON(parent.subcategory_list[0]);
+          parent.notification_level = mutedParent ? 0 : 1;
+          child.notification_level = mutedParent ? 1 : 0;
+          parent.subcategory_list = [child];
+          parent.topics[0].last_poster = {
+            id: 9102,
+            username: "latest_replier",
+            avatar_template: "/images/rpn-latest-replier.png",
+          };
+          response.category_list.categories.push(child);
+          return helper.response(response);
+        });
+      });
+
+      test("follows native topic visibility while toggling the muted list", async function (assert) {
+        await visit("/categories");
+
+        const normalCategory =
+          'div.category-list-item[data-category-id="2"]:not(.muted-categories *)';
+        const mutedCategory =
+          '.muted-categories div.category-list .category-list-item[data-category-id="2"]';
+        const avatar = '[data-user-card="latest_replier"]';
+
+        assert.dom(normalCategory).exists();
+        assert.dom(".muted-categories div.category-list").hasClass("hidden");
+        if (mutedParent) {
+          assert.dom(`${normalCategory} tr.category-topic-link`).doesNotExist();
+          assert.dom(`${normalCategory} ${avatar}`).doesNotExist();
+        } else {
+          assert.dom(`${normalCategory} tr.category-topic-link`).exists();
+          assert.dom(`${normalCategory} ${avatar}`).exists({ count: 1 });
+        }
+
+        await click(".muted-categories-link");
+
+        assert
+          .dom(".muted-categories div.category-list")
+          .doesNotHaveClass("hidden");
+        if (mutedParent) {
+          assert.dom(`${mutedCategory} tr.category-topic-link`).exists();
+          assert.dom(`${mutedCategory} ${avatar}`).exists({ count: 1 });
+        } else {
+          assert.dom(`${mutedCategory} tr.category-topic-link`).doesNotExist();
+          assert.dom(`${mutedCategory} ${avatar}`).doesNotExist();
+        }
+
+        await click(".muted-categories-link");
+        assert.dom(".muted-categories div.category-list").hasClass("hidden");
+
+        await click(".muted-categories-link");
+        if (mutedParent) {
+          assert.dom(`${mutedCategory} ${avatar}`).exists({ count: 1 });
+        } else {
+          assert.dom(`${normalCategory} ${avatar}`).exists({ count: 1 });
+        }
+      });
+    }
+  );
+}
+
 for (const mutedParent of [true, false]) {
   acceptance(
     `RPN Foundation | Category muting | ${mutedParent ? "parent" : "child"}`,

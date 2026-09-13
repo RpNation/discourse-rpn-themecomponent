@@ -2,7 +2,7 @@ en:
   theme_metadata:
     settings:
       category_sections:
-        description: "Add your own headings above category rows on desktop. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
+        description: "Add your own headings above category rows on desktop and mobile. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
         schema:
           properties:
             heading:

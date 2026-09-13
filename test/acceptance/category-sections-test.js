@@ -8,11 +8,16 @@ import topFixtures from "discourse/tests/fixtures/top-fixtures";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
 const sectionSelector = "tr.rpn-category-section";
+const mobileSectionSelector = "div.rpn-category-section--mobile";
 const categoryRows =
   'tbody[aria-labelledby="categories-only-category"] > tr[data-category-id]';
 
 function sectionRow(categoryId) {
   return `${sectionSelector}[data-rpn-section-category-id="${categoryId}"]`;
+}
+
+function mobileSection(categoryId) {
+  return `${mobileSectionSelector}[data-rpn-section-category-id="${categoryId}"]`;
 }
 
 function configureSections(needs, sections = []) {
@@ -208,22 +213,150 @@ for (const style of ["categories_boxes", "categories_boxes_with_topics"]) {
   });
 }
 
-acceptance("RPN Foundation | Category sections | mobile", function (needs) {
-  needs.mobileView();
-  needs.settings({
-    mobile_category_page_style: "subcategories_with_featured_topics",
-  });
-  configureSections(needs, [{ heading: "Community", category_id: 1 }]);
+for (const style of [
+  "categories_only",
+  "categories_with_featured_topics",
+  "subcategories_with_featured_topics",
+]) {
+  acceptance(
+    `RPN Foundation | Category sections | mobile ${style}`,
+    function (needs) {
+      needs.mobileView();
+      needs.settings({ mobile_category_page_style: style });
+      configureSections(needs, [{ heading: "Community", category_id: 1 }]);
 
-  test("does not inject desktop heading rows or cells on mobile", async function (assert) {
-    await visit("/categories");
+      test("renders its configured heading before the native mobile category", async function (assert) {
+        await visit("/categories");
 
-    assert.dom('div.category-list.with-topics [data-category-id="1"]').exists();
-    assert.dom(sectionSelector).doesNotExist();
-    assert.dom(".rpn-category-section__heading").doesNotExist();
-    assert.dom(".rpn-category-section > td").doesNotExist();
-  });
-});
+        assert.dom(mobileSection(1)).exists({ count: 1 }).isVisible();
+        assert
+          .dom(`${mobileSection(1)} > h2.rpn-category-section__heading`)
+          .hasText("Community");
+        assert.strictEqual(
+          find(mobileSection(1)).nextElementSibling.dataset.categoryId,
+          "1",
+          "the heading immediately precedes its native category row"
+        );
+        assert.true(
+          !!find(mobileSection(1)).closest("div.category-list"),
+          "the mobile heading is a block inside the native category list"
+        );
+        assert.dom(sectionSelector).doesNotExist();
+        assert.dom(".rpn-category-section > td").doesNotExist();
+      });
+    }
+  );
+}
+
+acceptance(
+  "RPN Foundation | Category sections | mobile settings",
+  function (needs) {
+    needs.mobileView();
+    needs.settings({
+      mobile_category_page_style: "categories_with_featured_topics",
+    });
+    configureSections(needs);
+
+    test("does not add mobile sections until categories are configured", async function (assert) {
+      await visit("/categories");
+
+      assert.dom(mobileSectionSelector).doesNotExist();
+      assert.dom('div.category-list [data-category-id="1"]').exists();
+    });
+
+    test("uses the first valid matching entry and ignores missing or invalid categories", async function (assert) {
+      settings.category_sections = [
+        null,
+        {},
+        { heading: "Invalid ID", category_id: "1x" },
+        { heading: "Missing category", category_id: 999999 },
+        { heading: "   ", category_id: 1 },
+        { heading: 42, category_id: 1 },
+        { heading: "  Community & support  ", category_id: "1" },
+        { heading: "Duplicate heading", category_id: 1 },
+      ];
+
+      await visit("/categories");
+
+      assert.dom(mobileSectionSelector).exists({ count: 1 });
+      assert
+        .dom(`${mobileSection(1)} .rpn-category-section__heading`)
+        .hasText("Community & support");
+      assert.dom(mobileSection(999999)).doesNotExist();
+    });
+
+    test("escapes mobile heading text instead of interpreting it as HTML", async function (assert) {
+      const heading = '<img src=x onerror="alert(1)"> <b>Welcome</b> & news';
+      settings.category_sections = [{ heading, category_id: 1 }];
+
+      await visit("/categories");
+
+      assert
+        .dom(`${mobileSection(1)} .rpn-category-section__heading`)
+        .hasText(heading);
+      assert.dom(`${mobileSection(1)} img`).doesNotExist();
+      assert.dom(`${mobileSection(1)} b`).doesNotExist();
+    });
+
+    test("does not leave orphan headings or duplicate them after navigation", async function (assert) {
+      settings.category_sections = [{ heading: "Community", category_id: 1 }];
+
+      await visit("/categories");
+      assert.dom(mobileSection(1)).exists({ count: 1 });
+
+      await visit("/latest");
+      assert.dom(mobileSectionSelector).doesNotExist();
+
+      await visit("/categories");
+      assert.dom(mobileSection(1)).exists({ count: 1 }).isVisible();
+      assert.strictEqual(
+        find(mobileSection(1)).nextElementSibling.dataset.categoryId,
+        "1"
+      );
+    });
+  }
+);
+
+acceptance(
+  "RPN Foundation | Category sections | mobile muted category",
+  function (needs) {
+    needs.mobileView();
+    needs.settings({
+      mobile_category_page_style: "categories_with_featured_topics",
+    });
+    configureSections(needs, [{ heading: "Muted projects", category_id: 1 }]);
+    needs.pretender((server, helper) => {
+      server.get("/categories.json", () => {
+        const response = cloneJSON(discoveryFixtures["/categories.json"]);
+        response.category_list.categories[0].notification_level = 0;
+        return helper.response(response);
+      });
+    });
+
+    test("keeps the heading paired with its hidden or expanded muted category", async function (assert) {
+      const mutedHeading = `.muted-categories ${mobileSection(1)}`;
+      await visit("/categories");
+
+      assert.dom(mobileSection(1)).exists({ count: 1 });
+      assert.dom(mutedHeading).isNotVisible();
+
+      await click(".muted-categories-link");
+
+      assert.dom(mutedHeading).isVisible().hasText("Muted projects");
+      assert.strictEqual(
+        find(mutedHeading).nextElementSibling.dataset.categoryId,
+        "1",
+        "the heading stays immediately before the muted category"
+      );
+
+      await click(".muted-categories-link");
+      assert.dom(mutedHeading).isNotVisible();
+
+      await click(".muted-categories-link");
+      assert.dom(mutedHeading).exists({ count: 1 }).isVisible();
+    });
+  }
+);
 
 for (const [subcategoryStyle, globalStyle, topicColspan, listColspan] of [
   ["rows", "categories_with_featured_topics", "2", "3"],

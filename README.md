@@ -9,7 +9,8 @@ standalone theme and no longer requires Graceful.
 
 - Dark linen background, inset sidebar, and centered content panel.
 - Adjustable site and topic/post widths.
-- Category rows with latest-poster avatars, topic status, unread badges, and dates.
+- Desktop and mobile category featured topics with latest-poster avatars, topic
+  status, unread badges, and dates.
 - Custom category-section headings for any category ID, with no preset names or IDs.
 - Subtle topic-list shading and post dividers, without boxed posts.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
@@ -28,6 +29,9 @@ that hidden and expanded muted-category lists preserve their normal behavior.
 3. Set `desktop_category_page_style` to `categories_with_featured_topics` to show
    the category table with latest topics and their last-poster avatars. The
    separate two-column categories/latest layout is not this layout.
+   For mobile featured-topic avatars, set `mobile_category_page_style` to
+   `categories_with_featured_topics` or `subcategories_with_featured_topics`.
+   Category-only layouts have no featured topics to display avatars beside.
 4. To use Categories as the homepage, put `categories` first in the site's
    `top_menu` setting.
 5. Optionally add your own category sections in the component settings below.
@@ -62,11 +66,12 @@ heading, or clear the list to hide all section headings. IDs are entered directl
 so Uncategorized and other categories excluded from Discourse's category picker
 can also be used.
 
-Headings appear above matching visible category rows in desktop table-based
-category layouts, including Categories only and the featured-topic layout. They
-are not added to mobile or category boxes. Nested category badges do not become
-separate rows; a subcategory heading appears only in a view where that category
-has its own row. Missing or inaccessible categories do not produce a heading.
+Headings appear above matching visible category rows on desktop and mobile,
+including Categories only and the featured-topic layouts. Both use the same
+settings; no separate mobile configuration is needed. They are not added to
+category boxes. Nested category badges and parent-group labels do not become
+separate rows; a heading appears only in a view where that category has its own
+row. Missing or inaccessible categories do not produce a heading.
 
 The first valid entry for a repeated category ID wins. Entries do not reorder
 categories, create them, or change their permissions. Category ordering and access
@@ -114,8 +119,11 @@ watch a local checkout on a disposable development site:
 discourse_theme watch .
 ```
 
-JavaScript uses Discourse's theme API and the category latest wrapper outlet,
-not a replacement core template. Keep changes in `common/`, `desktop/`,
+JavaScript uses Discourse's theme API and category outlets, not replacement core
+templates. Mobile avatars are mounted alongside native featured-topic rows, so
+Discourse still renders their links, badges, dates, and reply counts. Regular
+topic-list and post avatars remain native Discourse behavior.
+Keep changes in `common/`, `desktop/`,
 `scss/`, and `javascripts/discourse/`; theme QUnit tests live in `test/`.
 
 For linting, use a Node version supported by `package.json` and the pinned pnpm
