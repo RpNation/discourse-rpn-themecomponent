@@ -1,3 +1,4 @@
+@use "lib/viewport";
 @import "common/integrations";
 
 :root {
@@ -239,6 +240,28 @@ a:visited {
       position: absolute;
       right: -0.15rem;
       bottom: -0.1rem;
+    }
+  }
+}
+
+@include viewport.until(sm) {
+  body:is(.archetype-regular, .archetype-private_message) {
+    .topic-post > article.boxed {
+      box-sizing: border-box;
+      padding-inline: 1rem;
+
+      // Core places unread dots outside the post; use its new inner gutter.
+      .read-state {
+        right: auto;
+        left: auto;
+        inset-inline-end: 0.25rem;
+        max-width: none;
+
+        .d-icon {
+          right: auto;
+          left: auto;
+        }
+      }
     }
   }
 }
