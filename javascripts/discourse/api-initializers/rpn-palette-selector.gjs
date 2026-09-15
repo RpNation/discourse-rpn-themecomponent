@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { registerDestructor } from "@ember/destroyable";
-import { on } from "@ember/modifier";
+import { hash } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DMenu from "discourse/float-kit/components/d-menu";
@@ -13,9 +13,13 @@ import {
 } from "discourse/lib/color-scheme-picker";
 import cookie from "discourse/lib/cookie";
 import { currentThemeId, listThemes } from "discourse/lib/theme-selector";
-import { eq } from "discourse/truth-helpers";
+import ComboBox from "discourse/select-kit/components/combo-box";
+import { selectKitOptions } from "discourse/select-kit/components/select-kit";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+
+@selectKitOptions({ headerAriaLabel: null })
+class PaletteComboBox extends ComboBox {}
 
 class RpnPaletteSelector extends Component {
   @service site;
@@ -26,6 +30,8 @@ class RpnPaletteSelector extends Component {
   @tracked failed = false;
   @tracked selectedBaseIsDark;
   @tracked selectedDarkAvailable;
+  @tracked selectedLightId;
+  @tracked selectedDarkId;
 
   constructor() {
     super(...arguments);
@@ -61,15 +67,22 @@ class RpnPaletteSelector extends Component {
   }
 
   get lightId() {
-    return this.selectedId(false);
+    return this.selectedLightId ?? this.selectedId(false);
   }
 
   get darkId() {
-    return this.selectedId(true);
+    return this.selectedDarkId ?? this.selectedId(true);
   }
 
   get mode() {
     return this.interfaceColor.colorMode || "auto";
+  }
+
+  get modes() {
+    return ["auto", "light", "dark"].map((id) => ({
+      id,
+      name: i18n(`sidebar.footer.interface_color_selector.${id}`),
+    }));
   }
 
   get modeAvailable() {
@@ -102,10 +115,10 @@ class RpnPaletteSelector extends Component {
   }
 
   @action
-  changeMode(event) {
-    if (event.target.value === "dark") {
+  changeMode(value) {
+    if (value === "dark") {
       this.interfaceColor.forceDarkMode();
-    } else if (event.target.value === "light") {
+    } else if (value === "light") {
       this.interfaceColor.forceLightMode();
     } else {
       this.interfaceColor.useAutoMode();
@@ -113,18 +126,17 @@ class RpnPaletteSelector extends Component {
   }
 
   @action
-  changeLight(event) {
-    return this.changePalette(event, false);
+  changeLight(value) {
+    return this.changePalette(value, false);
   }
 
   @action
-  changeDark(event) {
-    return this.changePalette(event, true);
+  changeDark(value) {
+    return this.changePalette(value, true);
   }
 
-  async changePalette(event, dark) {
-    const id = Number(event.target.value);
-    const previous = dark ? this.darkId : this.lightId;
+  async changePalette(value, dark) {
+    const id = Number(value);
     const palettes = dark ? this.darkPalettes : this.lightPalettes;
     if (this.saving || !palettes.some((palette) => palette.id === id)) {
       return;
@@ -160,13 +172,14 @@ class RpnPaletteSelector extends Component {
         dark || this.isDarkBasePalette(resolvedId)
       );
       if (dark) {
+        this.selectedDarkId = id;
         this.selectedDarkAvailable = true;
       } else {
+        this.selectedLightId = id;
         this.selectedBaseIsDark = this.isDarkBasePalette(resolvedId);
       }
       this.applyMode();
     } catch {
-      event.target.value = String(previous);
       if (!this.isDestroying && !this.isDestroyed) {
         this.failed = true;
       }
@@ -263,55 +276,55 @@ class RpnPaletteSelector extends Component {
         </:trigger>
         <:content>
           <div class="rpn-palette-selector__panel">
-            <label>
-              <span>{{i18n (themePrefix "palette_selector.light")}}</span>
-              <select
+            <div class="rpn-palette-selector__field">
+              <span class="rpn-palette-selector__field-label">{{i18n
+                  (themePrefix "palette_selector.light")
+                }}</span>
+              <PaletteComboBox
                 class="rpn-palette-selector__light"
-                disabled={{this.saving}}
-                {{on "change" this.changeLight}}
-              >
-                {{#each this.lightPalettes as |palette|}}
-                  <option
-                    value={{palette.id}}
-                    selected={{eq palette.id this.lightId}}
-                  >{{palette.name}}</option>
-                {{/each}}
-              </select>
-            </label>
-            <label>
-              <span>{{i18n (themePrefix "palette_selector.dark")}}</span>
-              <select
+                @content={{this.lightPalettes}}
+                @value={{this.lightId}}
+                @onChange={{this.changeLight}}
+                @options={{hash
+                  disabled=this.saving
+                  mobilePlacementStrategy="fixed"
+                  headerAriaLabel=(i18n (themePrefix "palette_selector.light"))
+                }}
+              />
+            </div>
+            <div class="rpn-palette-selector__field">
+              <span class="rpn-palette-selector__field-label">{{i18n
+                  (themePrefix "palette_selector.dark")
+                }}</span>
+              <PaletteComboBox
                 class="rpn-palette-selector__dark"
-                disabled={{this.saving}}
-                {{on "change" this.changeDark}}
-              >
-                {{#each this.darkPalettes as |palette|}}
-                  <option
-                    value={{palette.id}}
-                    selected={{eq palette.id this.darkId}}
-                  >{{palette.name}}</option>
-                {{/each}}
-              </select>
-            </label>
+                @content={{this.darkPalettes}}
+                @value={{this.darkId}}
+                @onChange={{this.changeDark}}
+                @options={{hash
+                  disabled=this.saving
+                  mobilePlacementStrategy="fixed"
+                  headerAriaLabel=(i18n (themePrefix "palette_selector.dark"))
+                }}
+              />
+            </div>
             {{#if this.modeAvailable}}
-              <label>
-                <span>{{i18n (themePrefix "palette_selector.mode")}}</span>
-                <select
+              <div class="rpn-palette-selector__field">
+                <span class="rpn-palette-selector__field-label">{{i18n
+                    (themePrefix "palette_selector.mode")
+                  }}</span>
+                <PaletteComboBox
                   class="rpn-palette-selector__mode"
-                  disabled={{this.saving}}
-                  {{on "change" this.changeMode}}
-                >
-                  <option value="auto" selected={{eq this.mode "auto"}}>{{i18n
-                      "sidebar.footer.interface_color_selector.auto"
-                    }}</option>
-                  <option value="light" selected={{eq this.mode "light"}}>{{i18n
-                      "sidebar.footer.interface_color_selector.light"
-                    }}</option>
-                  <option value="dark" selected={{eq this.mode "dark"}}>{{i18n
-                      "sidebar.footer.interface_color_selector.dark"
-                    }}</option>
-                </select>
-              </label>
+                  @content={{this.modes}}
+                  @value={{this.mode}}
+                  @onChange={{this.changeMode}}
+                  @options={{hash
+                    disabled=this.saving
+                    mobilePlacementStrategy="fixed"
+                    headerAriaLabel=(i18n (themePrefix "palette_selector.mode"))
+                  }}
+                />
+              </div>
             {{/if}}
             {{#if this.failed}}
               <p class="rpn-palette-selector__error" role="alert">{{i18n

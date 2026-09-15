@@ -91,6 +91,8 @@ palettes, then choose **Auto**, **Light**, or **Dark**. Auto follows the device'
 appearance preference. Choices use Discourse's native per-browser cookies for
 both visitors and signed-in users; account preferences on other devices are
 unchanged. Failed stylesheet downloads leave the previous palette in place.
+The dropdowns render inside the page so their options stay within the viewport
+on mobile devices and in browser device emulation.
 
 This selector is integrated into the component and requires no separate palette
 component. It uses the current light/dark model rather than the older API used by
