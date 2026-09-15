@@ -1,3 +1,13 @@
+.category-list .category-title-link .badge-category.--style-icon {
+  gap: 0.45em;
+
+  > .d-icon:first-child {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
 // Keep latest activity together as a small two-line block.
 .rpn-category-latest .rpn-featured-topic {
   grid-template-columns: 2.25rem minmax(0, 1fr);
