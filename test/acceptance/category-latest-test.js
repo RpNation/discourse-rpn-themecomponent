@@ -76,6 +76,7 @@ for (const mobile of [false, true]) {
           const category = response.category_list.categories[0];
           for (const entry of response.category_list.categories) {
             entry.topic_count = 100;
+            entry.topics = [];
           }
           category.topic_count = knownEmpty ? 0 : 100;
           categorySlug = category.slug;
