@@ -27,6 +27,11 @@ function configureSections(needs, sections = []) {
 }
 
 acceptance("RPN Foundation | Category sections", function (needs) {
+  needs.pretender((server, helper) => {
+    server.get("/filter.json", () =>
+      helper.response({ users: [], topic_list: { topics: [] } })
+    );
+  });
   needs.settings({
     desktop_category_page_style: "categories_with_featured_topics",
   });
@@ -172,6 +177,9 @@ for (const [style, colspan] of [
     needs.settings({ desktop_category_page_style: style });
     configureSections(needs, [{ heading: "Community", category_id: 1 }]);
     needs.pretender((server, helper) => {
+      server.get("/filter.json", () =>
+        helper.response({ users: [], topic_list: { topics: [] } })
+      );
       server.get("/categories_and_top", () =>
         helper.response({
           ...cloneJSON(discoveryFixtures["/categories.json"]),
@@ -201,6 +209,11 @@ for (const [style, colspan] of [
 
 for (const style of ["categories_boxes", "categories_boxes_with_topics"]) {
   acceptance(`RPN Foundation | Category sections | ${style}`, function (needs) {
+    needs.pretender((server, helper) => {
+      server.get("/filter.json", () =>
+        helper.response({ users: [], topic_list: { topics: [] } })
+      );
+    });
     needs.settings({ desktop_category_page_style: style });
     configureSections(needs, [{ heading: "Community", category_id: 1 }]);
 
@@ -221,6 +234,11 @@ for (const style of [
   acceptance(
     `RPN Foundation | Category sections | mobile ${style}`,
     function (needs) {
+      needs.pretender((server, helper) => {
+        server.get("/filter.json", () =>
+          helper.response({ users: [], topic_list: { topics: [] } })
+        );
+      });
       needs.mobileView();
       needs.settings({ mobile_category_page_style: style });
       configureSections(needs, [{ heading: "Community", category_id: 1 }]);
@@ -251,6 +269,11 @@ for (const style of [
 acceptance(
   "RPN Foundation | Category sections | mobile settings",
   function (needs) {
+    needs.pretender((server, helper) => {
+      server.get("/filter.json", () =>
+        helper.response({ users: [], topic_list: { topics: [] } })
+      );
+    });
     needs.mobileView();
     needs.settings({
       mobile_category_page_style: "categories_with_featured_topics",
@@ -326,6 +349,9 @@ acceptance(
     });
     configureSections(needs, [{ heading: "Muted projects", category_id: 1 }]);
     needs.pretender((server, helper) => {
+      server.get("/filter.json", () =>
+        helper.response({ users: [], topic_list: { topics: [] } })
+      );
       server.get("/categories.json", () => {
         const response = cloneJSON(discoveryFixtures["/categories.json"]);
         response.category_list.categories[0].notification_level = 0;
@@ -373,6 +399,9 @@ for (const [subcategoryStyle, globalStyle, topicColspan, listColspan] of [
       needs.settings({ desktop_category_page_style: globalStyle });
       configureSections(needs, [{ heading: "Project areas", category_id: 26 }]);
       needs.pretender((server, helper) => {
+        server.get("/filter.json", () =>
+          helper.response({ users: [], topic_list: { topics: [] } })
+        );
         server.get("/categories.json", () => {
           const response = cloneJSON(discoveryFixtures["/categories.json"]);
           const parentCategory = response.category_list.categories.find(
@@ -425,6 +454,11 @@ for (const [subcategoryStyle, globalStyle, topicColspan, listColspan] of [
 }
 
 acceptance("RPN Foundation | Category sections | Large site", function (needs) {
+  needs.pretender((server, helper) => {
+    server.get("/filter.json", () =>
+      helper.response({ users: [], topic_list: { topics: [] } })
+    );
+  });
   const categories = cloneJSON(siteFixtures["site.json"].site.categories);
   const extraCategories = Array.from(
     { length: MAX_UNOPTIMIZED_CATEGORIES + 1 },
@@ -460,6 +494,9 @@ acceptance(
     });
     configureSections(needs, [{ heading: "Muted projects", category_id: 1 }]);
     needs.pretender((server, helper) => {
+      server.get("/filter.json", () =>
+        helper.response({ users: [], topic_list: { topics: [] } })
+      );
       server.get("/categories.json", () => {
         const response = cloneJSON(discoveryFixtures["/categories.json"]);
         response.category_list.categories[0].notification_level = 0;

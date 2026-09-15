@@ -41,9 +41,17 @@ const RpnCategoryLatest = <template>
             />
           </div>
 
-          <a href={{topic.lastPostUrl}} class="last-posted-at">
-            {{dAgeWithTooltip topic.last_posted_at}}
-          </a>
+          <div class="rpn-featured-topic__meta">
+            <a href={{topic.lastPostUrl}} class="last-posted-at">
+              {{dAgeWithTooltip topic.last_posted_at format="medium-with-ago"}}
+            </a>
+            {{#if topic.last_poster}}
+              <span aria-hidden="true">·</span>
+              <DUserLink @user={{topic.last_poster}}>
+                {{topic.last_poster.username}}
+              </DUserLink>
+            {{/if}}
+          </div>
         </div>
       {{/each}}
     </td>

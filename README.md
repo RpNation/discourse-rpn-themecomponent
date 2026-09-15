@@ -1,16 +1,26 @@
 # RpNation — Foundation Component
 
 A **Discourse theme component for Foundation**, the default Discourse theme. It
-adds RpNation's dark linen appearance and forum layout while leaving Foundation
+adds RpNation's linen appearance and forum layout while leaving Foundation
 and Discourse core responsible for the underlying interface. It is not a
 standalone theme and no longer requires Graceful.
 
 ## Features
 
-- Dark linen background, inset sidebar, and centered content panel.
+- Palette-aware linen background, inset sidebar, and centered content panel.
+- A spacious logo band above the compact navigation, sized separately for desktop
+  and mobile. The logo scrolls away while navigation stays available.
 - Adjustable site and topic/post widths.
-- Desktop and mobile category featured topics with latest-poster avatars, topic
-  status, unread badges, and dates.
+- A persistent Full width toggle in the sidebar footer, including topic posts
+  and consistent padding when the sidebar is closed.
+- A sidebar palette selector with separate light/dark choices and native
+  Auto, Light, and Dark appearance modes.
+- One latest-activity topic per category on desktop and mobile, with last-poster
+  avatars, topic status, unread badges, and dates.
+- Compact category rows, aligned color strips, section header bars, and two-line
+  latest activity with date and author on desktop and mobile.
+- All-time category totals with native unread/new badges, without weekly rates.
+- Hidden sidebar Tags section.
 - Custom category-section headings for any category ID, with no preset names or IDs.
 - Subtle topic-list shading and post dividers, without boxed posts.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
@@ -34,14 +44,55 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    Category-only layouts have no featured topics to display avatars beside.
 4. To use Categories as the homepage, put `categories` first in the site's
    `top_menu` setting.
-5. Optionally add your own category sections in the component settings below.
+5. For a compact category list, set **Number of topics shown on the categories
+   page** to `1` in each category's settings. This applies to desktop and mobile.
+6. Optionally add your own category sections in the component settings below.
+
+The component loads one latest-activity topic per category from Discourse's
+permission-aware topic-filter API. Pinned topics appear only when they are
+actually the most recently active topic. This works in the theme component
+without a companion plugin. Requests are limited to three at a time and run when
+the category list is displayed; failed loads offer a Retry button. Each category
+shows activity from that category itself (not its subcategories). Core permissions
+and muted-topic filtering apply. Category description topics and unlisted topics
+are excluded. If global pins fill an API response, the component checks further
+candidates before choosing the newest activity.
 
 Use a current Discourse release with Foundation and the
 `category-list-latest-wrapper` outlet. This component is developed against
-Discourse core `d636e2370b` (2026-08-28); compatibility with older releases and
-other parent themes is not guaranteed. It intentionally applies a dark palette,
-including when a user selects a light color scheme. Mobile keeps Discourse's
-native layout with the shared RpNation colors.
+Discourse core `c9d27d5d2e` (2026-09-15); compatibility with older releases and
+other parent themes is not guaranteed. Surfaces and text follow the selected
+Discourse palette, including light and dark mode. Configure your preferred
+light/dark palettes on the parent theme; this component does not replace them.
+
+### Sidebar controls
+
+**Full width** expands the forum and topic posts while keeping the sidebar,
+timeline, and page gutters aligned. Its setting is remembered in this browser.
+
+**Color palettes** lists the site's user-selectable palettes, subject to the
+parent theme's palette restrictions. Enable palettes for users in the site's
+appearance settings to make them available. Choose separate light and dark
+palettes, then choose **Auto**, **Light**, or **Dark**. Auto follows the device's
+appearance preference. Choices use Discourse's native per-browser cookies for
+both visitors and signed-in users; account preferences on other devices are
+unchanged. Failed stylesheet downloads leave the previous palette in place.
+
+This selector is integrated into the component and requires no separate palette
+component. It uses the current light/dark model rather than the older API used by
+the [Sidebar Color Palette Toggle reference](https://meta.discourse.org/t/sidebar-color-palette-toggle/373184).
+
+### Site logo
+
+Upload the full RpNation logo under **Admin → Appearance → Logo**. The branding
+band preserves its proportions, with a default maximum height of 110 pixels on
+desktop and 56 pixels on phones. A 436 × 110 logo fits at its original
+size on desktop. Larger uploads scale to the available space without cropping.
+The site's mobile and dark logo variants are supported, and clicking the logo
+returns to the homepage.
+
+The band scrolls above the sticky navigation. Full-page chat keeps its compact
+header so messages and reply boxes retain the available screen height.
 
 ## Component settings
 
@@ -49,6 +100,8 @@ native layout with the shared RpNation colors.
 | --------------------- | ------- | ---------------------------------------------------------------------------------------------- |
 | `site_max_width`      | `1280`  | Main site content maximum in pixels; Discourse adds the sidebar alongside it. Range: 960–1920. |
 | `topic_content_width` | `900`   | Topic/post content maximum in pixels, subject to available viewport space. Range: 640–1200.    |
+| `desktop_logo_height` | `110`   | Maximum logo height above navigation on desktop, in pixels. Range: 48–200.                     |
+| `mobile_logo_height`  | `56`    | Maximum logo height above navigation on phones, in pixels. Range: 32–96.                       |
 | `category_sections`   | Empty   | A list of your own section headings and the category IDs they appear above.                    |
 
 ### Adding category sections
@@ -121,7 +174,8 @@ discourse_theme watch .
 
 JavaScript uses Discourse's theme API and category outlets, not replacement core
 templates. Mobile avatars are mounted alongside native featured-topic rows, so
-Discourse still renders their links, badges, dates, and reply counts. Regular
+Discourse still renders their title links, badges, and reply counts; the component
+adds the linked latest date and author beneath the title. Regular
 topic-list and post avatars remain native Discourse behavior.
 Keep changes in `common/`, `desktop/`,
 `scss/`, and `javascripts/discourse/`; theme QUnit tests live in `test/`.

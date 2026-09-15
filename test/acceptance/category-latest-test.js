@@ -1,412 +1,205 @@
-import { click, findAll, visit } from "@ember/test-helpers";
+import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import discoveryFixtures from "discourse/tests/fixtures/discovery-fixtures";
-import topFixtures from "discourse/tests/fixtures/top-fixtures";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
-const categoryRow = 'tr[data-category-id="1"]';
-const featuredTopic = `${categoryRow} .rpn-featured-topic[data-topic-id="11994"]`;
-const missingPosterTopic = `${categoryRow} .rpn-featured-topic[data-topic-id="11888"]`;
-const lastPostedAt = "2024-06-01T12:00:00Z";
+const latest = {
+  id: 11994,
+  title: "Newest conversation",
+  fancy_title: "Newest conversation",
+  slug: "newest-conversation",
+  category_id: 1,
+  bumped_at: "2026-06-02T12:00:00Z",
+  last_posted_at: "2026-06-02T12:00:00Z",
+  posts_count: 7,
+  highest_post_number: 7,
+  last_read_post_number: 3,
+  last_poster_username: "latest_replier",
+  posters: [{ user_id: 9102, extras: "latest" }],
+  pinned: false,
+  pinned_globally: false,
+};
+const user = {
+  id: 9102,
+  username: "latest_replier",
+  avatar_template: "/images/rpn-latest-replier.png",
+};
+const oldPin = {
+  ...latest,
+  id: 11888,
+  title: "Old global announcement",
+  fancy_title: "Old global announcement",
+  bumped_at: "2025-01-01T12:00:00Z",
+  pinned: true,
+  pinned_globally: true,
+};
 
-function stubCategories(needs) {
-  needs.pretender((server, helper) => {
-    server.get("/categories.json", () => {
-      const response = cloneJSON(discoveryFixtures["/categories.json"]);
-      const category = response.category_list.categories[0];
-      const originalPoster = {
-        id: 9101,
-        username: "original_author",
-        avatar_template: "/images/rpn-original-author.png",
-      };
-
-      Object.assign(category.topics[0], {
-        slug: "rpn-featured-topic",
-        title: "A featured topic",
-        fancy_title: "A featured topic",
-        posts_count: 7,
-        highest_post_number: 7,
-        last_read_post_number: 3,
-        last_posted_at: lastPostedAt,
-        bumped_at: "2024-06-02T12:00:00Z",
-        posters: [{ user: originalPoster, extras: "original" }],
-        last_poster: {
-          id: 9102,
-          username: "latest_replier",
-          avatar_template: "/images/rpn-latest-replier.png",
-        },
-      });
-      Object.assign(category.topics[1], {
-        slug: "rpn-missing-poster",
-        posts_count: 5,
-        highest_post_number: 5,
-        last_read_post_number: 1,
-        last_posted_at: lastPostedAt,
-        posters: [{ user: originalPoster, extras: "original" }],
-        last_poster: null,
-      });
-
-      return helper.response(response);
-    });
-  });
-}
-
-acceptance("RPN Foundation | Category latest topics", function (needs) {
-  needs.settings({
-    desktop_category_page_style: "categories_with_featured_topics",
-  });
-  stubCategories(needs);
-
-  test("shows the last poster's avatar and profile link", async function (assert) {
-    await visit("/categories");
-
-    assert
-      .dom(`${featuredTopic} .rpn-featured-topic__poster a`)
-      .hasAttribute("href", "/u/latest_replier")
-      .hasAttribute("data-user-card", "latest_replier");
-    assert
-      .dom(`${featuredTopic} .rpn-featured-topic__poster img.avatar`)
-      .hasAttribute("src", /\/images\/rpn-latest-replier\.png$/);
-    assert
-      .dom(`${featuredTopic} [data-user-card="original_author"]`)
-      .doesNotExist();
-    assert
-      .dom(`${featuredTopic} img[src$="rpn-original-author.png"]`)
-      .doesNotExist();
-  });
-
-  test("links the title to the unread post and the date to the last post", async function (assert) {
-    await visit("/categories");
-
-    assert
-      .dom(`${featuredTopic} a.title`)
-      .hasText("A featured topic")
-      .hasAttribute("href", "/t/rpn-featured-topic/11994/4");
-    assert
-      .dom(`${featuredTopic} a.last-posted-at`)
-      .hasAttribute("href", "/t/rpn-featured-topic/11994/7");
-    assert
-      .dom(`${featuredTopic} .last-posted-at .relative-date`)
-      .hasAttribute("data-time", String(new Date(lastPostedAt).getTime()));
-  });
-
-  test("keeps the avatar column and links when the last poster is missing", async function (assert) {
-    await visit("/categories");
-
-    assert.dom(`${missingPosterTopic} .rpn-featured-topic__poster`).exists();
-    assert.dom(`${missingPosterTopic} .rpn-featured-topic__poster`).hasText("");
-    assert
-      .dom(`${missingPosterTopic} .rpn-featured-topic__poster a`)
-      .doesNotExist();
-    assert.dom(`${missingPosterTopic} img.avatar`).doesNotExist();
-    assert
-      .dom(`${missingPosterTopic} .rpn-featured-topic__content a.title`)
-      .hasAttribute("href", "/t/rpn-missing-poster/11888/2");
-    assert
-      .dom(`${missingPosterTopic} a.last-posted-at`)
-      .hasAttribute("href", "/t/rpn-missing-poster/11888/5");
-  });
-});
-
-for (const style of [
-  "categories_with_featured_topics",
-  "subcategories_with_featured_topics",
-]) {
-  acceptance(`RPN Foundation | Category layout | ${style}`, function (needs) {
-    needs.settings({ desktop_category_page_style: style });
-
-    test("replaces the latest cell once in each category row", async function (assert) {
-      await visit("/categories");
-
-      assert
-        .dom(`${categoryRow} > td.latest.rpn-category-latest`)
-        .exists({ count: 1 });
-      assert.dom(`${categoryRow} > td.latest`).exists({ count: 1 });
-      assert.dom("td.latest:not(.rpn-category-latest)").doesNotExist();
-      assert.dom(".rpn-category-latest .rpn-featured-topic").exists();
-
-      for (const cell of findAll(".rpn-category-latest")) {
-        assert.true(
-          cell.matches("tr[data-category-id] > td.latest"),
-          "the outlet renders a table cell inside a category row"
-        );
+for (const mobile of [false, true]) {
+  acceptance(
+    `RPN latest activity | ${mobile ? "mobile" : "desktop"}`,
+    function (needs) {
+      if (mobile) {
+        needs.mobileView();
       }
-    });
-  });
-}
-
-for (const style of [
-  "categories_only",
-  "categories_and_latest_topics",
-  "categories_and_top_topics",
-  "categories_boxes",
-  "categories_boxes_with_topics",
-]) {
-  acceptance(`RPN Foundation | Category layout | ${style}`, function (needs) {
-    needs.settings({ desktop_category_page_style: style });
-    needs.pretender((server, helper) => {
-      server.get("/categories_and_top", () =>
-        helper.response({
-          ...cloneJSON(discoveryFixtures["/categories.json"]),
-          ...cloneJSON(topFixtures["/top.json"]),
-        })
-      );
-    });
-
-    test("does not add a latest table cell without featured category rows", async function (assert) {
-      await visit("/categories");
-
-      assert.dom(".rpn-category-latest").doesNotExist();
-      assert.dom("td.latest").doesNotExist();
-    });
-  });
-}
-
-acceptance("RPN Foundation | Category layout | mobile", function (needs) {
-  needs.mobileView();
-  needs.settings({
-    mobile_category_page_style: "subcategories_with_featured_topics",
-  });
-
-  test("keeps mobile featured topics without adding table cells", async function (assert) {
-    await visit("/categories");
-
-    assert
-      .dom('div.category-list.with-topics a[data-topic-id="11994"]')
-      .exists();
-    assert.dom(".rpn-category-latest").doesNotExist();
-    assert.dom("td.latest").doesNotExist();
-  });
-});
-
-for (const style of [
-  "categories_with_featured_topics",
-  "subcategories_with_featured_topics",
-]) {
-  acceptance(
-    `RPN Foundation | Mobile category avatars | ${style}`,
-    function (needs) {
-      needs.mobileView();
-      needs.settings({ mobile_category_page_style: style });
-      stubCategories(needs);
-
-      const mobileCategory = 'div.category-list [data-category-id="1"]';
-
-      test("shows the last poster without replacing native mobile topic links and counts", async function (assert) {
-        await visit("/categories");
-
-        const row = findAll(`${mobileCategory} tr.category-topic-link`)[0];
-        assert
-          .dom(".rpn-mobile-category-topic__poster a", row)
-          .hasAttribute("href", "/u/latest_replier")
-          .hasAttribute("data-user-card", "latest_replier");
-        assert
-          .dom("img.avatar", row)
-          .hasAttribute("src", /\/images\/rpn-latest-replier\.png$/);
-        assert.dom('[data-user-card="original_author"]', row).doesNotExist();
-        assert
-          .dom('a[data-topic-id="11994"]', row)
-          .hasText("A featured topic")
-          .hasAttribute("href", "/t/rpn-featured-topic/11994/4");
-        assert
-          .dom(".relative-date", row)
-          .hasAttribute("data-time", String(new Date(lastPostedAt).getTime()));
-        assert.dom("td.main-link", row).exists({ count: 1 });
-        assert.dom("td.posts", row).exists({ count: 1 });
-        assert.dom("td.latest").doesNotExist();
-      });
-
-      test("keeps the mobile topic usable when its last poster is unavailable", async function (assert) {
-        await visit("/categories");
-
-        const row = findAll(`${mobileCategory} tr.category-topic-link`)[1];
-        assert.dom(".rpn-mobile-category-topic__poster", row).exists();
-        assert.dom("img.avatar", row).doesNotExist();
-        assert
-          .dom('a[data-topic-id="11888"]', row)
-          .hasAttribute("href", "/t/rpn-missing-poster/11888/2");
-        assert.dom("td.posts", row).exists();
-      });
-
-      test("cleans up avatars when leaving and recreates them once on return", async function (assert) {
-        const avatar = `${mobileCategory} [data-user-card="latest_replier"]`;
-
-        await visit("/categories");
-        assert.dom(avatar).exists({ count: 1 });
-
-        await visit("/latest");
-        assert.dom(".rpn-mobile-category-avatar-anchor").doesNotExist();
-        assert.dom(".rpn-mobile-category-topic__poster").doesNotExist();
-
-        await visit("/categories");
-        assert.dom(avatar).exists({ count: 1 });
-
-        for (const row of findAll(`${mobileCategory} tr.category-topic-link`)) {
-          assert
-            .dom(".rpn-mobile-category-topic__poster", row)
-            .exists({ count: 1 });
-        }
-      });
-    }
-  );
-}
-
-acceptance(
-  "RPN Foundation | Mobile category avatars | profile privacy",
-  function (needs) {
-    needs.mobileView();
-    needs.settings({
-      mobile_category_page_style: "categories_with_featured_topics",
-      hide_user_profiles_from_public: true,
-    });
-    stubCategories(needs);
-
-    test("keeps avatars without public profile links for anonymous visitors", async function (assert) {
-      await visit("/categories");
-
-      const poster =
-        'div.category-list [data-category-id="1"] .rpn-mobile-category-topic__poster';
-      assert
-        .dom(`${poster} img[src$="rpn-latest-replier.png"]`)
-        .exists({ count: 1 });
-      assert
-        .dom(`${poster} a[data-user-card="latest_replier"]`)
-        .hasClass("non-clickable")
-        .doesNotHaveAttribute("href");
-      assert
-        .dom(
-          'div.category-list [data-category-id="1"] a[data-topic-id="11994"]'
-        )
-        .hasAttribute("href", "/t/rpn-featured-topic/11994/4");
-    });
-  }
-);
-
-for (const mutedParent of [true, false]) {
-  acceptance(
-    `RPN Foundation | Mobile category avatars | muted ${mutedParent ? "parent" : "child"}`,
-    function (needs) {
-      needs.mobileView();
-      needs.settings({
-        mobile_category_page_style: "categories_with_featured_topics",
-      });
-      needs.pretender((server, helper) => {
-        server.get("/categories.json", () => {
-          const response = cloneJSON(discoveryFixtures["/categories.json"]);
-          const parent = response.category_list.categories.find(
-            (category) => category.id === 2
-          );
-          const child = cloneJSON(parent.subcategory_list[0]);
-          parent.notification_level = mutedParent ? 0 : 1;
-          child.notification_level = mutedParent ? 1 : 0;
-          parent.subcategory_list = [child];
-          parent.topics[0].last_poster = {
-            id: 9102,
-            username: "latest_replier",
-            avatar_template: "/images/rpn-latest-replier.png",
-          };
-          response.category_list.categories.push(child);
-          return helper.response(response);
-        });
-      });
-
-      test("follows native topic visibility while toggling the muted list", async function (assert) {
-        await visit("/categories");
-
-        const normalCategory =
-          'div.category-list-item[data-category-id="2"]:not(.muted-categories *)';
-        const mutedCategory =
-          '.muted-categories div.category-list .category-list-item[data-category-id="2"]';
-        const avatar = '[data-user-card="latest_replier"]';
-
-        assert.dom(normalCategory).exists();
-        assert.dom(".muted-categories div.category-list").hasClass("hidden");
-        if (mutedParent) {
-          assert.dom(`${normalCategory} tr.category-topic-link`).doesNotExist();
-          assert.dom(`${normalCategory} ${avatar}`).doesNotExist();
-        } else {
-          assert.dom(`${normalCategory} tr.category-topic-link`).exists();
-          assert.dom(`${normalCategory} ${avatar}`).exists({ count: 1 });
-        }
-
-        await click(".muted-categories-link");
-
-        assert
-          .dom(".muted-categories div.category-list")
-          .doesNotHaveClass("hidden");
-        if (mutedParent) {
-          assert.dom(`${mutedCategory} tr.category-topic-link`).exists();
-          assert.dom(`${mutedCategory} ${avatar}`).exists({ count: 1 });
-        } else {
-          assert.dom(`${mutedCategory} tr.category-topic-link`).doesNotExist();
-          assert.dom(`${mutedCategory} ${avatar}`).doesNotExist();
-        }
-
-        await click(".muted-categories-link");
-        assert.dom(".muted-categories div.category-list").hasClass("hidden");
-
-        await click(".muted-categories-link");
-        if (mutedParent) {
-          assert.dom(`${mutedCategory} ${avatar}`).exists({ count: 1 });
-        } else {
-          assert.dom(`${normalCategory} ${avatar}`).exists({ count: 1 });
-        }
-      });
-    }
-  );
-}
-
-for (const mutedParent of [true, false]) {
-  acceptance(
-    `RPN Foundation | Category muting | ${mutedParent ? "parent" : "child"}`,
-    function (needs) {
       needs.settings({
         desktop_category_page_style: "categories_with_featured_topics",
+        mobile_category_page_style: "categories_with_featured_topics",
+      });
+      let responses;
+      let queries;
+      let failed;
+      let categorySlug;
+      let hasDefinition;
+      let includeHierarchy;
+
+      needs.hooks.beforeEach(() => {
+        responses = [[oldPin, latest]];
+        queries = [];
+        failed = false;
+        hasDefinition = true;
+        includeHierarchy = false;
       });
       needs.pretender((server, helper) => {
         server.get("/categories.json", () => {
           const response = cloneJSON(discoveryFixtures["/categories.json"]);
-          const parent = response.category_list.categories.find(
-            (category) => category.id === 2
-          );
-          const child = cloneJSON(parent.subcategory_list[0]);
-          parent.notification_level = mutedParent ? 0 : 1;
-          child.notification_level = mutedParent ? 1 : 0;
-          parent.subcategory_list = [child];
-          response.category_list.categories.push(child);
+          const category = response.category_list.categories[0];
+          categorySlug = category.slug;
+          category.topic_url = hasDefinition ? "/t/about-category/99999" : null;
+          category.topics = [oldPin, latest, { ...oldPin, id: 11889 }];
+          if (includeHierarchy) {
+            response.category_list.categories =
+              response.category_list.categories.filter((entry) =>
+                [1, 2, 6, 17].includes(entry.id)
+              );
+          } else {
+            response.category_list.categories = [category];
+          }
           return helper.response(response);
+        });
+        server.get("/filter.json", (request) => {
+          queries.push(request.queryParams.q);
+          if (failed) {
+            return helper.response(503, {});
+          }
+          return helper.response({
+            users: [user],
+            primary_groups: [],
+            topic_list: { topics: cloneJSON(responses.shift() || []) },
+          });
         });
       });
 
-      test("preserves core topic visibility in normal and expanded muted lists", async function (assert) {
-        const normalRow =
-          'tbody[aria-labelledby="categories-only-category"] > tr[data-category-id="2"]';
-        const mutedRow =
-          'tbody[aria-labelledby="categories-only-category-muted"] > tr[data-category-id="2"]';
+      const row = mobile
+        ? 'div.category-list-item[data-category-id="1"]'
+        : 'tr[data-category-id="1"]';
+      const topic = mobile
+        ? `${row} tr.category-topic-link`
+        : `${row} .rpn-featured-topic`;
+      const title = mobile ? `${topic} a[data-topic-id]` : `${topic} a.title`;
 
+      test("one latest topic replaces pinned server previews and keeps the last poster", async function (assert) {
+        await visit("/categories");
+        assert.dom(topic).exists({ count: 1 });
+        assert
+          .dom(title)
+          .hasText("Newest conversation")
+          .hasAttribute("href", "/t/newest-conversation/11994/4");
+        assert
+          .dom(`${topic} img.avatar`)
+          .hasAttribute("src", /rpn-latest-replier\.png$/);
+        const metadata = mobile
+          ? `${topic} .rpn-mobile-category-topic__meta`
+          : `${topic} .rpn-featured-topic__meta`;
+        assert
+          .dom(`${metadata} [data-user-card="latest_replier"]`)
+          .hasText("latest_replier")
+          .hasAttribute("href", "/u/latest_replier");
+        assert
+          .dom(`${metadata} .last-posted-at`)
+          .hasAttribute("href", "/t/newest-conversation/11994/7");
+        assert.true(queries[0].includes(`=category:${categorySlug}`));
+        assert.true(queries[0].includes("order:activity"));
+        assert.true(queries[0].includes("status:listed"));
+        assert.true(queries[0].includes("-topic:99999"));
+      });
+
+      test("a pinned topic appears when it really has the newest activity", async function (assert) {
+        responses = [
+          [{ ...oldPin, bumped_at: "2026-08-01T12:00:00Z" }, latest],
+        ];
+        await visit("/categories");
+        assert.dom(topic).exists({ count: 1 });
+        assert.dom(title).hasText("Old global announcement");
+      });
+
+      test("continues past a page filled with global pins", async function (assert) {
+        // Core disables pin promotion when a topic-ID exclusion is present.
+        // Categories without a definition topic exercise the fallback.
+        hasDefinition = false;
+        const pins = Array.from({ length: 30 }, (_, index) => ({
+          ...oldPin,
+          id: 12000 + index,
+        }));
+        responses = [pins, [latest]];
+        await visit("/categories");
+        assert.dom(topic).exists({ count: 1 });
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 2);
+        assert.false(queries[0].includes("-topic:"));
+        assert.true(
+          queries[1].includes(`-topic:${pins.map((pin) => pin.id).join(",")}`)
+        );
+      });
+
+      test("loads every displayed category without fetching nested badge categories", async function (assert) {
+        includeHierarchy = true;
+        responses = [[latest], [], [], []];
         await visit("/categories");
 
-        assert.dom(normalRow).exists();
-        assert.dom(`${normalRow} .rpn-category-latest`).doesNotExist();
-        assert.dom(`${mutedRow} .rpn-category-latest`).doesNotExist();
-        if (mutedParent) {
-          assert.dom(`${normalRow} > td.latest`).doesNotExist();
-        } else {
-          assert.dom(`${normalRow} > td.latest`).exists({ count: 1 });
-        }
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 4);
+        assert.deepEqual(
+          queries.map((query) => query.match(/=category:([^ ]+)/)[1]).sort(),
+          ["bug", "feature", "support", "uncategorized"].sort(),
+          "only displayed parent rows are fetched, including the fourth queued row"
+        );
+      });
 
-        await click(".muted-categories-link");
+      test("empty categories do not fall back to a sticky preview", async function (assert) {
+        responses = [[]];
+        await visit("/categories");
+        assert.dom(topic).doesNotExist();
+        assert.dom(".rpn-category-topic-loader button").doesNotExist();
+      });
 
-        assert.dom(".muted-categories table.category-list").isVisible();
-        assert.dom(mutedRow).exists();
-        if (mutedParent) {
-          assert.dom(`${mutedRow} > td.latest`).exists({ count: 1 });
-          assert.dom(`${mutedRow} .featured-topic`).exists();
-        } else {
-          assert.dom(`${mutedRow} > td.latest`).doesNotExist();
-        }
-        assert.dom(`${categoryRow} .rpn-category-latest`).exists({ count: 1 });
+      test("failed requests offer retry without showing stale pins", async function (assert) {
+        failed = true;
+        await visit("/categories");
+        assert.dom(topic).doesNotExist();
+        assert
+          .dom(".rpn-category-topic-loader [role=status]")
+          .hasText("Latest activity could not be loaded.");
+        failed = false;
+        await click(".rpn-category-topic-loader button");
+        assert.strictEqual(
+          queries.length,
+          2,
+          "retry fetches the category again"
+        );
+        assert.dom(title).hasText("Newest conversation");
+        assert.dom(".rpn-category-topic-loader button").doesNotExist();
+      });
+
+      test("reloads fresh activity when revisiting the category page", async function (assert) {
+        await visit("/categories");
+        await visit("/latest");
+        responses = [
+          [{ ...latest, title: "Fresh return", fancy_title: "Fresh return" }],
+        ];
+        await visit("/categories");
+        assert.dom(topic).exists({ count: 1 });
+        assert.dom(title).hasText("Fresh return");
       });
     }
   );

@@ -1,0 +1,226 @@
+// Keep latest activity together as a small two-line block.
+.rpn-category-latest .rpn-featured-topic {
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  grid-template-areas: "poster content" "poster meta";
+  column-gap: 0.75rem;
+  row-gap: 0.125rem;
+  align-items: start;
+  width: 100%;
+  padding: 0;
+
+  &__poster {
+    grid-area: poster;
+    align-self: center;
+    width: 2.25rem;
+    height: 2.25rem;
+
+    img.avatar {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 3px;
+    }
+  }
+
+  &__content {
+    grid-area: content;
+    font-size: 0.875rem;
+    line-height: 1.25;
+
+    .topic-statuses:empty,
+    .topic-post-badges:empty {
+      display: none;
+    }
+  }
+
+  &__meta {
+    grid-area: meta;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    min-width: 0;
+    color: var(--primary-medium);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+
+    a {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    a.last-posted-at,
+    a.last-posted-at:visited {
+      flex-shrink: 0;
+      font-size: 0.8125rem;
+      color: var(--primary-high);
+    }
+  }
+}
+
+.rpn-category-section--mobile {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--rpn-section-background);
+  border-top: 4px solid var(--rpn-section-accent);
+  border-radius: 4px 4px 0 0;
+
+  &::after {
+    display: none;
+  }
+
+  .rpn-category-section__heading {
+    color: var(--primary);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+}
+
+.mobile-view .category-list {
+  .category-list-item.category {
+    position: relative;
+    margin-block: 0;
+    padding: 0.75rem 0.75rem 0.65rem calc(0.75rem + 3px);
+    background: var(--rpn-row-background);
+    border-left-width: 0;
+
+    // Core marks mobile row borders important; avoid double separators.
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--rpn-row-divider) !important;
+    border-radius: 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      left: 0;
+      border-left: 3px solid;
+      border-left-color: inherit;
+      pointer-events: none;
+    }
+
+    h3 {
+      margin: 0 0 0.2rem;
+      padding: 0;
+      font-size: var(--font-0);
+    }
+
+    th.main-link {
+      padding: 0;
+    }
+
+    // Featured activity shares the category's surface, not topic-list stripes.
+    > .topic-list {
+      background: transparent;
+
+      > tbody > tr {
+        background: transparent;
+
+        > th,
+        > td {
+          background: transparent;
+        }
+      }
+    }
+
+    .category-description {
+      margin-block: 0.25rem 0.5rem;
+      font-size: var(--font-down-1);
+      line-height: 1.4;
+
+      td {
+        padding: 0 0 0.35rem;
+      }
+    }
+
+    &:not(:has(.rpn-category-total)) > footer.category-topics-count {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.75rem;
+      padding: 0.4rem 0 0;
+      border-top: 0;
+
+      .category-stat {
+        float: none;
+        margin: 0;
+        line-height: 1.4;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .category-topic-link td {
+    padding-block: 0.4rem;
+    font-size: var(--font-down-1);
+  }
+
+  .category-topic-link td.main-link:has(> .rpn-mobile-category-topic__meta) {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    grid-template-areas: "poster title" "poster meta";
+    gap: 0.125rem 0.75rem;
+    padding-left: 0;
+
+    > .topic-inset {
+      grid-area: title;
+      line-height: 1.25;
+
+      a.title {
+        color: var(--rpn-link-color);
+      }
+
+      > .age {
+        display: none;
+      }
+    }
+
+    > .rpn-mobile-category-topic__poster {
+      grid-area: poster;
+      align-self: center;
+      width: 2.25rem;
+      height: 2.25rem;
+
+      img.avatar {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 3px;
+      }
+    }
+
+    > .rpn-mobile-category-topic__meta {
+      grid-area: meta;
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      min-width: 0;
+      color: var(--primary-medium);
+      font-size: 0.8125rem;
+      line-height: 1.3;
+
+      a {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .last-posted-at {
+        flex-shrink: 0;
+        color: var(--primary-high);
+      }
+    }
+  }
+}
+
+#main-outlet .category-list .rpn-category-section__heading {
+  margin: 0;
+}
+
+.rpn-category-topic-loader:not(:empty) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  color: var(--primary-high);
+  font-size: var(--font-down-1);
+}

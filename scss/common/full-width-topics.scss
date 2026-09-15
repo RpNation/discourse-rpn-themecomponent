@@ -1,0 +1,38 @@
+@include viewport.from(lg) {
+  html.rpn-full-width body:not(.has-sidebar-page, .has-full-page-chat) {
+    // Collapsing the sidebar removes has-sidebar-page from body. Preserve the
+    // same forum panel instead of letting content touch the viewport edge.
+    #main-outlet {
+      box-sizing: border-box;
+      min-width: 0;
+      min-height: calc(
+        var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset, 0px) - 2rem
+      );
+      margin-top: 2rem;
+      padding: 3rem 3.5rem 4rem;
+      background: var(--rpn-panel-background);
+      border: 1px solid var(--rpn-panel-border);
+      border-radius: 0.6rem 0.6rem 0 0;
+    }
+
+    &.navigation-categories #main-outlet {
+      padding: 1.5rem 1.5rem 2rem;
+    }
+  }
+
+  html.rpn-full-width body:is(.archetype-regular, .archetype-private_message) {
+    // Size posts from their grid column, which already excludes the sidebar
+    // and timeline. Keep core's avatar gutter and post padding intact.
+    --topic-body-width: calc(
+      100% - var(--topic-avatar-width) - (var(--topic-body-width-padding) * 2)
+    );
+
+    .container.posts {
+      grid-template-columns: minmax(0, 1fr) auto;
+
+      > .row {
+        max-width: 100%;
+      }
+    }
+  }
+}

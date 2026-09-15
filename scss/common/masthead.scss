@@ -1,0 +1,75 @@
+.rpn-masthead {
+  --rpn-logo-height: #{$desktop_logo_height}px;
+
+  // The branding scrolls away; only the native navigation remains sticky.
+  // Core measures the header position and updates sidebar/chat offsets itself.
+  &__inner {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-height: calc(var(--rpn-logo-height) + 2rem);
+    padding: 1rem var(--d-header-padding-x);
+  }
+
+  &__link,
+  picture {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__link {
+    color: var(--primary);
+    border-radius: 0.25rem;
+
+    &:focus-visible {
+      outline: 2px solid var(--tertiary);
+      outline-offset: 4px;
+    }
+  }
+
+  #site-logo {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: var(--rpn-logo-height);
+    object-fit: contain;
+  }
+
+  .text-logo {
+    font-size: var(--font-up-5);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  @include viewport.until(sm) {
+    --rpn-logo-height: #{$mobile_logo_height}px;
+
+    &__inner {
+      justify-content: center;
+      min-height: calc(var(--rpn-logo-height) + 1.5rem);
+      padding-block: 0.75rem;
+    }
+  }
+}
+
+// Chat is a viewport-sized workspace: leave its height for messages/composers.
+// Some other native fullscreen flows omit the header entirely.
+body.has-full-page-chat .rpn-masthead,
+body:not(:has(.d-header)) .rpn-masthead {
+  display: none;
+}
+
+.d-header {
+  height: 3.5rem;
+
+  @include viewport.until(sm) {
+    height: 3rem;
+  }
+
+  .home-logo-wrapper-outlet:empty {
+    display: none;
+  }
+}
