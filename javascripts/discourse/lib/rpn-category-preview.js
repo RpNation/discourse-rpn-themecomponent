@@ -27,26 +27,37 @@ export function nativeCategoryPreview(category) {
     category.subcategory_ids?.length || category.subcategory_list?.length;
   const definition = categoryDefinitionId(category);
   const topics = Array.isArray(supplied) ? supplied : [];
-  const scoped = topics.filter(
+  // Core has already attached these visible previews to this row. Parent rows
+  // omit each topic's category ID, so they need verification, but their native
+  // topic and avatar can stay visible while that request runs.
+  const displayable = topics.filter(
     (topic) =>
       topic.id !== definition &&
       topic.visible !== false &&
-      (topic.category_id === category.id ||
-        (topic.category_id == null && !hasChildren))
+      (topic.category_id === category.id || topic.category_id == null)
+  );
+  const scoped = displayable.filter(
+    (topic) => topic.category_id === category.id || !hasChildren
   );
   const eligible = scoped.filter((topic) =>
     Number.isFinite(Date.parse(topic.bumped_at))
   );
-  const topic = eligible.reduce(
-    (latest, candidate) =>
-      !latest ||
-      Date.parse(candidate.bumped_at) > Date.parse(latest.bumped_at) ||
-      (Date.parse(candidate.bumped_at) === Date.parse(latest.bumped_at) &&
-        candidate.id > latest.id)
-        ? candidate
-        : latest,
-    null
+  const dated = displayable.filter((topic) =>
+    Number.isFinite(Date.parse(topic.bumped_at))
   );
+  const topic =
+    dated.reduce(
+      (latest, candidate) =>
+        !latest ||
+        Date.parse(candidate.bumped_at) > Date.parse(latest.bumped_at) ||
+        (Date.parse(candidate.bumped_at) === Date.parse(latest.bumped_at) &&
+          candidate.id > latest.id)
+          ? candidate
+          : latest,
+      null
+    ) ||
+    displayable[0] ||
+    null;
 
   const allTopicsIncluded =
     Number.isInteger(category.topic_count) &&

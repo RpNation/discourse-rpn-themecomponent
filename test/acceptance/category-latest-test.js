@@ -1,4 +1,4 @@
-import { click, visit } from "@ember/test-helpers";
+import { click, find, visit, waitUntil } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import discoveryFixtures from "discourse/tests/fixtures/discovery-fixtures";
@@ -51,6 +51,8 @@ for (const mobile of [false, true]) {
       let latestResponses;
       let latestRequests;
       let failed;
+      let responseDelay;
+      let failureStatus;
       let categorySlug;
       let hasDefinition;
       let includeHierarchy;
@@ -64,6 +66,8 @@ for (const mobile of [false, true]) {
         latestResponses = [[latest]];
         latestRequests = [];
         failed = false;
+        responseDelay = 0;
+        failureStatus = 503;
         hasDefinition = true;
         includeHierarchy = false;
         knownEmpty = false;
@@ -93,26 +97,30 @@ for (const mobile of [false, true]) {
           }
           return helper.response(response);
         });
-        server.get("/filter.json", (request) => {
-          queries.push(request.queryParams.q);
-          // The beta parser treats negative definition IDs as inclusions;
-          // native definition filtering then yields a successful empty list.
-          if (request.queryParams.q.includes("-topic:")) {
-            return helper.response({ users: [], topic_list: { topics: [] } });
-          }
-          if (failed) {
-            return helper.response(503, {});
-          }
-          const response = responses.shift() || [];
-          if (response === "error") {
-            return helper.response(503, {});
-          }
-          return helper.response({
-            users: [user],
-            primary_groups: [],
-            topic_list: { topics: cloneJSON(response) },
-          });
-        });
+        server.get(
+          "/filter.json",
+          (request) => {
+            queries.push(request.queryParams.q);
+            // The beta parser treats negative definition IDs as inclusions;
+            // native definition filtering then yields a successful empty list.
+            if (request.queryParams.q.includes("-topic:")) {
+              return helper.response({ users: [], topic_list: { topics: [] } });
+            }
+            if (failed) {
+              return helper.response(failureStatus, {});
+            }
+            const response = responses.shift() || [];
+            if (response === "error") {
+              return helper.response(failureStatus, {});
+            }
+            return helper.response({
+              users: [user],
+              primary_groups: [],
+              topic_list: { topics: cloneJSON(response) },
+            });
+          },
+          () => responseDelay
+        );
         server.get("/latest.json", (request) => {
           if (!request.queryParams.category) {
             return helper.response({ users: [], topic_list: { topics: [] } });
@@ -120,7 +128,7 @@ for (const mobile of [false, true]) {
           latestRequests.push(request.queryParams);
           const response = latestResponses.shift() || [];
           if (response === "error") {
-            return helper.response(503, {});
+            return helper.response(failureStatus, {});
           }
           return helper.response({
             users: [user],
@@ -136,6 +144,77 @@ for (const mobile of [false, true]) {
         ? `${row} tr.category-topic-link`
         : `${row} .rpn-featured-topic`;
       const title = mobile ? `${topic} a[data-topic-id]` : `${topic} a.title`;
+
+      test("keeps a parent native preview visible during refresh and replaces it with verified activity", async function (assert) {
+        const preview = { ...oldPin, last_poster: user };
+        delete preview.category_id;
+        nativeTopics = [preview];
+        categoryOverrides = { subcategory_ids: [999] };
+        responseDelay = 2000;
+        const visiting = visit("/categories");
+        await waitUntil(
+          () => queries.length === 1 && find(`${topic} img.avatar`),
+          { timeout: 5000 }
+        );
+        assert.dom(title).hasText("Old global announcement");
+        assert.dom(`${topic} [data-user-card="latest_replier"]`).exists();
+        assert
+          .dom(`${topic} img.avatar`)
+          .hasAttribute("src", /rpn-latest-replier\.png$/);
+        await visiting;
+        assert.dom(title).hasText("Newest conversation");
+        assert
+          .dom(`${topic} .last-posted-at`)
+          .hasAttribute("href", "/t/newest-conversation/11994/7");
+      });
+
+      test("retains a parent native preview after a failed refresh", async function (assert) {
+        const preview = { ...oldPin, last_poster: user };
+        delete preview.category_id;
+        nativeTopics = [preview];
+        categoryOverrides = { subcategory_ids: [999] };
+        responseDelay = 2000;
+        failed = true;
+        failureStatus = 500;
+        const visiting = visit("/categories");
+        await waitUntil(
+          () => queries.length === 1 && find(`${topic} img.avatar`),
+          { timeout: 5000 }
+        );
+        assert.dom(title).hasText("Old global announcement");
+        await visiting;
+        assert.dom(title).hasText("Old global announcement");
+        assert.dom(`${topic} img.avatar`).exists();
+        assert.dom(`${topic} [data-user-card="latest_replier"]`).exists();
+        assert.dom(".rpn-category-topic-loader button").exists();
+      });
+
+      if (!mobile) {
+        test("updates a returning topic without recreating its row or avatar", async function (assert) {
+          const preview = {
+            ...latest,
+            title: "Earlier title",
+            fancy_title: "Earlier title",
+            last_poster: user,
+          };
+          delete preview.category_id;
+          nativeTopics = [preview];
+          categoryOverrides = { subcategory_ids: [999] };
+          responseDelay = 2000;
+          const visiting = visit("/categories");
+          await waitUntil(
+            () => queries.length === 1 && find(`${topic} img.avatar`),
+            { timeout: 5000 }
+          );
+          const originalRow = find(topic);
+          const originalAvatar = find(`${topic} img.avatar`);
+          assert.dom(title).hasText("Earlier title");
+          await visiting;
+          assert.dom(title).hasText("Newest conversation");
+          assert.strictEqual(find(topic), originalRow);
+          assert.strictEqual(find(`${topic} img.avatar`), originalAvatar);
+        });
+      }
 
       test("reuses ordinary native previews without requests and hydrates their last poster", async function (assert) {
         nativeTopics = [
