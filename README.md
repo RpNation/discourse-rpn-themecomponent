@@ -44,24 +44,33 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    Category-only layouts have no featured topics to display avatars beside.
 4. To use Categories as the homepage, put `categories` first in the site's
    `top_menu` setting.
-5. For a compact category list, set **Number of topics shown on the categories
-   page** to `1` in each category's settings. This applies to desktop and mobile.
+5. The component displays one topic per row on desktop and mobile. Keep
+   **Number of topics shown on the categories page** at its native default of
+   `3` to give it enough preview data to choose the latest without extra requests
+   in most cases. A value of `1` also works, but pin-only previews may need a lookup.
 6. Optionally add your own category sections in the component settings below.
 
-The component loads one latest-activity topic per category from Discourse's
-permission-aware topic-filter API. Pinned topics appear only when they are
-actually the most recently active topic. This works in the theme component
-without a companion plugin. Visible categories are batched into shared requests,
-with one request at a time and at least one second between starts. Completed and
-known-empty categories need no further requests. Failed loads stop the queue;
-Retry resumes only unfinished rows. A rate-limit response pauses requests for the
-server's requested cooldown (one minute when none is provided), including after
-navigation, and disables Retry until that time has passed. Each category
-shows activity from that category itself (not its subcategories). Core permissions
-and muted-topic filtering apply. Category description topics and unlisted topics
-are excluded. If global pins fill an API response, the component checks further
-candidates before choosing the newest activity. Queries avoid negative topic
-filters, which older Discourse versions interpret as positive inclusions.
+The component first uses the featured topics already included in Discourse's
+category response, keeping the native last-poster and unread data. It displays
+the newest activity from that preview when activity is sorted descending and an
+ordinary topic is present, or when the preview contains every counted topic.
+Native previews follow Discourse's cache and each user's dismissed-pin behavior;
+the component does not fetch again just to recover a dismissed pin omitted by core.
+
+Incomplete pin-only previews, custom sorting, missing data, and parent previews
+that cannot distinguish their own topics from descendants use supplemental
+requests. Only those unresolved categories enter the shared, paced queue. A
+usable native preview remains visible while loading and on failure. This works
+entirely within the theme component, without a companion plugin.
+
+Supplemental requests batch categories together, with one request at a time and
+at least one second between starts. Failed loads stop the queue; Retry resumes
+only unfinished rows. A rate-limit response pauses requests for the server's
+requested cooldown (one minute when none is provided), including after navigation,
+and disables Retry until then. Each row shows activity from its own category.
+Core permissions and muted-topic filtering apply. Category description topics and
+unlisted topics are excluded. Queries avoid negative topic filters, which older
+Discourse versions interpret as positive inclusions.
 
 When pins prevent a batch from advancing, a category-scoped native latest list
 provides candidates. The fallback uses `order=bumped_at`: in the tested core

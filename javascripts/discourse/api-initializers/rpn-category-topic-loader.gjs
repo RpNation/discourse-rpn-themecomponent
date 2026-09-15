@@ -8,17 +8,16 @@ import TopicList from "discourse/models/topic-list";
 import User from "discourse/models/user";
 import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
+import {
+  categoryDefinitionId as definitionId,
+  nativeCategoryPreview,
+  setCategoryPreview,
+} from "../lib/rpn-category-preview";
 import { categoryTopicRequests } from "../lib/rpn-category-topic-requests";
 
 const MAX_BATCH_SIZE = 20;
 const MAX_QUERY_LENGTH = 6000;
 const FALLBACK_PAGE_SIZE = 30;
-
-function definitionId(category) {
-  return Number(
-    category.topic_id || category.topic_url?.match(/\/(\d+)\/?$/)?.[1]
-  );
-}
 
 function batchQuery(categories) {
   // Older Discourse versions interpret -topic: as a positive inclusion. Never
@@ -60,10 +59,11 @@ class RpnCategoryTopicLoader extends Component {
       this.categories = categories;
       this.pending = new Map();
       for (const category of categories || []) {
-        category.set("topics", []);
-        // Topic counts exclude the category definition. Empty rows need no API
-        // request; undefined counts still require a lookup.
-        if (category.topic_count !== 0) {
+        const preview = nativeCategoryPreview(category);
+        setCategoryPreview(category, preview.topic);
+        // Show native data immediately and retain it if a supplemental request
+        // fails. Only incomplete previews need the request queue.
+        if (!preview.complete) {
           this.pending.set(category.id, category);
         }
       }
@@ -75,7 +75,7 @@ class RpnCategoryTopicLoader extends Component {
 
     const finish = (category) => {
       const latest = candidates.get(category.id);
-      category.set("topics", latest ? [latest] : []);
+      setCategoryPreview(category, latest);
       pending.delete(category.id);
     };
 
