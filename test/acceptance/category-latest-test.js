@@ -48,6 +48,8 @@ for (const mobile of [false, true]) {
       });
       let responses;
       let queries;
+      let latestResponses;
+      let latestRequests;
       let failed;
       let categorySlug;
       let hasDefinition;
@@ -57,6 +59,8 @@ for (const mobile of [false, true]) {
       needs.hooks.beforeEach(() => {
         responses = [[oldPin, latest]];
         queries = [];
+        latestResponses = [[latest]];
+        latestRequests = [];
         failed = false;
         hasDefinition = true;
         includeHierarchy = false;
@@ -85,6 +89,11 @@ for (const mobile of [false, true]) {
         });
         server.get("/filter.json", (request) => {
           queries.push(request.queryParams.q);
+          // The beta parser treats negative definition IDs as inclusions;
+          // native definition filtering then yields a successful empty list.
+          if (request.queryParams.q.includes("-topic:")) {
+            return helper.response({ users: [], topic_list: { topics: [] } });
+          }
           if (failed) {
             return helper.response(503, {});
           }
@@ -95,6 +104,20 @@ for (const mobile of [false, true]) {
           return helper.response({
             users: [user],
             primary_groups: [],
+            topic_list: { topics: cloneJSON(response) },
+          });
+        });
+        server.get("/latest.json", (request) => {
+          if (!request.queryParams.category) {
+            return helper.response({ users: [], topic_list: { topics: [] } });
+          }
+          latestRequests.push(request.queryParams);
+          const response = latestResponses.shift() || [];
+          if (response === "error") {
+            return helper.response(503, {});
+          }
+          return helper.response({
+            users: [user],
             topic_list: { topics: cloneJSON(response) },
           });
         });
@@ -131,7 +154,7 @@ for (const mobile of [false, true]) {
         assert.true(queries[0].includes(`=category:${categorySlug}`));
         assert.true(queries[0].includes("order:activity"));
         assert.true(queries[0].includes("status:listed"));
-        assert.true(queries[0].includes("-topic:99999"));
+        assert.false(queries[0].includes("-topic:"));
       });
 
       test("a pinned topic appears when it really has the newest activity", async function (assert) {
@@ -145,7 +168,7 @@ for (const mobile of [false, true]) {
 
       test("continues past a page filled with global pins", async function (assert) {
         // Global pins can fill a response before any ordinary topic appears.
-        // Continue excluding seen pins until the newest activity is established.
+        // Native activity sorting finds candidates behind the promoted pins.
         hasDefinition = false;
         const pins = Array.from({ length: 30 }, (_, index) => ({
           ...oldPin,
@@ -156,18 +179,87 @@ for (const mobile of [false, true]) {
         assert.dom(topic).exists({ count: 1 });
         assert.dom(title).hasText("Newest conversation");
         assert.strictEqual(queries.length, 2);
-        assert.false(queries[0].includes("-topic:"));
-        assert.true(
-          queries[1].includes(`-topic:${pins.map((pin) => pin.id).join(",")}`)
-        );
+        assert.false(queries.some((query) => query.includes("-topic:")));
+        assert.true(queries[1].includes(` topic:${latest.id}`));
+        assert.strictEqual(latestRequests.length, 1);
+        assert.strictEqual(latestRequests[0].category, "1");
+        assert.strictEqual(latestRequests[0].order, "bumped_at");
+        assert.strictEqual(latestRequests[0].no_subcategories, "true");
       });
 
       test("retains the newest global pin when no ordinary topics remain", async function (assert) {
         hasDefinition = false;
-        responses = [[oldPin], []];
+        responses = [[oldPin], [oldPin]];
+        latestResponses = [[oldPin]];
         await visit("/categories");
         assert.dom(title).hasText("Old global announcement");
         assert.strictEqual(queries.length, 2);
+      });
+
+      test("finds a newer global pin hidden behind thirty promoted announcements", async function (assert) {
+        const pins = Array.from({ length: 30 }, (_, index) => ({
+          ...oldPin,
+          id: 12000 + index,
+        }));
+        const newestPin = {
+          ...oldPin,
+          id: 13000,
+          fancy_title: "Newest global pin",
+          title: "Newest global pin",
+          bumped_at: "2026-09-01T00:00:00Z",
+        };
+        responses = [pins, [newestPin, latest]];
+        latestResponses = [[newestPin, latest]];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest global pin");
+        assert.strictEqual(latestRequests.length, 1);
+        assert.true(queries[1].includes(`topic:${newestPin.id},${latest.id}`));
+      });
+
+      test("skips definition topics before validating native activity candidates", async function (assert) {
+        const definition = {
+          ...latest,
+          id: 99999,
+          fancy_title: "About category",
+          bumped_at: "2026-09-01T00:00:00Z",
+        };
+        responses = [[definition], [latest]];
+        latestResponses = [[definition, latest]];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.true(queries[1].includes(`topic:${latest.id}`));
+        assert.false(queries[1].includes("99999"));
+      });
+
+      test("native fallback failures offer a retry without selecting a stale pin", async function (assert) {
+        responses = [[oldPin]];
+        latestResponses = ["error"];
+        await visit("/categories");
+        assert.dom(topic).doesNotExist();
+        assert.dom(".rpn-category-topic-loader button").exists();
+        responses = [[oldPin], [latest]];
+        latestResponses = [[latest]];
+        await click(".rpn-category-topic-loader button");
+        assert.dom(title).hasText("Newest conversation");
+        assert.dom(".rpn-category-topic-loader button").doesNotExist();
+        assert.strictEqual(latestRequests.length, 2);
+      });
+
+      test("checks another native page when filter visibility rejects the first page", async function (assert) {
+        const hidden = Array.from({ length: 30 }, (_, index) => ({
+          ...latest,
+          id: 14000 + index,
+          bumped_at: "2026-08-01T00:00:00Z",
+        }));
+        responses = [[oldPin], [], [latest]];
+        latestResponses = [hidden, [latest]];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.deepEqual(
+          latestRequests.map((request) => request.page),
+          ["0", "1"]
+        );
+        assert.strictEqual(queries.length, 3);
       });
 
       test("batches displayed categories without fetching nested badge categories", async function (assert) {

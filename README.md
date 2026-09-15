@@ -60,12 +60,21 @@ navigation, and disables Retry until that time has passed. Each category
 shows activity from that category itself (not its subcategories). Core permissions
 and muted-topic filtering apply. Category description topics and unlisted topics
 are excluded. If global pins fill an API response, the component checks further
-candidates before choosing the newest activity.
+candidates before choosing the newest activity. Queries avoid negative topic
+filters, which older Discourse versions interpret as positive inclusions.
+
+When pins prevent a batch from advancing, a category-scoped native latest list
+provides candidates. The fallback uses `order=bumped_at`: in the tested core
+versions, this falls back to activity sorting without pin promotion. This is a
+core implementation detail to recheck on upgrades. Candidate IDs are validated
+through the original filter before display to preserve its visibility and mute
+rules. Both endpoints share the same pacing and rate-limit cooldown.
 
 Use a current Discourse release with Foundation and the
 `category-list-latest-wrapper` outlet. This component is developed against
-Discourse core `c9d27d5d2e` (2026-09-15); compatibility with older releases and
-other parent themes is not guaranteed. Surfaces and text follow the selected
+Discourse core `c9d27d5d2e` (2026-09-15). Latest-topic query behavior is also
+verified against beta's `9cccc5837d` (2026-09-11); compatibility with other older
+releases and parent themes is not guaranteed. Surfaces and text follow the selected
 Discourse palette, including light and dark mode. Configure your preferred
 light/dark palettes on the parent theme; this component does not replace them.
 
