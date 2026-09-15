@@ -10,6 +10,8 @@ standalone theme and no longer requires Graceful.
 - Palette-aware linen background, inset sidebar, and centered content panel.
 - A spacious logo band above the compact navigation, sized separately for desktop
   and mobile. The logo scrolls away while navigation stays available.
+- Configurable navbar buttons, initially Home plus Gallery and Staff Contact
+  placeholders. Blank destinations stay disabled; narrow screens use icons.
 - Adjustable site and topic/post widths.
 - A persistent Full width toggle in the sidebar footer, including topic posts
   and consistent padding when the sidebar is closed.
@@ -119,7 +121,20 @@ and reply boxes.
 | `topic_content_width` | `900`   | Topic/post content maximum in pixels, subject to available viewport space. Range: 640–1200.    |
 | `desktop_logo_height` | `110`   | Maximum logo height above navigation on desktop, in pixels. Range: 48–200.                     |
 | `mobile_logo_height`  | `56`    | Maximum logo height above navigation on phones, in pixels. Range: 32–96.                       |
+| `header_links`        | Home, Gallery, Staff Contact | Ordered navbar buttons with editable labels, icons, and URLs.                    |
 | `category_sections`   | Empty   | A list of your own section headings and the category IDs they appear above.                    |
+
+### Navbar buttons
+
+In **Admin → Appearance → Themes & components**, open this component and edit
+**Header links**. Add, remove, or reorder buttons and set each one's label, icon,
+and URL. The native icon picker includes the chosen icons automatically.
+
+Use `/` for the homepage, a site path such as `/categories`, or a full `https://`
+or `http://` URL. Leave the URL blank to keep a button as a disabled placeholder;
+adding its destination activates it. Unsupported URL formats also stay disabled.
+Clearing the list removes the custom buttons. Long lists scroll horizontally
+within the navbar, and narrow screens display icons with accessible labels.
 
 ### Adding category sections
 

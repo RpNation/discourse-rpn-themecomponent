@@ -28,6 +28,37 @@ mobile_logo_height:
   max: 96
   refresh: true
 
+header_links:
+  type: objects
+  refresh: true
+  default:
+    - label: "Home"
+      icon: "house"
+      url: "/"
+    - label: "Gallery"
+      icon: "images"
+      url: ""
+    - label: "Staff Contact"
+      icon: "envelope"
+      url: ""
+  schema:
+    name: navigation button
+    identifier: label
+    properties:
+      label:
+        type: string
+        required: true
+        validations:
+          min_length: 1
+          max_length: 60
+      icon:
+        type: icon
+        required: true
+      url:
+        type: string
+        validations:
+          max_length: 2048
+
 category_sections:
   type: objects
   default: []

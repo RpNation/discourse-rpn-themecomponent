@@ -1,0 +1,105 @@
+.d-header {
+  .desktop-view & {
+    .header-sidebar-toggle {
+      order: -2;
+    }
+
+    .before-header-panel-outlet:has(.rpn-header-navigation) {
+      order: -1;
+    }
+  }
+
+  .before-header-panel-outlet:has(.rpn-header-navigation) {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-inline-end: 0.75rem;
+  }
+
+  .rpn-header-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &__item {
+      box-sizing: border-box;
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-width: 2.5rem;
+      min-height: 2.5rem;
+      margin: 0;
+      padding: 0.5rem 0.75rem;
+      border: 0;
+      border-radius: 0.25rem;
+      background: transparent;
+      color: var(--header_primary);
+      font: inherit;
+      font-size: var(--font-down-1);
+      font-weight: 600;
+      line-height: 1.25;
+      white-space: nowrap;
+
+      .d-icon {
+        flex: 0 0 auto;
+        color: currentcolor;
+        font-size: 1rem;
+      }
+
+      &:visited {
+        color: var(--header_primary);
+      }
+
+      &:hover:not(:disabled) {
+        background: var(--header_primary-low);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--tertiary);
+        outline-offset: -2px;
+      }
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: default;
+      }
+    }
+
+    @include viewport.until(sm) {
+      gap: 0;
+
+      &__item {
+        padding: 0.5rem;
+      }
+
+      &__label {
+        display: none;
+      }
+    }
+  }
+
+  @include viewport.until(sm) {
+    .before-header-panel-outlet:has(.rpn-header-navigation) {
+      margin-inline-end: 0.25rem;
+    }
+
+    // Leave room for mobile chat's native Back/Forum and Chat links.
+    .mobile-view .has-full-page-chat &:has(.rpn-header-navigation) {
+      .home-logo-wrapper-outlet {
+        flex: 1 0 auto;
+        width: auto;
+        min-width: 0;
+      }
+
+      .c-header .back-to-forum,
+      .c-header .c-heading {
+        padding-inline: 0.125rem;
+        font-size: var(--font-0);
+        white-space: nowrap;
+      }
+    }
+  }
+}
