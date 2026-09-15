@@ -9,18 +9,24 @@ const categoryRow = 'tr[data-category-id="1"]';
 
 function stubLayoutTopics(server, helper) {
   server.get("/filter.json", (request) => {
-    const slug = request.queryParams.q
+    const slugs = request.queryParams.q
       .match(/=category:([^ ]+)/)?.[1]
-      .split(":")
-      .pop();
-    const category = discoveryFixtures[
+      .split(",")
+      .map((slug) => slug.split(":").pop());
+    const topics = discoveryFixtures[
       "/categories.json"
-    ].category_list.categories.find((entry) => entry.slug === slug);
-    const topic = cloneJSON(category?.topics?.[0] || null);
-    if (topic) {
-      topic.posters = [{ user_id: 9102, extras: "latest" }];
-      topic.last_poster_username = "latest_replier";
-    }
+    ].category_list.categories
+      .filter((entry) => slugs.includes(entry.slug))
+      .flatMap((category) => {
+        const topic = cloneJSON(category.topics?.[0] || null);
+        if (!topic) {
+          return [];
+        }
+        topic.category_id = category.id;
+        topic.posters = [{ user_id: 9102, extras: "latest" }];
+        topic.last_poster_username = "latest_replier";
+        return [topic];
+      });
     return helper.response({
       users: [
         {
@@ -29,7 +35,7 @@ function stubLayoutTopics(server, helper) {
           avatar_template: "/images/rpn-latest-replier.png",
         },
       ],
-      topic_list: { topics: topic ? [topic] : [] },
+      topic_list: { topics },
     });
   });
 }

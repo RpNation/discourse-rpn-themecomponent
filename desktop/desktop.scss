@@ -37,6 +37,41 @@ body.has-sidebar-page {
   }
 }
 
+// Native header offsets update after scrolling. A scroll timeline keeps the
+// sidebar's available height in the same frame as the branding moving away.
+// Unsupported browsers retain the measured native offsets above.
+@supports (animation-timeline: scroll()) {
+  @include viewport.from(lg) {
+    body.has-sidebar-page:not(.has-full-page-chat):has(.rpn-masthead)
+      .sidebar-wrapper {
+      --rpn-sidebar-expanded-height: calc(
+        var(--composer-vh, 1dvh) *
+          100 - var(--rpn-sticky-navigation-height, calc(3.5rem + 1px)) - 4rem
+      );
+      top: calc(var(--rpn-sticky-navigation-height, calc(3.5rem + 1px)) + 2rem);
+      animation: rpn-sidebar-height linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0
+        var(--rpn-masthead-height, calc(#{$desktop_logo_height}px + 2rem));
+    }
+  }
+}
+
+@keyframes rpn-sidebar-height {
+  from {
+    height: calc(
+      var(--rpn-sidebar-expanded-height) - var(
+          --rpn-masthead-height,
+          calc(#{$desktop_logo_height}px + 2rem)
+        )
+    );
+  }
+
+  to {
+    height: var(--rpn-sidebar-expanded-height);
+  }
+}
+
 body.has-sidebar-page {
   .welcome-banner {
     display: none;
