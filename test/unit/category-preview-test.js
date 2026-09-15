@@ -1,9 +1,5 @@
 import { module, test } from "qunit";
-import {
-  nativeCategoryPreview,
-  resolvedCategoryPreview,
-  setCategoryPreview,
-} from "../../discourse/lib/rpn-category-preview";
+import { nativeCategoryPreview } from "../../discourse/lib/rpn-category-preview";
 
 function topic(id, overrides = {}) {
   return {
@@ -15,202 +11,124 @@ function topic(id, overrides = {}) {
   };
 }
 
-function category(topics, overrides = {}) {
-  return {
-    id: 7,
-    topic_count: 10,
-    topics,
-    set(key, value) {
-      this[key] = value;
-    },
-    ...overrides,
-  };
-}
-
 module("Unit | RpNation native category previews", function () {
-  test("lazy parent metadata prevents direct counts from proving completeness", function (assert) {
-    for (const metadata of [{ has_children: true }, { subcategory_count: 2 }]) {
-      const record = category([topic(1, { pinned: true })], {
-        ...metadata,
-        topic_count: 1,
-      });
-      assert.false(nativeCategoryPreview(record).complete);
-      record.topics = [];
-      record.topic_count = 0;
-      assert.false(nativeCategoryPreview(record).complete);
-      const child = topic(2, { category_id: 8 });
-      record.topics = [child];
-      assert.true(nativeCategoryPreview(record).complete);
-      assert.strictEqual(nativeCategoryPreview(record).topic, child);
+  test("ordinary activity outranks an older pinned preview", function (assert) {
+    const pinned = topic(1, {
+      pinned: true,
+      bumped_at: "2025-01-01T12:00:00Z",
+    });
+    const ordinary = topic(2);
+    assert.strictEqual(
+      nativeCategoryPreview({ topics: [pinned, ordinary] }),
+      ordinary
+    );
+  });
+
+  test("a pinned topic remains selected when its activity is newest", function (assert) {
+    const pinned = topic(1, {
+      pinned: true,
+      bumped_at: "2026-02-01T12:00:00Z",
+    });
+    assert.strictEqual(
+      nativeCategoryPreview({ topics: [pinned, topic(2)] }),
+      pinned
+    );
+  });
+
+  test("parent categories retain native descendant previews with no direct topics", function (assert) {
+    const descendant = topic(1, { category_id: 8 });
+    for (const metadata of [
+      { subcategory_ids: [8] },
+      { has_children: true },
+      { subcategory_count: 2 },
+    ]) {
+      assert.strictEqual(
+        nativeCategoryPreview({
+          id: 7,
+          topic_count: 0,
+          topics: [descendant],
+          ...metadata,
+        }),
+        descendant
+      );
     }
+    const unspecified = topic(2, { category_id: undefined });
+    assert.strictEqual(
+      nativeCategoryPreview({
+        id: 7,
+        topics: [unspecified],
+        has_children: true,
+      }),
+      unspecified
+    );
   });
 
-  test("preserves unverified parent previews and malformed dates for immediate display", function (assert) {
-    const unknown = topic(1, { category_id: undefined });
-    const parent = category([unknown], { subcategory_ids: [8] });
-    assert.strictEqual(nativeCategoryPreview(parent).topic, unknown);
-    assert.true(nativeCategoryPreview(parent).complete);
-    const malformed = topic(2, { bumped_at: "invalid" });
-    const invalidPreview = nativeCategoryPreview(category([malformed]));
-    assert.strictEqual(invalidPreview.topic, malformed);
-    assert.false(invalidPreview.complete);
-  });
-
-  test("ordinary activity previews establish latest and preserve native poster objects", function (assert) {
-    const poster = {
+  test("selection preserves the native array, Topic, and poster identities", function (assert) {
+    const poster = Object.freeze({
       username: "native_user",
       avatar_template: "/avatar/{size}.png",
-    };
-    const latest = topic(2, { last_poster: poster });
-    const record = category([
-      topic(1, { pinned: true, bumped_at: "2025-01-01T12:00:00Z" }),
-      latest,
-    ]);
-    const preview = nativeCategoryPreview(record);
-    assert.true(preview.complete);
-    assert.strictEqual(preview.topic, latest);
-    setCategoryPreview(record, preview.topic);
+    });
+    const selected = Object.freeze(topic(2, { last_poster: poster }));
+    const first = Object.freeze(topic(1));
+    const topics = Object.freeze([first, selected]);
+    const category = Object.freeze({ topics });
+    assert.strictEqual(nativeCategoryPreview(category), selected);
+    assert.strictEqual(category.topics, topics);
+    assert.strictEqual(topics[0], first);
+    assert.strictEqual(topics.length, 2);
+    assert.strictEqual(nativeCategoryPreview(category).last_poster, poster);
+  });
+
+  test("valid activity dates take precedence and absent dates retain native order", function (assert) {
+    const missing = topic(1, { bumped_at: undefined });
+    const invalid = topic(2, { bumped_at: "invalid" });
+    const valid = topic(3);
     assert.strictEqual(
-      resolvedCategoryPreview(record).topic.last_poster,
-      poster
+      nativeCategoryPreview({ topics: [missing, invalid, valid] }),
+      valid
     );
-    assert.strictEqual(record.topics.length, 2, "native topics remain intact");
-  });
-
-  test("verified projections retain source identity and invalidate on fresh data", function (assert) {
-    const original = topic(1, { pinned: true });
-    const record = category([original]);
-    const source = record.topics;
-    const fetched = topic(2);
-    assert.true(setCategoryPreview(record, fetched, source));
-    assert.strictEqual(record.topics, source);
-    assert.strictEqual(record.topics[0], original);
-    assert.strictEqual(resolvedCategoryPreview(record).topic, fetched);
-    assert.true(resolvedCategoryPreview(record).complete);
-    assert.false(
-      nativeCategoryPreview(record).complete,
-      "native proof is never rewritten"
-    );
-    const fresh = topic(3);
-    record.topics = [fresh];
-    assert.strictEqual(resolvedCategoryPreview(record).topic, fresh);
-    assert.false(
-      setCategoryPreview(record, fetched, source),
-      "late response rejected"
-    );
-    assert.strictEqual(resolvedCategoryPreview(record).topic, fresh);
-  });
-
-  test("projection state belongs to its category instance and can resolve empty", function (assert) {
-    const source = [topic(1, { pinned: true })];
-    const first = category(source);
-    const second = category(source);
-    setCategoryPreview(first, null, source);
-    assert.deepEqual(resolvedCategoryPreview(first), {
-      topic: null,
-      complete: true,
-    });
-    assert.strictEqual(resolvedCategoryPreview(second).topic, source[0]);
-    assert.false(resolvedCategoryPreview(second).complete);
-  });
-
-  test("zero-direct-topic parents retain native descendant previews", function (assert) {
-    const child = topic(1, { category_id: 8 });
-    const record = category([child], { topic_count: 0, subcategory_ids: [8] });
-    assert.strictEqual(nativeCategoryPreview(record).topic, child);
-    assert.true(nativeCategoryPreview(record).complete);
-    record.topics = [topic(2, { pinned: true })];
-    assert.false(nativeCategoryPreview(record).complete);
-    record.topic_count = 1;
-    assert.false(
-      nativeCategoryPreview(record).complete,
-      "direct counts never prove parent completeness"
+    assert.strictEqual(
+      nativeCategoryPreview({ topics: [missing, invalid] }),
+      missing
     );
   });
 
-  test("empty known categories are complete but missing counts and previews are not", function (assert) {
-    assert.deepEqual(nativeCategoryPreview(category([], { topic_count: 0 })), {
-      topic: null,
-      complete: true,
-    });
-    assert.false(
-      nativeCategoryPreview(category([], { topic_count: undefined })).complete
-    );
-    assert.false(nativeCategoryPreview(category(undefined)).complete);
-  });
-
-  test("all distinct topics can resolve pinned-only and custom-sorted previews", function (assert) {
-    const record = category(
-      [topic(1, { pinned: true }), topic(2, { pinned: true })],
-      { topic_count: 2, sort_order: "title", sort_ascending: true }
-    );
-    const preview = nativeCategoryPreview(record);
-    assert.true(preview.complete);
-    assert.strictEqual(preview.topic.id, 2, "equal dates use the higher ID");
-    record.topics = [record.topics[0], record.topics[0]];
-    assert.false(
-      nativeCategoryPreview(record).complete,
-      "duplicate IDs cannot satisfy the count"
+  test("equivalent activity timestamps use the higher topic ID", function (assert) {
+    const higher = topic(2, { bumped_at: "2026-01-01T07:00:00-05:00" });
+    assert.strictEqual(
+      nativeCategoryPreview({ topics: [higher, topic(1)] }),
+      higher
     );
   });
 
-  test("custom sorts and ascending order require complete counts", function (assert) {
-    for (const overrides of [
-      { sort_order: "title" },
-      { sort_order: "activity", sort_ascending: true },
-      { sort_ascending: "true" },
+  test("category definitions and unlisted topics are excluded", function (assert) {
+    const visible = topic(3, { bumped_at: "2025-01-01T12:00:00Z" });
+    const topics = [topic(1), topic(2, { visible: false }), visible];
+    assert.strictEqual(nativeCategoryPreview({ topic_id: 1, topics }), visible);
+    assert.strictEqual(
+      nativeCategoryPreview({ topic_url: "/t/about-category/1", topics }),
+      visible
+    );
+  });
+
+  test("empty, missing, and entirely excluded previews return no topic", function (assert) {
+    for (const category of [
+      {},
+      { topics: [] },
+      { topic_id: 1, topics: [topic(1), topic(2, { visible: false })] },
     ]) {
-      assert.false(
-        nativeCategoryPreview(category([topic(1)], overrides)).complete
-      );
+      assert.strictEqual(nativeCategoryPreview(category), null);
     }
   });
 
-  test("dismissed and unspecified pins alone do not prove an ordinary preview", function (assert) {
-    for (const overrides of [
-      { pinned: false, unpinned: true },
-      { pinned: true },
-      { pinned: undefined },
-    ]) {
-      const preview = nativeCategoryPreview(category([topic(1, overrides)]));
-      assert.false(preview.complete);
-      assert.strictEqual(
-        preview.topic.id,
-        1,
-        "retain the best preview while fetching"
-      );
-    }
-  });
-
-  test("invalid timestamps alongside an ordinary topic prevent an early finish", function (assert) {
-    const valid = topic(1);
-    for (const bumped_at of [null, undefined, "invalid"]) {
-      const preview = nativeCategoryPreview(
-        category([valid, topic(2, { bumped_at })])
-      );
-      assert.false(preview.complete);
-      assert.strictEqual(preview.topic, valid);
-    }
-  });
-
-  test("definitions and unlisted topics are excluded but attached descendants remain", function (assert) {
-    const child = topic(3, { category_id: 8 });
-    const record = category([topic(1), topic(2, { visible: false }), child], {
-      topic_url: "/t/about-category/1",
-    });
-    assert.strictEqual(nativeCategoryPreview(record).topic, child);
-    assert.true(nativeCategoryPreview(record).complete);
-  });
-
-  test("parent previews without category IDs use the same native activity evidence", function (assert) {
-    const preview = topic(1, { category_id: undefined });
-    for (const children of [
-      { subcategory_ids: [8] },
-      { subcategory_list: [{ id: 8 }] },
-    ]) {
-      const result = nativeCategoryPreview(category([preview], children));
-      assert.true(result.complete);
-      assert.strictEqual(result.topic, preview);
-    }
+  test("a fresh native source is selected immediately without retained result state", function (assert) {
+    const first = topic(1);
+    const next = topic(2, { bumped_at: "2025-01-01T12:00:00Z" });
+    const category = { topics: [first] };
+    assert.strictEqual(nativeCategoryPreview(category), first);
+    category.topics = [next];
+    assert.strictEqual(nativeCategoryPreview(category), next);
+    category.topics = [];
+    assert.strictEqual(nativeCategoryPreview(category), null);
   });
 });
