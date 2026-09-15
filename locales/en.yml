@@ -1,4 +1,7 @@
 en:
+  topic_sections:
+    pinned: "Pinned topics"
+    normal: "Normal topics"
   category_sections:
     collapse: "Collapse %{heading}"
     expand: "Expand %{heading}"
