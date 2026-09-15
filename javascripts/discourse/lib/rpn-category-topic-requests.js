@@ -31,7 +31,7 @@ export class CategoryTopicRequests {
     this.trackPromise = trackPromise;
   }
 
-  request(query, { signal } = {}) {
+  request(query, { signal, path = "/filter.json" } = {}) {
     if (signal?.aborted) {
       return Promise.reject(abortedError());
     }
@@ -80,10 +80,10 @@ export class CategoryTopicRequests {
 
       this.lastStartedAt = this.now();
       try {
-        inFlight = this.ajax("/filter.json", {
+        inFlight = this.ajax(path, {
           ignoreUnsent: false,
           timeout: 15000,
-          data: { q: query },
+          data: typeof query === "string" ? { q: query } : query,
         });
         return await Promise.race([inFlight, aborted]);
       } catch (error) {

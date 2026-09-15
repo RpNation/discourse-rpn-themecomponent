@@ -82,6 +82,31 @@ module("Unit | RpNation category topic requests", function (hooks) {
     await second;
   });
 
+  test("native fallback shares pacing and 429 cooldown with filter requests", async function (assert) {
+    const first = this.scheduler.request("=category:community order:activity");
+    const data = { category: 1, order: "bumped_at", no_subcategories: true };
+    const fallback = capture(
+      this.scheduler.request(data, { path: "/latest.json" })
+    );
+    await this.clock.tickAsync(0);
+    this.pending[0].resolve("batch");
+    await first;
+    await this.clock.tickAsync(999);
+    assert.strictEqual(this.starts.length, 1);
+    await this.clock.tickAsync(1);
+    assert.strictEqual(this.starts[1].url, "/latest.json");
+    assert.deepEqual(this.starts[1].options.data, data);
+    this.pending[1].reject(rateLimit("3"));
+    assert.strictEqual((await fallback).error.jqXHR.status, 429);
+    const validation = await capture(this.scheduler.request("topic:123"));
+    assert.strictEqual(validation.error.jqXHR.status, 429);
+    assert.strictEqual(
+      this.starts.length,
+      2,
+      "no filter request during cooldown"
+    );
+  });
+
   test("429 rejects queued work and immediate retries without new requests", async function (assert) {
     const first = capture(this.scheduler.request("first"));
     const queued = capture(this.scheduler.request("queued"));
