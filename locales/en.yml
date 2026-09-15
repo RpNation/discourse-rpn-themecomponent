@@ -1,4 +1,7 @@
 en:
+  category_sections:
+    collapse: "Collapse %{heading}"
+    expand: "Expand %{heading}"
   palette_selector:
     title: "Color palettes"
     light: "Light palette"
@@ -11,7 +14,7 @@ en:
       desktop_logo_height: "Maximum logo height in pixels in the branding band above navigation on desktop. Upload the logo in Admin → Appearance → Logo; its proportions are preserved."
       mobile_logo_height: "Maximum logo height in pixels above navigation on phones. Uses the site's mobile logo when configured, otherwise the primary logo."
       category_sections:
-        description: "Add your own headings above category rows on desktop and mobile. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
+        description: "Add collapsible headings above category rows on desktop and mobile. Each browser remembers which sections are collapsed. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
         schema:
           properties:
             heading:

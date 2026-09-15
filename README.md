@@ -21,7 +21,7 @@ standalone theme and no longer requires Graceful.
   latest activity with date and author on desktop and mobile.
 - All-time category totals with native unread/new badges, without weekly rates.
 - Hidden sidebar Tags section.
-- Custom category-section headings for any category ID, with no preset names or IDs.
+- Collapsible category-section headings for any category ID, with saved browser preferences.
 - Subtle topic-list shading and post dividers, without boxed posts.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
@@ -138,6 +138,12 @@ settings; no separate mobile configuration is needed. They are not added to
 category boxes. Nested category badges and parent-group labels do not become
 separate rows; a heading appears only in a view where that category has its own
 row. Missing or inaccessible categories do not produce a heading.
+
+Click a section header or its arrow to collapse all its category rows and nested
+subforums through the next header. Each section remembers its choice in this
+browser's local storage, separately for signed-in accounts and anonymous visitors.
+Saved choices apply before the rows display on desktop and mobile. Collapsing
+keeps the native topic previews mounted, so expanding does not reload them.
 
 The first valid entry for a repeated category ID wins. Entries do not reorder
 categories, create them, or change their permissions. Category ordering and access
