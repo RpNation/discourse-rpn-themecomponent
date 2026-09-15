@@ -22,6 +22,8 @@ standalone theme and no longer requires Graceful.
 - All-time category totals with native unread/new badges, without weekly rates.
 - Hidden sidebar Tags section.
 - Collapsible category-section headings for any category ID, with saved browser preferences.
+- Pinned topics and Normal topics header bars separate the leading pinned group
+  in topic lists on desktop and mobile, following each user's pin dismissals.
 - Subtle topic-list shading and post dividers, without boxed posts.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.

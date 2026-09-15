@@ -1,0 +1,49 @@
+.topic-list {
+  --rpn-topic-section-background: light-dark(
+    color-mix(in srgb, var(--secondary) 94%, var(--primary)),
+    color-mix(in srgb, var(--secondary) 90%, black)
+  );
+
+  // Each pinned item supplies a potential boundary. Show only the final one
+  // before the first regular topic, ignoring other outlet and last-visit rows.
+  // Pins later in a custom sort do not introduce additional section headings.
+  > .topic-list-body > .rpn-topic-section--normal {
+    display: none;
+
+    &:has(~ .topic-list-item:nth-child(1 of .topic-list-item:not(.pinned))):not(
+        :has(
+          ~ .topic-list-item.pinned
+            ~ .topic-list-item:nth-child(1 of .topic-list-item:not(.pinned))
+        )
+      ) {
+      display: table-row;
+    }
+  }
+
+  > :is(.topic-list-body, .rpn-topic-section-group)
+    > .rpn-topic-section
+    > .rpn-topic-section__cell {
+    padding: 0.5rem 0.875rem;
+    border-block: 1px solid var(--rpn-row-divider);
+    background: var(--rpn-topic-section-background);
+    color: var(--primary-high);
+    text-align: start;
+    vertical-align: middle;
+    transition: none;
+  }
+}
+
+.rpn-topic-section__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--font-family);
+  font-size: var(--font-down-1);
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+// Core applies a larger margin to headings inside the discovery list area.
+#list-area .rpn-topic-section__title {
+  margin: 0;
+}
