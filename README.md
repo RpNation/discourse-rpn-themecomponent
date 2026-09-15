@@ -50,30 +50,35 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    in most cases. A value of `1` also works, but pin-only previews may need a lookup.
 6. Optionally add your own category sections in the component settings below.
 
-The component first uses the featured topics already included in Discourse's
-category response, keeping the native last-poster and unread data. It displays
-the newest activity from that preview when activity is sorted descending and an
-ordinary topic is present, or when the preview contains every counted topic.
-Native previews follow Discourse's cache and each user's dismissed-pin behavior;
-the component does not fetch again just to recover a dismissed pin omitted by core.
+The component selects one topic from Discourse's native featured topics before
+rows first render on desktop or mobile. It keeps the server's topic arrays,
+Topic objects, last-poster avatars, and unread data intact. Parent rows include
+the descendant topics Discourse attaches to them, even when the parent has no
+direct topics. Missing topic category IDs do not discard those previews.
 
-Incomplete pin-only previews, custom sorting, missing data, and parent previews
-that cannot distinguish their own topics from descendants use supplemental
-requests. Only those unresolved categories enter the shared, paced queue. A
-usable native preview remains visible while loading and on failure, including
-parent previews. Missing topic category IDs prevent an early finish, but do not
-remove the native topic or avatar while a lookup runs. Everything runs within
-the theme component, without a companion plugin.
+An ordinary topic in an activity-descending preview establishes the latest
+activity within that native view. For leaf categories, a preview containing
+every counted topic also needs no lookup. Native previews follow Discourse's
+cache and each user's dismissed-pin behavior; the component does not fetch again
+just to recover a dismissed pin omitted by core.
 
-Supplemental requests batch categories together, with one request at a time and
-at least one second between starts. Failed loads stop the queue; Retry resumes
-only unfinished rows. A rate-limit response pauses requests for the server's
-requested cooldown (one minute when none is provided), including after navigation,
-and disables Retry until then. Supplemental lookups use the row's own category;
-the native preview stays visible until that result is available.
-Core permissions and muted-topic filtering apply. Category description topics and
-unlisted topics are excluded. Queries avoid negative topic filters, which older
-Discourse versions interpret as positive inclusions.
+Incomplete pin-only previews, custom sorting, and missing activity data may need
+supplemental requests. Only unresolved rows enter the shared, paced queue. The
+native selection remains visible while loading and on failure. A completed
+lookup may replace it once with a newer verified topic; intermediate candidates
+are never displayed or hydrated into shared Topic records. Results belong to the
+exact native response they verify, so a refreshed response invalidates them and
+late results cannot overwrite fresh data. This runs entirely in the theme
+component, without a companion plugin.
+
+Supplemental requests include the category and its descendants. They batch rows
+together, with one request at a time and at least one second between starts.
+Failed loads stop the queue; Retry resumes only unfinished rows. A rate-limit
+response pauses requests for the server's requested cooldown (one minute when
+none is provided), including after navigation, and disables Retry until then.
+Core permissions and muted-topic filtering apply. Category description topics
+and unlisted topics are excluded. Queries avoid negative topic filters, which
+older Discourse versions interpret as positive inclusions.
 
 When pins prevent a batch from advancing, a category-scoped native latest list
 provides candidates. The fallback uses `order=bumped_at`: in the tested core
@@ -83,7 +88,9 @@ through the original filter before display to preserve its visibility and mute
 rules. Both endpoints share the same pacing and rate-limit cooldown.
 
 Use a current Discourse release with Foundation and the
-`category-list-latest-wrapper` outlet. This component is developed against
+`category-list-latest-wrapper` outlet and the `addModelField` / `addModelGetter`
+APIs. These APIs project the selected topic before the native rows render. This
+component is developed against
 Discourse core `c9d27d5d2e` (2026-09-15). Latest-topic query behavior is also
 verified against beta's `9cccc5837d` (2026-09-11); compatibility with other older
 releases and parent themes is not guaranteed. Surfaces and text follow the selected
