@@ -55,6 +55,8 @@ for (const mobile of [false, true]) {
       let hasDefinition;
       let includeHierarchy;
       let knownEmpty;
+      let nativeTopics;
+      let categoryOverrides;
 
       needs.hooks.beforeEach(() => {
         responses = [[oldPin, latest]];
@@ -65,18 +67,21 @@ for (const mobile of [false, true]) {
         hasDefinition = true;
         includeHierarchy = false;
         knownEmpty = false;
+        nativeTopics = [];
+        categoryOverrides = {};
       });
       needs.pretender((server, helper) => {
         server.get("/categories.json", () => {
           const response = cloneJSON(discoveryFixtures["/categories.json"]);
           const category = response.category_list.categories[0];
           for (const entry of response.category_list.categories) {
-            entry.topic_count = 1;
+            entry.topic_count = 100;
           }
-          category.topic_count = knownEmpty ? 0 : 1;
+          category.topic_count = knownEmpty ? 0 : 100;
           categorySlug = category.slug;
           category.topic_url = hasDefinition ? "/t/about-category/99999" : null;
-          category.topics = [oldPin, latest, { ...oldPin, id: 11889 }];
+          category.topics = cloneJSON(nativeTopics);
+          Object.assign(category, categoryOverrides);
           if (includeHierarchy) {
             response.category_list.categories =
               response.category_list.categories.filter((entry) =>
@@ -130,6 +135,90 @@ for (const mobile of [false, true]) {
         ? `${row} tr.category-topic-link`
         : `${row} .rpn-featured-topic`;
       const title = mobile ? `${topic} a[data-topic-id]` : `${topic} a.title`;
+
+      test("reuses ordinary native previews without requests and hydrates their last poster", async function (assert) {
+        nativeTopics = [
+          oldPin,
+          { ...latest, last_poster: user },
+          { ...oldPin, id: 11889 },
+        ];
+        await visit("/categories");
+        assert.strictEqual(queries.length, 0);
+        assert.strictEqual(latestRequests.length, 0);
+        assert.dom(topic).exists({ count: 1 });
+        assert.dom(title).hasText("Newest conversation");
+        assert
+          .dom(`${topic} img.avatar`)
+          .hasAttribute("src", /rpn-latest-replier\.png$/);
+        assert.dom(`${topic} [data-user-card="latest_replier"]`).exists();
+      });
+
+      test("follows native pin dismissals when an ordinary preview is present", async function (assert) {
+        nativeTopics = [
+          { ...latest, last_poster: user },
+          { ...oldPin, pinned: false, unpinned: true },
+        ];
+        await visit("/categories");
+        assert.strictEqual(queries.length, 0);
+        assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("keeps an ambiguous native pin visible when refreshing fails", async function (assert) {
+        nativeTopics = [{ ...oldPin, last_poster: user }];
+        failed = true;
+        await visit("/categories");
+        assert.dom(topic).exists({ count: 1 });
+        assert.dom(title).hasText("Old global announcement");
+        assert.dom(".rpn-category-topic-loader button").exists();
+        failed = false;
+        await click(".rpn-category-topic-loader button");
+        assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("fetches when custom sorting cannot establish latest activity", async function (assert) {
+        nativeTopics = [{ ...oldPin, pinned: false, pinned_globally: false }];
+        categoryOverrides = { sort_order: "created", sort_ascending: false };
+        await visit("/categories");
+        assert.strictEqual(queries.length, 1);
+        assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("reuses complete small-category previews even with custom sorting and pins", async function (assert) {
+        nativeTopics = [oldPin, { ...latest, last_poster: user }];
+        categoryOverrides = {
+          topic_count: 2,
+          sort_order: "created",
+          sort_ascending: true,
+        };
+        await visit("/categories");
+        assert.strictEqual(queries.length, 0);
+        assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("does not infer missing topic categories when the row has children", async function (assert) {
+        const ambiguous = { ...oldPin, pinned: false, pinned_globally: false };
+        delete ambiguous.category_id;
+        nativeTopics = [ambiguous];
+        categoryOverrides = {
+          subcategory_ids: [999],
+          subcategory_list: [
+            { id: 999, name: "Child", slug: "child", parent_category_id: 1 },
+          ],
+        };
+        await visit("/categories");
+        assert.strictEqual(queries.length, 1);
+        assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("infers a native preview's category for a row without children", async function (assert) {
+        const ordinary = { ...latest, last_poster: user };
+        delete ordinary.category_id;
+        nativeTopics = [ordinary];
+        categoryOverrides = { subcategory_ids: [], subcategory_list: [] };
+        await visit("/categories");
+        assert.strictEqual(queries.length, 0);
+        assert.dom(title).hasText("Newest conversation");
+      });
 
       test("one latest topic replaces pinned server previews and keeps the last poster", async function (assert) {
         await visit("/categories");
@@ -376,6 +465,7 @@ for (const mobile of [false, true]) {
 
       test("known empty categories need no request and do not retain sticky previews", async function (assert) {
         knownEmpty = true;
+        nativeTopics = [oldPin];
         await visit("/categories");
         assert.strictEqual(queries.length, 0);
         assert.dom(topic).doesNotExist();
