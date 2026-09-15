@@ -1,0 +1,39 @@
+// Channel settings and members must own their scrolling even when the sidebar
+// is closed. Keep the site's branding and navigation outside that scroll area.
+body.has-full-page-chat:has(#main-chat-outlet > .c-routes.--channel-info) {
+  --rpn-chat-settings-inset: 0px;
+  --rpn-chat-settings-footer: 0px;
+
+  .desktop-view &.has-sidebar-page {
+    --rpn-chat-settings-inset: 4rem;
+  }
+
+  .footer-nav-visible:not(.keyboard-visible) & {
+    --rpn-chat-settings-footer: var(--footer-nav-height, 0px);
+  }
+
+  #main-outlet {
+    box-sizing: border-box;
+    height: calc(
+      var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset, 0px) -
+        1px - var(--rpn-chat-settings-inset) - var(
+          --composer-height,
+          0px
+        ) - var(--rpn-chat-settings-footer)
+    );
+    min-height: 0;
+    overflow: clip;
+  }
+
+  #main-chat-outlet {
+    height: 100%;
+    min-height: 0;
+  }
+
+  #main-chat-outlet > .c-routes.--channel-info {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+}
