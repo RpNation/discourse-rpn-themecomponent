@@ -51,8 +51,12 @@ that hidden and expanded muted-category lists preserve their normal behavior.
 The component loads one latest-activity topic per category from Discourse's
 permission-aware topic-filter API. Pinned topics appear only when they are
 actually the most recently active topic. This works in the theme component
-without a companion plugin. Requests are limited to three at a time and run when
-the category list is displayed; failed loads offer a Retry button. Each category
+without a companion plugin. Visible categories are batched into shared requests,
+with one request at a time and at least one second between starts. Completed and
+known-empty categories need no further requests. Failed loads stop the queue;
+Retry resumes only unfinished rows. A rate-limit response pauses requests for the
+server's requested cooldown (one minute when none is provided), including after
+navigation, and disables Retry until that time has passed. Each category
 shows activity from that category itself (not its subcategories). Core permissions
 and muted-topic filtering apply. Category description topics and unlisted topics
 are excluded. If global pins fill an API response, the component checks further
@@ -91,8 +95,9 @@ size on desktop. Larger uploads scale to the available space without cropping.
 The site's mobile and dark logo variants are supported, and clicking the logo
 returns to the homepage.
 
-The band scrolls above the sticky navigation. Full-page chat keeps its compact
-header so messages and reply boxes retain the available screen height.
+The band scrolls above the sticky navigation. Full-page chat includes the logo
+band at a compact height that adapts to the window, preserving space for messages
+and reply boxes.
 
 ## Component settings
 

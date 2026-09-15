@@ -8,6 +8,7 @@ en:
   full_width_toggle: "Full width"
   latest_activity_retry: "Retry"
   latest_activity_load_error: "Latest activity could not be loaded."
+  latest_activity_rate_limited: "The server is limiting requests. Please wait before retrying."
   theme_metadata:
     settings:
       desktop_logo_height: "Maximum logo height in pixels in the branding band above navigation on desktop. Upload the logo in Admin → Appearance → Logo; its proportions are preserved."

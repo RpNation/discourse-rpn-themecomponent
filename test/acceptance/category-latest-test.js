@@ -52,6 +52,7 @@ for (const mobile of [false, true]) {
       let categorySlug;
       let hasDefinition;
       let includeHierarchy;
+      let knownEmpty;
 
       needs.hooks.beforeEach(() => {
         responses = [[oldPin, latest]];
@@ -59,11 +60,16 @@ for (const mobile of [false, true]) {
         failed = false;
         hasDefinition = true;
         includeHierarchy = false;
+        knownEmpty = false;
       });
       needs.pretender((server, helper) => {
         server.get("/categories.json", () => {
           const response = cloneJSON(discoveryFixtures["/categories.json"]);
           const category = response.category_list.categories[0];
+          for (const entry of response.category_list.categories) {
+            entry.topic_count = 1;
+          }
+          category.topic_count = knownEmpty ? 0 : 1;
           categorySlug = category.slug;
           category.topic_url = hasDefinition ? "/t/about-category/99999" : null;
           category.topics = [oldPin, latest, { ...oldPin, id: 11889 }];
@@ -82,10 +88,14 @@ for (const mobile of [false, true]) {
           if (failed) {
             return helper.response(503, {});
           }
+          const response = responses.shift() || [];
+          if (response === "error") {
+            return helper.response(503, {});
+          }
           return helper.response({
             users: [user],
             primary_groups: [],
-            topic_list: { topics: cloneJSON(responses.shift() || []) },
+            topic_list: { topics: cloneJSON(response) },
           });
         });
       });
@@ -134,8 +144,8 @@ for (const mobile of [false, true]) {
       });
 
       test("continues past a page filled with global pins", async function (assert) {
-        // Core disables pin promotion when a topic-ID exclusion is present.
-        // Categories without a definition topic exercise the fallback.
+        // Global pins can fill a response before any ordinary topic appears.
+        // Continue excluding seen pins until the newest activity is established.
         hasDefinition = false;
         const pins = Array.from({ length: 30 }, (_, index) => ({
           ...oldPin,
@@ -152,18 +162,131 @@ for (const mobile of [false, true]) {
         );
       });
 
-      test("loads every displayed category without fetching nested badge categories", async function (assert) {
+      test("retains the newest global pin when no ordinary topics remain", async function (assert) {
+        hasDefinition = false;
+        responses = [[oldPin], []];
+        await visit("/categories");
+        assert.dom(title).hasText("Old global announcement");
+        assert.strictEqual(queries.length, 2);
+      });
+
+      test("batches displayed categories without fetching nested badge categories", async function (assert) {
         includeHierarchy = true;
-        responses = [[latest], [], [], []];
+        responses = [
+          [1, 2, 6, 17].map((id) => ({
+            ...latest,
+            id: latest.id + id,
+            category_id: id,
+          })),
+        ];
         await visit("/categories");
 
         assert.dom(title).hasText("Newest conversation");
-        assert.strictEqual(queries.length, 4);
+        assert.strictEqual(queries.length, 1);
         assert.deepEqual(
-          queries.map((query) => query.match(/=category:([^ ]+)/)[1]).sort(),
+          queries[0]
+            .match(/=category:([^ ]+)/)[1]
+            .split(",")
+            .sort(),
           ["bug", "feature", "support", "uncategorized"].sort(),
-          "only displayed parent rows are fetched, including the fourth queued row"
+          "one request contains only the displayed parent rows"
         );
+      });
+
+      test("removes busy categories before fetching quieter categories", async function (assert) {
+        includeHierarchy = true;
+        responses = [
+          [latest],
+          [2, 6, 17].map((id) => ({
+            ...latest,
+            id: latest.id + id,
+            category_id: id,
+          })),
+        ];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 2);
+        assert.false(
+          queries[1]
+            .match(/=category:([^ ]+)/)[1]
+            .split(",")
+            .includes(categorySlug)
+        );
+      });
+
+      test("a global-only category remains unresolved while another category completes", async function (assert) {
+        includeHierarchy = true;
+        responses = [
+          [oldPin, { ...latest, id: 11995, category_id: 2 }],
+          [
+            latest,
+            ...[6, 17].map((id) => ({
+              ...latest,
+              id: latest.id + id,
+              category_id: id,
+            })),
+          ],
+        ];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 2);
+        assert.true(
+          queries[1]
+            .match(/=category:([^ ]+)/)[1]
+            .split(",")
+            .includes(categorySlug)
+        );
+      });
+
+      test("retry preserves completed categories and requests only unresolved rows", async function (assert) {
+        includeHierarchy = true;
+        responses = [[latest], "error"];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.dom(".rpn-category-topic-loader button").exists();
+        responses = [
+          [2, 6, 17].map((id) => ({
+            ...latest,
+            id: latest.id + id,
+            category_id: id,
+          })),
+        ];
+        await click(".rpn-category-topic-loader button");
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 3);
+        assert.false(
+          queries[2]
+            .match(/=category:([^ ]+)/)[1]
+            .split(",")
+            .includes(categorySlug)
+        );
+        assert.dom(".rpn-category-topic-loader button").doesNotExist();
+      });
+
+      test("ignores topics returned outside the requested category", async function (assert) {
+        responses = [
+          [
+            {
+              ...latest,
+              id: 12999,
+              category_id: 999,
+              bumped_at: "2026-09-01T12:00:00Z",
+            },
+            latest,
+          ],
+        ];
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert
+          .dom(title)
+          .hasAttribute("href", "/t/newest-conversation/11994/4");
+      });
+
+      test("known empty categories need no request and do not retain sticky previews", async function (assert) {
+        knownEmpty = true;
+        await visit("/categories");
+        assert.strictEqual(queries.length, 0);
+        assert.dom(topic).doesNotExist();
       });
 
       test("empty categories do not fall back to a sticky preview", async function (assert) {

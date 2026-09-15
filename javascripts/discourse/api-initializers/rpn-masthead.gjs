@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { modifier } from "ember-modifier";
 import Logo from "discourse/components/header/logo";
 import { apiInitializer } from "discourse/lib/api";
 import getURL from "discourse/lib/get-url";
@@ -13,6 +14,51 @@ class RpnMasthead extends Component {
   @service session;
   @service site;
   @service siteSettings;
+
+  measureLayout = modifier((element) => {
+    const style = document.documentElement.style;
+    const properties = [
+      "--rpn-sticky-navigation-height",
+      "--rpn-masthead-height",
+    ];
+    const previous = properties.map((name) => style.getPropertyValue(name));
+    let header;
+    const measure = () => {
+      if (header) {
+        const top = parseFloat(getComputedStyle(header).top) || 0;
+        style.setProperty(
+          properties[0],
+          `${header.getBoundingClientRect().height + top}px`
+        );
+      }
+      style.setProperty(
+        properties[1],
+        `${element.getBoundingClientRect().height}px`
+      );
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    // The sibling header is inserted in the same render as this outlet.
+    const frame = requestAnimationFrame(() => {
+      header = document.querySelector(".d-header-wrap");
+      if (header) {
+        observer.observe(header);
+      }
+      measure();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      properties.forEach((name, index) => {
+        if (previous[index]) {
+          style.setProperty(name, previous[index]);
+        } else {
+          style.removeProperty(name);
+        }
+      });
+    };
+  });
 
   get href() {
     return applyValueTransformer("home-logo-href", getURL("/"));
@@ -55,7 +101,7 @@ class RpnMasthead extends Component {
   }
 
   <template>
-    <div class="rpn-masthead">
+    <div class="rpn-masthead" {{this.measureLayout}}>
       <div class="wrap rpn-masthead__inner">
         <a
           class="rpn-masthead__link"

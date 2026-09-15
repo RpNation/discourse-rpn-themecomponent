@@ -55,9 +55,22 @@
   }
 }
 
-// Chat is a viewport-sized workspace: leave its height for messages/composers.
-// Some other native fullscreen flows omit the header entirely.
-body.has-full-page-chat .rpn-masthead,
+// Keep branding visible in chat while reserving room for its composers on
+// short screens. Core includes this band in its measured header offset.
+body.has-full-page-chat .rpn-masthead {
+  --rpn-logo-height: min(#{$desktop_logo_height}px, 10dvh);
+
+  .rpn-masthead__inner {
+    min-height: calc(var(--rpn-logo-height) + 1rem);
+    padding-block: 0.5rem;
+  }
+
+  @include viewport.until(sm) {
+    --rpn-logo-height: min(#{$mobile_logo_height}px, 10dvh);
+  }
+}
+
+// Native flows that omit navigation also omit the branding above it.
 body:not(:has(.d-header)) .rpn-masthead {
   display: none;
 }
