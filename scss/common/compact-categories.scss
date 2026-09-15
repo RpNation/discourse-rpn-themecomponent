@@ -215,12 +215,3 @@
 #main-outlet .category-list .rpn-category-section__heading {
   margin: 0;
 }
-
-.rpn-category-topic-loader:not(:empty) {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  color: var(--primary-high);
-  font-size: var(--font-down-1);
-}

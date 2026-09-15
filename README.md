@@ -15,8 +15,8 @@ standalone theme and no longer requires Graceful.
   and consistent padding when the sidebar is closed.
 - A sidebar palette selector with separate light/dark choices and native
   Auto, Light, and Dark appearance modes.
-- One latest-activity topic per category on desktop and mobile, with last-poster
-  avatars, topic status, unread badges, and dates.
+- One topic with the newest activity from each category's native previews on
+  desktop and mobile, with last-poster avatars, topic status, unread badges, and dates.
 - Compact category rows, aligned color strips, section header bars, and two-line
   latest activity with date and author on desktop and mobile.
 - All-time category totals with native unread/new badges, without weekly rates.
@@ -46,8 +46,8 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    `top_menu` setting.
 5. The component displays one topic per row on desktop and mobile. Keep
    **Number of topics shown on the categories page** at its native default of
-   `3` to give it enough preview data to choose the latest without extra requests
-   in most cases. A value of `1` also works, but pin-only previews may need a lookup.
+   `3` so the component can select the newest activity from those previews. A
+   value of `1` displays that one native preview.
 6. Optionally add your own category sections in the component settings below.
 
 The component selects one topic from Discourse's native featured topics before
@@ -56,43 +56,23 @@ Topic objects, last-poster avatars, and unread data intact. Parent rows include
 the descendant topics Discourse attaches to them, even when the parent has no
 direct topics. Missing topic category IDs do not discard those previews.
 
-An ordinary topic in an activity-descending preview establishes the latest
-activity within that native view. For leaf categories, a preview containing
-every counted topic also needs no lookup. Native previews follow Discourse's
-cache and each user's dismissed-pin behavior; the component does not fetch again
-just to recover a dismissed pin omitted by core.
+The native category response is the only data source. The component makes no
+supplemental topic requests and never replaces a preview with a later lookup's
+topic or avatar. A genuinely new native category response is reflected normally.
+There is no request queue, retry UI, or companion plugin.
 
-Incomplete pin-only previews, custom sorting, and missing activity data may need
-supplemental requests. Only unresolved rows enter the shared, paced queue. The
-native selection remains visible while loading and on failure. A completed
-lookup may replace it once with a newer verified topic; intermediate candidates
-are never displayed or hydrated into shared Topic records. Results belong to the
-exact native response they verify, so a refreshed response invalidates them and
-late results cannot overwrite fresh data. This runs entirely in the theme
-component, without a companion plugin.
-
-Supplemental requests include the category and its descendants. They batch rows
-together, with one request at a time and at least one second between starts.
-Failed loads stop the queue; Retry resumes only unfinished rows. A rate-limit
-response pauses requests for the server's requested cooldown (one minute when
-none is provided), including after navigation, and disables Retry until then.
-Core permissions and muted-topic filtering apply. Category description topics
-and unlisted topics are excluded. Queries avoid negative topic filters, which
-older Discourse versions interpret as positive inclusions.
-
-When pins prevent a batch from advancing, a category-scoped native latest list
-provides candidates. The fallback uses `order=bumped_at`: in the tested core
-versions, this falls back to activity sorting without pin promotion. This is a
-core implementation detail to recheck on upgrades. Candidate IDs are validated
-through the original filter before display to preserve its visibility and mute
-rules. Both endpoints share the same pacing and rate-limit cooldown.
+Selection uses activity time, without preferring pins. It follows Discourse's
+permissions, cache, and each user's dismissed-pin behavior. It can only choose
+among topics included in the native response: if pins fill all previews or a
+custom category sort omits newer activity, the selected preview is not guaranteed
+to be the newest topic in the entire category. Category description topics and
+unlisted topics are excluded from selection.
 
 Use a current Discourse release with Foundation and the
-`category-list-latest-wrapper` outlet and the `addModelField` / `addModelGetter`
-APIs. These APIs project the selected topic before the native rows render. This
-component is developed against
-Discourse core `c9d27d5d2e` (2026-09-15). Latest-topic query behavior is also
-verified against beta's `9cccc5837d` (2026-09-11); compatibility with other older
+`category-list-latest-wrapper` outlet and the `addModelGetter` API. The getter
+selects the topic before native rows render. This component is developed against
+Discourse core `c9d27d5d2e` (2026-09-15). The model API and native preview behavior
+are also verified against beta's `9cccc5837d` (2026-09-11); compatibility with other older
 releases and parent themes is not guaranteed. Surfaces and text follow the selected
 Discourse palette, including light and dark mode. Configure your preferred
 light/dark palettes on the parent theme; this component does not replace them.
