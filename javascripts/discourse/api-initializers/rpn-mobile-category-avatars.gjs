@@ -5,13 +5,15 @@ import { modifier } from "ember-modifier";
 import { apiInitializer } from "discourse/lib/api";
 import DUserAvatarFlair from "discourse/ui-kit/d-user-avatar-flair";
 import DUserLink from "discourse/ui-kit/d-user-link";
+import dAgeWithTooltip from "discourse/ui-kit/helpers/d-age-with-tooltip";
 import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 
 class RpnMobileCategoryAvatars extends Component {
   @tracked rows = [];
 
   // There is no outlet inside the native mobile featured-topic row. Mount only
-  // our avatars beside its content, without replacing core's row template.
+  // our avatar and metadata beside its content, preserving core's title,
+  // status, unread badges, and muted-list visibility.
   watchRows = modifier((element, [topics]) => {
     const table = element.closest("table");
     if (!table) {
@@ -84,6 +86,20 @@ class RpnMobileCategoryAvatars extends Component {
               {{dAvatar row.topic.last_poster imageSize="large"}}
             </DUserLink>
             <DUserAvatarFlair @user={{row.topic.last_poster}} />
+          {{/if}}
+        </div>
+        <div class="rpn-mobile-category-topic__meta">
+          <a href={{row.topic.lastPostUrl}} class="last-posted-at">
+            {{dAgeWithTooltip
+              row.topic.last_posted_at
+              format="medium-with-ago"
+            }}
+          </a>
+          {{#if row.topic.last_poster}}
+            <span aria-hidden="true">·</span>
+            <DUserLink @user={{row.topic.last_poster}}>
+              {{row.topic.last_poster.username}}
+            </DUserLink>
           {{/if}}
         </div>
       {{/in-element}}

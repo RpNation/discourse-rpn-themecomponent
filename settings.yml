@@ -14,6 +14,20 @@ topic_content_width:
   refresh: true
   description: "Maximum width of topic and post content in pixels."
 
+desktop_logo_height:
+  type: integer
+  default: 110
+  min: 48
+  max: 200
+  refresh: true
+
+mobile_logo_height:
+  type: integer
+  default: 56
+  min: 32
+  max: 96
+  refresh: true
+
 category_sections:
   type: objects
   default: []

@@ -1,3 +1,5 @@
+@use "lib/viewport";
+
 :root {
   --d-sidebar-width: 17rem;
   --d-max-width: #{$site_max_width}px;
@@ -6,12 +8,6 @@
 }
 
 .d-header {
-  height: 4.5rem;
-
-  .title {
-    --d-logo-height: 2.55rem;
-  }
-
   > .wrap {
     padding-inline: 0.75rem;
   }
@@ -32,7 +28,7 @@ body.has-sidebar-page {
     border-radius: 0.6rem;
 
     .sidebar-container {
-      border-right: 1px solid #343638;
+      border-right: 1px solid var(--rpn-section-background);
     }
 
     .sidebar-sections {
@@ -55,7 +51,7 @@ body.has-sidebar-page {
     margin-top: 2rem;
     padding: 3rem 3.5rem 4rem;
     background: var(--rpn-panel-background);
-    border: 1px solid #2b2d2e;
+    border: 1px solid var(--rpn-panel-border);
     border-radius: 0.6rem 0.6rem 0 0;
   }
 }
@@ -74,21 +70,51 @@ body.has-full-page-chat.has-sidebar-page {
     min-height: 0;
     margin-top: 2rem;
     padding: 0;
-    overflow: hidden;
+
+    // Composer focus must not scroll the frame and move its header off-screen.
+    overflow: clip;
     background: var(--d-content-background);
-    border: 1px solid #2b2d2e;
+    border: 1px solid var(--rpn-panel-border);
     border-radius: 0.6rem;
   }
 
-  #main-chat-outlet.chat-view .c-routes.--channel {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+  #main-chat-outlet.chat-view {
+    .chat-side-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
 
-    > .chat-channel {
-      flex: 1 1 auto;
+    .c-routes:is(.--channel, .--channel-thread) {
+      display: flex;
+      flex: 1 1 0;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .c-routes > :is(.chat-channel, .chat-thread) {
+      flex: 1 1 0;
       height: auto;
       min-height: 0;
+    }
+
+    // Edit/reply details and multiline drafts grow the composer. Reserve their
+    // space and let only the message history shrink within the inset shell.
+    .chat-messages-scroller {
+      flex: 1 1 0;
+      height: auto;
+      min-height: 0;
+    }
+
+    .c-navbar-container,
+    .chat-composer__wrapper {
+      flex: 0 0 auto;
+    }
+
+    @include viewport.until(lg) {
+      &.has-side-panel-expanded .c-routes.--channel {
+        display: none;
+      }
     }
   }
 }
@@ -105,7 +131,7 @@ body:is(.archetype-regular, .archetype-private_message) {
   }
 
   .topic-post .topic-body {
-    border-top-color: #414345;
+    border-top-color: var(--content-border-color);
   }
 
   .more-topics__container {
@@ -132,7 +158,7 @@ body:is(.navigation-topics, .navigation-category, .tags-page) {
       }
 
       + tr td {
-        border-top: 1px solid #414345;
+        border-top: 1px solid var(--content-border-color);
       }
     }
 
@@ -147,17 +173,32 @@ body:is(.navigation-topics, .navigation-category, .tags-page) {
   }
 }
 
-body.has-sidebar-page #reply-control:not(.fullscreen) {
-  left: calc(var(--d-sidebar-width) + var(--d-main-content-gap));
-  right: 0;
-  margin-inline: auto;
+// Rich-text and hidden-preview editors need the same room as preview mode.
+// Core otherwise caps them at the narrower topic body width on category pages.
+body.has-sidebar-page #reply-control:not(.fullscreen),
+body:not(.has-sidebar-page) #reply-control:not(.fullscreen) {
+  &,
+  &.hide-preview {
+    left: var(--d-main-content-gap);
+    right: var(--d-main-content-gap);
+    margin-inline: auto;
+    width: calc(100% - (var(--d-main-content-gap) * 2));
+    max-width: var(--d-max-width);
+  }
+}
 
-  &:not(.hide-preview) {
+body.has-sidebar-page #reply-control:not(.fullscreen) {
+  &,
+  &.hide-preview {
+    left: calc(var(--d-sidebar-width) + var(--d-main-content-gap));
     width: calc(
       100% - var(--d-sidebar-width) - (var(--d-main-content-gap) * 2)
     );
-    max-width: var(--d-max-width);
   }
+}
+
+#reply-control.fullscreen {
+  max-width: var(--d-max-width);
 }
 
 .category-list tr.rpn-category-section {
@@ -165,25 +206,30 @@ body.has-sidebar-page #reply-control:not(.fullscreen) {
 
   > td {
     flex: 1;
-    padding: 1rem 0 0.25rem;
-    background: transparent;
-    border: 0;
+    padding: 0.75rem 0.9rem;
+    margin-top: 1rem;
+    background: var(--rpn-section-background);
+    border-top: 4px solid var(--rpn-section-accent);
+    border-radius: 4px 4px 0 0;
     text-align: start;
   }
 
   .rpn-category-section__heading {
     margin: 0;
-    color: var(--primary-medium);
-    font-size: var(--font-down-1);
-    font-weight: bold;
+    color: var(--primary);
+    font-size: 1.0625rem;
+    font-weight: 600;
     overflow-wrap: anywhere;
-    text-transform: uppercase;
   }
 }
 
 body.navigation-categories {
+  #main-outlet {
+    padding: 1.5rem 1.5rem 2rem;
+  }
+
   .list-controls {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.25rem;
     background: transparent;
   }
 
@@ -212,7 +258,7 @@ body.navigation-categories {
   .category-breadcrumb {
     padding-right: 1rem;
     margin-right: 0.25rem;
-    border-right: 1px solid #5a5d60;
+    border-right: 1px solid var(--primary-low-mid);
   }
 
   .category-list.with-topics {
@@ -230,7 +276,7 @@ body.navigation-categories {
     }
 
     tbody {
-      gap: 0.85rem;
+      gap: 0;
     }
 
     .category-list-header tr,
@@ -247,20 +293,23 @@ body.navigation-categories {
     .category-list-header th {
       padding-top: 0;
       padding-bottom: 0.3rem;
-      color: #74787b;
+      color: var(--primary-high);
       font-weight: normal;
-      border-bottom: 2px solid #36383a;
+      border-bottom: 2px solid var(--rpn-row-divider);
     }
 
     .category-list-header .category,
     tbody .category {
-      flex: 1 1 45%;
+      flex: 1 1 55%;
+      min-width: 0;
       width: auto;
     }
 
     tbody tr[data-category-id] {
       box-sizing: border-box;
       position: relative;
+      border: 0;
+      border-bottom: 1px solid var(--rpn-row-divider);
       background: var(--rpn-row-background);
 
       &:hover > td {
@@ -269,82 +318,144 @@ body.navigation-categories {
     }
 
     tbody tr[data-category-id] > td {
-      padding-top: 1rem;
-      padding-bottom: 1rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
       background: var(--rpn-row-background);
-      border-top: 1px solid #353739;
-      border-bottom: 1px solid #353739;
+      border-top: 0;
+      border-bottom: 0;
       transition: background-color 120ms ease-in-out;
     }
 
     tbody .category {
-      padding-left: 0.8rem;
-      border-left-width: 5px;
-      border-radius: 3px 0 0 3px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-inline: 0.9rem;
+
+      // Stop the square stripe above the row's full-width divider, so the
+      // color boundary and the separator share the same horizontal edge.
+      border-left: 3px solid transparent;
+      border-radius: 0;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block: 0;
+        left: 0;
+        width: 3px;
+        background: var(--category-badge-color, var(--primary-low));
+        pointer-events: none;
+      }
 
       h3 {
-        margin-bottom: 0.35rem;
-        font-size: var(--font-up-1);
+        margin: 0;
+        font-size: var(--font-0);
 
         a[href] {
-          color: var(--primary-high);
-          font-weight: normal;
+          color: var(--primary);
+          font-weight: 600;
         }
       }
 
       .category-description {
-        color: #9b9ea0;
-        line-height: 1.45;
+        color: var(--primary-high);
+        font-size: var(--font-down-1);
+        line-height: 1.4;
+        margin-block: 0.2rem 0;
       }
 
       .subcategories {
-        margin-top: 0.7rem;
+        margin-top: 0.35rem;
       }
     }
 
     .topics {
-      flex: 0 0 3.75rem;
-      width: 3.75rem;
-      color: #777b7e;
+      flex: 0 0 9rem;
+      width: 9rem;
+      padding-inline: 0.5rem;
+      color: var(--primary-high);
       text-align: center;
+
+      > div:first-child {
+        white-space: nowrap;
+        line-height: 1.4;
+      }
+
+      .category__badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.2rem 0.5rem;
+      }
+
+      .badge-notification {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
+        white-space: nowrap;
+      }
+    }
+
+    tbody .topics {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.2rem;
+
+      > .unread-new:not(:has(a)) {
+        display: none;
+      }
     }
 
     .latest {
-      flex: 0 0 43%;
-      width: 43%;
+      flex: 0 0 35%;
+      width: 35%;
+      min-width: 0;
+      display: flex;
+      align-items: center;
       padding-right: 1rem;
-      border-radius: 0 3px 3px 0;
+      border-radius: 0;
     }
   }
 }
 
-@media (width <= 1050px) {
-  body.has-sidebar-page {
-    #main-outlet {
-      padding-inline: 1.75rem;
-    }
+@include viewport.until(lg) {
+  body.has-sidebar-page #main-outlet {
+    padding-inline: 1.75rem;
   }
 
-  body.navigation-categories .category-list.with-topics {
-    tbody .category {
-      width: 43%;
+  body.navigation-categories {
+    #main-outlet {
+      padding-inline: 1rem;
     }
 
-    .latest {
-      width: 45%;
-    }
-
-    .rpn-featured-topic {
-      grid-template-columns: 1.7rem minmax(0, 1fr);
-
-      &__poster,
-      &__poster img.avatar {
-        width: 1.7rem;
-        height: 1.7rem;
+    .category-list.with-topics {
+      .category-list-header tr,
+      tbody tr[data-category-id] {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 9rem;
       }
 
-      .last-posted-at {
+      .category-list-header .latest {
         display: none;
+      }
+
+      tbody .topics {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
+
+      tbody .latest {
+        grid-column: 1;
+        grid-row: 2;
+        width: auto;
+        padding-top: 0;
+        padding-left: calc(0.9rem + 3px);
+
+        &:not(:has(*)) {
+          display: none;
+        }
       }
     }
   }
