@@ -27,6 +27,17 @@ function category(topics, overrides = {}) {
 }
 
 module("Unit | RpNation native category previews", function () {
+  test("preserves unverified parent previews and malformed dates for immediate display", function (assert) {
+    const unknown = topic(1, { category_id: undefined });
+    const parent = category([unknown], { subcategory_ids: [8] });
+    assert.strictEqual(nativeCategoryPreview(parent).topic, unknown);
+    assert.false(nativeCategoryPreview(parent).complete);
+    const malformed = topic(2, { bumped_at: "invalid" });
+    const invalidPreview = nativeCategoryPreview(category([malformed]));
+    assert.strictEqual(invalidPreview.topic, malformed);
+    assert.false(invalidPreview.complete);
+  });
+
   test("ordinary activity previews establish latest and preserve native poster objects", function (assert) {
     const poster = {
       username: "native_user",

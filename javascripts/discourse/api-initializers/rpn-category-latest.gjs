@@ -15,7 +15,7 @@ const RpnCategoryLatest = <template>
     {{yield}}
   {{else if @outletArgs.showTopics}}
     <td class="latest rpn-category-latest">
-      {{#each @outletArgs.category.featuredTopics as |topic|}}
+      {{#each @outletArgs.category.featuredTopics key="id" as |topic|}}
         <div
           data-topic-id={{topic.id}}
           class="featured-topic rpn-featured-topic"

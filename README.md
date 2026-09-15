@@ -60,14 +60,17 @@ the component does not fetch again just to recover a dismissed pin omitted by co
 Incomplete pin-only previews, custom sorting, missing data, and parent previews
 that cannot distinguish their own topics from descendants use supplemental
 requests. Only those unresolved categories enter the shared, paced queue. A
-usable native preview remains visible while loading and on failure. This works
-entirely within the theme component, without a companion plugin.
+usable native preview remains visible while loading and on failure, including
+parent previews. Missing topic category IDs prevent an early finish, but do not
+remove the native topic or avatar while a lookup runs. Everything runs within
+the theme component, without a companion plugin.
 
 Supplemental requests batch categories together, with one request at a time and
 at least one second between starts. Failed loads stop the queue; Retry resumes
 only unfinished rows. A rate-limit response pauses requests for the server's
 requested cooldown (one minute when none is provided), including after navigation,
-and disables Retry until then. Each row shows activity from its own category.
+and disables Retry until then. Supplemental lookups use the row's own category;
+the native preview stays visible until that result is available.
 Core permissions and muted-topic filtering apply. Category description topics and
 unlisted topics are excluded. Queries avoid negative topic filters, which older
 Discourse versions interpret as positive inclusions.
