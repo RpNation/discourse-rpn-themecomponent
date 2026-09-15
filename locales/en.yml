@@ -1,4 +1,7 @@
 en:
+  header_navigation:
+    label: "Main navigation"
+    coming_soon: "%{label} (coming soon)"
   topic_sections:
     pinned: "Pinned topics"
     normal: "Normal topics"
@@ -16,6 +19,19 @@ en:
     settings:
       desktop_logo_height: "Maximum logo height in pixels in the branding band above navigation on desktop. Upload the logo in Admin → Appearance → Logo; its proportions are preserved."
       mobile_logo_height: "Maximum logo height in pixels above navigation on phones. Uses the site's mobile logo when configured, otherwise the primary logo."
+      header_links:
+        description: "Add, remove, or reorder navbar buttons. Leave a URL blank to show a disabled placeholder. Clear the list to hide these buttons. Applies to desktop and mobile."
+        schema:
+          properties:
+            label:
+              label: Label
+              description: "Button text and accessible name."
+            icon:
+              label: Icon
+              description: "Choose an icon. Narrow screens display the icon instead of the label."
+            url:
+              label: URL
+              description: "Use / for Home, a site path such as /categories, or a full http:// or https:// URL. Leave blank until the destination is ready."
       category_sections:
         description: "Add collapsible headings above category rows on desktop and mobile. Each browser remembers which sections are collapsed. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
         schema:
