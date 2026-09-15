@@ -326,5 +326,12 @@ class RpnPaletteSelector extends Component {
 }
 
 export default apiInitializer((api) => {
+  // The picker is portaled outside the mobile sidebar. Keep taps inside it
+  // from closing the sidebar and destroying the picker before pointerup.
+  api.registerValueTransformer(
+    "hamburger-dropdown-click-outside-exceptions",
+    ({ value }) => [...value, '[data-identifier="rpn-palette-selector"]']
+  );
+
   api.renderInOutlet("sidebar-footer-actions", RpnPaletteSelector);
 });
