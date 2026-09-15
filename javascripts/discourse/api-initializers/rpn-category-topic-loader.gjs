@@ -1,16 +1,16 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { service } from "@ember/service";
+import { get } from "@ember/object";
 import { modifier } from "ember-modifier";
 import { apiInitializer } from "discourse/lib/api";
 import Category from "discourse/models/category";
-import TopicList from "discourse/models/topic-list";
+import Topic from "discourse/models/topic";
 import User from "discourse/models/user";
 import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
 import {
   categoryDefinitionId as definitionId,
-  nativeCategoryPreview,
+  resolvedCategoryPreview,
   setCategoryPreview,
 } from "../lib/rpn-category-preview";
 import { categoryTopicRequests } from "../lib/rpn-category-topic-requests";
@@ -23,17 +23,16 @@ function batchQuery(categories) {
   // Older Discourse versions interpret -topic: as a positive inclusion. Never
   // use it for definition/pin exclusions, even when a newer dev server allows it.
   return [
-    `=category:${categories.map((category) => Category.slugFor(category, ":")).join(",")}`,
+    `category:${categories.map((category) => Category.slugFor(category, ":")).join(",")}`,
     "order:activity",
     "status:listed",
   ].join(" ");
 }
 
-// Results belong only to this mounted list. The shared request scheduler holds
-// timing/cooldown information, never topic data or user-specific responses.
+// Native previews are selected before rendering. Only ambiguous rows reach this
+// loader, and each receives one final result tied to its original native array.
+// The shared scheduler holds timing/cooldown information, never topic data.
 class RpnCategoryTopicLoader extends Component {
-  @service store;
-
   @tracked failed = false;
   @tracked rateLimited = false;
 
@@ -54,28 +53,31 @@ class RpnCategoryTopicLoader extends Component {
     const controller = new AbortController();
     let cooldownTimer;
 
-    // Retain completed rows on Retry, but never reuse results on a new list.
-    if (!attempt || this.categories !== categories) {
-      this.categories = categories;
-      this.pending = new Map();
-      for (const category of categories || []) {
-        const preview = nativeCategoryPreview(category);
-        setCategoryPreview(category, preview.topic);
-        // Show native data immediately and retain it if a supplemental request
-        // fails. Only incomplete previews need the request queue.
-        if (!preview.complete) {
-          this.pending.set(category.id, category);
-        }
-      }
-    }
-    const pending = this.pending;
+    const pending = new Map();
+    const sources = new Map();
+    const scopeIds = new Map();
+    const responseCategories = new Map();
+    // Observe native list/source changes, but not our own completed results:
+    // publishing one row must not abort and restart the remaining requests.
+    const snapshot = (categories || []).map((category) => ({
+      category,
+      source: get(category, "topics"),
+    }));
     const candidates = new Map();
     this.failed = false;
     this.rateLimited = false;
 
     const finish = (category) => {
       const latest = candidates.get(category.id);
-      setCategoryPreview(category, latest);
+      // Never hydrate these candidates through the shared topic store: a later
+      // response for another row could mutate an already-visible author/avatar.
+      const topic = latest
+        ? Topic.create({
+            ...latest.topic,
+            last_poster: latest.poster ? User.create(latest.poster) : null,
+          })
+        : null;
+      setCategoryPreview(category, topic, sources.get(category.id));
       pending.delete(category.id);
     };
 
@@ -86,24 +88,53 @@ class RpnCategoryTopicLoader extends Component {
       ) {
         throw new Error("Invalid category topic response");
       }
-      return TopicList.topicsFrom(this.store, result);
+      for (const category of result.topic_list.categories || []) {
+        responseCategories.set(category.id, category);
+      }
+      return result.topic_list.topics;
     };
 
+    const inScope = (category, topic) => {
+      const seen = new Set();
+      let id = topic.category_id;
+      while (id && !seen.has(id)) {
+        if (scopeIds.get(category.id).has(id)) {
+          return true;
+        }
+        seen.add(id);
+        id = (responseCategories.get(id) || Category.findById(id))
+          ?.parent_category_id;
+      }
+      return false;
+    };
+
+    const eligible = (category, topic) =>
+      inScope(category, topic) &&
+      topic.visible !== false &&
+      Number.isFinite(Date.parse(topic.bumped_at)) &&
+      topic.id !== definitionId(category) &&
+      topic.id !==
+        definitionId(
+          responseCategories.get(topic.category_id) ||
+            Category.findById(topic.category_id) ||
+            {}
+        );
+
     const consider = (category, topic, result) => {
-      const poster = topic.posters?.find(
-        (entry) => entry.user?.username === topic.last_poster_username
-      )?.user;
-      const user = result.users?.find(
-        (entry) => entry.username === topic.last_poster_username
-      );
-      topic.set("last_poster", poster || (user && User.create(user)) || null);
       const latest = candidates.get(category.id);
       if (
         !latest ||
-        new Date(topic.bumped_at) > new Date(latest.bumped_at) ||
-        (topic.bumped_at === latest.bumped_at && topic.id > latest.id)
+        Date.parse(topic.bumped_at) > Date.parse(latest.topic.bumped_at) ||
+        (Date.parse(topic.bumped_at) === Date.parse(latest.topic.bumped_at) &&
+          topic.id > latest.topic.id)
       ) {
-        candidates.set(category.id, topic);
+        candidates.set(category.id, {
+          topic,
+          poster:
+            result.users?.find(
+              (entry) => entry.username === topic.last_poster_username
+            ) || topic.last_poster,
+        });
       }
     };
 
@@ -116,7 +147,7 @@ class RpnCategoryTopicLoader extends Component {
         const result = await categoryTopicRequests.request(
           {
             category: category.id,
-            no_subcategories: true,
+            no_subcategories: false,
             order: "bumped_at",
             ascending: false,
             status: "listed",
@@ -129,21 +160,17 @@ class RpnCategoryTopicLoader extends Component {
           return;
         }
         const topics = topicsFrom(result);
-        const eligible = topics.filter(
-          (topic) =>
-            topic.category_id === category.id &&
-            topic.id !== definitionId(category)
-        );
+        const scoped = topics.filter((topic) => eligible(category, topic));
         if (topics.length && !topics.some((topic) => !seen.has(topic.id))) {
           throw new Error("Category topic pagination did not advance");
         }
         topics.forEach((topic) => seen.add(topic.id));
 
-        if (eligible.length) {
+        if (scoped.length) {
           // Category-scoped lists relax category muting. Recheck these IDs with
           // the same filter as the batch before displaying them. Positive topic
           // filters work on both versions and also avoid global pin promotion.
-          const ids = new Set(eligible.map((topic) => topic.id));
+          const ids = new Set(scoped.map((topic) => topic.id));
           const checked = await categoryTopicRequests.request(
             `${batchQuery([category])} topic:${[...ids].join(",")}`,
             { signal: controller.signal }
@@ -152,7 +179,7 @@ class RpnCategoryTopicLoader extends Component {
             return;
           }
           const valid = topicsFrom(checked).filter(
-            (topic) => topic.category_id === category.id && ids.has(topic.id)
+            (topic) => eligible(category, topic) && ids.has(topic.id)
           );
           if (valid.length) {
             valid.forEach((topic) => consider(category, topic, checked));
@@ -168,8 +195,42 @@ class RpnCategoryTopicLoader extends Component {
     };
 
     const loadBatches = async () => {
+      // Resolve supplemental state outside the modifier's tracking frame. The
+      // explicit native snapshot above is the only data that can restart it.
+      await Promise.resolve();
       try {
+        if (!active || attempt !== this.attempt) {
+          return;
+        }
+        for (const { category, source } of snapshot) {
+          if (
+            category.topics === source &&
+            !resolvedCategoryPreview(category).complete
+          ) {
+            pending.set(category.id, category);
+            sources.set(category.id, source);
+            scopeIds.set(
+              category.id,
+              new Set([
+                category.id,
+                ...(category.descendants || []).map((child) => child.id),
+                ...(category.subcategory_ids || []),
+                ...(category.subcategory_list || []).map((child) => child.id),
+              ])
+            );
+          }
+        }
         while (active && pending.size) {
+          // A fresh native payload supersedes this run, including requests that
+          // were already in flight when the category model changed.
+          for (const category of pending.values()) {
+            if (category.topics !== sources.get(category.id)) {
+              pending.delete(category.id);
+            }
+          }
+          if (!pending.size) {
+            break;
+          }
           const batch = [];
           for (const category of pending.values()) {
             const next = [...batch, category];
@@ -206,19 +267,21 @@ class RpnCategoryTopicLoader extends Component {
           const complete = new Set();
           let unresolvedCategory;
           for (const topic of topics) {
-            const category = batchCategories.get(topic.category_id);
-            if (!category) {
-              continue;
-            }
-            unresolvedCategory ||= category;
-            if (topic.id === definitionId(category)) {
-              continue;
-            }
+            // Parent and child rows may legitimately share the same topic.
+            for (const category of batch) {
+              if (!inScope(category, topic)) {
+                continue;
+              }
+              unresolvedCategory ||= category;
+              if (!eligible(category, topic)) {
+                continue;
+              }
 
-            consider(category, topic, result);
+              consider(category, topic, result);
 
-            if (!topic.pinned_globally) {
-              complete.add(category.id);
+              if (!topic.pinned_globally) {
+                complete.add(category.id);
+              }
             }
           }
 

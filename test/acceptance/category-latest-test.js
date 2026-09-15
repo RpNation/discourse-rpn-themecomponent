@@ -1,6 +1,8 @@
-import { click, find, visit, waitUntil } from "@ember/test-helpers";
+import { click, find, settled, visit, waitUntil } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
+import Category from "discourse/models/category";
+import Topic from "discourse/models/topic";
 import discoveryFixtures from "discourse/tests/fixtures/discovery-fixtures";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
@@ -59,6 +61,7 @@ for (const mobile of [false, true]) {
       let knownEmpty;
       let nativeTopics;
       let categoryOverrides;
+      let otherCategoryOverrides;
 
       needs.hooks.beforeEach(() => {
         responses = [[oldPin, latest]];
@@ -73,6 +76,7 @@ for (const mobile of [false, true]) {
         knownEmpty = false;
         nativeTopics = [];
         categoryOverrides = {};
+        otherCategoryOverrides = {};
       });
       needs.pretender((server, helper) => {
         server.get("/categories.json", () => {
@@ -81,6 +85,10 @@ for (const mobile of [false, true]) {
           for (const entry of response.category_list.categories) {
             entry.topic_count = 100;
             entry.topics = [];
+            Object.assign(
+              entry,
+              cloneJSON(otherCategoryOverrides[entry.id] || {})
+            );
           }
           category.topic_count = knownEmpty ? 0 : 100;
           categorySlug = category.slug;
@@ -199,7 +207,7 @@ for (const mobile of [false, true]) {
           };
           delete preview.category_id;
           nativeTopics = [preview];
-          categoryOverrides = { subcategory_ids: [999] };
+          categoryOverrides = { subcategory_ids: [999], sort_order: "created" };
           responseDelay = 2000;
           const visiting = visit("/categories");
           await waitUntil(
@@ -222,7 +230,7 @@ for (const mobile of [false, true]) {
         });
       }
 
-      test("reuses ordinary native previews without requests and hydrates their last poster", async function (assert) {
+      test("reuses ordinary native previews without requests and preserves their last poster", async function (assert) {
         nativeTopics = [
           oldPin,
           { ...latest, last_poster: user },
@@ -281,7 +289,7 @@ for (const mobile of [false, true]) {
         assert.dom(title).hasText("Newest conversation");
       });
 
-      test("does not infer missing topic categories when the row has children", async function (assert) {
+      test("uses native parent previews without requiring topic category IDs", async function (assert) {
         const ambiguous = { ...oldPin, pinned: false, pinned_globally: false };
         delete ambiguous.category_id;
         nativeTopics = [ambiguous];
@@ -292,8 +300,8 @@ for (const mobile of [false, true]) {
           ],
         };
         await visit("/categories");
-        assert.strictEqual(queries.length, 1);
-        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 0);
+        assert.dom(title).hasText("Old global announcement");
       });
 
       test("infers a native preview's category for a row without children", async function (assert) {
@@ -304,6 +312,207 @@ for (const mobile of [false, true]) {
         await visit("/categories");
         assert.strictEqual(queries.length, 0);
         assert.dom(title).hasText("Newest conversation");
+      });
+
+      test("keeps the full native source array while projecting one featured topic", async function (assert) {
+        nativeTopics = [
+          oldPin,
+          { ...latest, last_poster: user },
+          { ...oldPin, id: 11889 },
+        ];
+        await visit("/categories");
+        const category = Category.findById(1);
+        assert.strictEqual(category.topics.length, 3);
+        assert.deepEqual(
+          category.topics.map((entry) => entry.id),
+          [11888, 11994, 11889]
+        );
+        assert.dom(topic).exists({ count: 1 });
+        assert.strictEqual(queries.length, 0);
+      });
+
+      test("shows native descendant activity when a parent has no direct topics", async function (assert) {
+        nativeTopics = [{ ...latest, category_id: 999, last_poster: user }];
+        categoryOverrides = { topic_count: 0, subcategory_ids: [999] };
+        await visit("/categories");
+        assert.dom(title).hasText("Newest conversation");
+        assert.dom(`${topic} img.avatar`).exists();
+        assert.strictEqual(queries.length, 0);
+      });
+
+      test("refreshes another row once without mutating a shared native topic or poster", async function (assert) {
+        includeHierarchy = true;
+        const childPin = { ...oldPin, category_id: 2, last_poster: user };
+        nativeTopics = [{ ...latest, category_id: 2, last_poster: user }];
+        categoryOverrides = { subcategory_ids: [2] };
+        otherCategoryOverrides = {
+          2: { topics: [childPin] },
+          6: {
+            topic_count: 0,
+            has_children: false,
+            subcategory_count: 0,
+            subcategory_ids: [],
+            subcategory_list: [],
+          },
+          17: {
+            topic_count: 0,
+            has_children: false,
+            subcategory_count: 0,
+            subcategory_ids: [],
+            subcategory_list: [],
+          },
+        };
+        const updatedUser = {
+          ...user,
+          id: 9103,
+          username: "updated_replier",
+          avatar_template: "/images/updated-replier.png",
+        };
+        const updated = {
+          ...latest,
+          category_id: 2,
+          title: "Updated elsewhere",
+          fancy_title: "Updated elsewhere",
+          last_poster_username: updatedUser.username,
+          last_poster: updatedUser,
+          posters: [],
+        };
+        responses = [[childPin], [updated]];
+        latestResponses = [[updated]];
+        responseDelay = 2000;
+        const siblingRow = mobile
+          ? 'div.category-list-item[data-category-id="2"]'
+          : 'tr[data-category-id="2"]';
+        const siblingTitle = mobile
+          ? `${siblingRow} tr.category-topic-link a[data-topic-id]`
+          : `${siblingRow} .rpn-featured-topic a.title`;
+        const visiting = visit("/categories");
+        await waitUntil(
+          () => queries.length === 1 && find(`${topic} img.avatar`),
+          { timeout: 5000 }
+        );
+        const nativeRecord = Category.findById(1).topics[0];
+        const nativePoster = nativeRecord.last_poster;
+        assert.dom(title).hasText("Newest conversation");
+        assert.dom(siblingTitle).hasText("Old global announcement");
+        await waitUntil(() => queries.length === 2, { timeout: 8000 });
+        assert.dom(siblingTitle).hasText("Old global announcement");
+        assert.dom(title).hasText("Newest conversation");
+        await visiting;
+        assert.dom(siblingTitle).hasText("Updated elsewhere");
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(Category.findById(1).topics[0], nativeRecord);
+        assert.strictEqual(nativeRecord.last_poster, nativePoster);
+        assert.strictEqual(nativePoster.username, "latest_replier");
+        assert.strictEqual(queries.length, 2);
+        assert.strictEqual(latestRequests.length, 1);
+      });
+
+      test("loads an ambiguous category appended to the same native list", async function (assert) {
+        nativeTopics = [{ ...latest, last_poster: user }];
+        await visit("/categories");
+        const model = this.container.lookup(
+          "controller:discovery/categories"
+        ).model;
+        const originalList = model.content;
+        const appended = Category.findById(2);
+        appended.setProperties({
+          topics: [],
+          topic_count: 100,
+          subcategory_ids: [],
+          subcategory_list: [],
+        });
+        responses = [
+          [
+            {
+              ...latest,
+              id: 13001,
+              category_id: 2,
+              title: "Lazy topic",
+              fancy_title: "Lazy topic",
+            },
+          ],
+        ];
+        originalList.push(appended);
+        await settled();
+        const lazyTitle = mobile
+          ? 'div.category-list-item[data-category-id="2"] tr.category-topic-link a[data-topic-id]'
+          : 'tr[data-category-id="2"] .rpn-featured-topic a.title';
+        await settled();
+        assert.strictEqual(model.content, originalList);
+        assert.strictEqual(
+          appended.featuredTopics?.[0]?.id,
+          13001,
+          "appended model has its verified preview"
+        );
+        // Core's cached mobile filtered list does not render in-place appends.
+        // Verify the loader/getter on both views; desktop also renders the row.
+        assert.strictEqual(appended.featuredTopics.length, 1);
+        assert.deepEqual(appended.topics, []);
+        if (!mobile) {
+          assert.dom(lazyTitle).hasText("Lazy topic");
+        }
+        assert.dom(title).hasText("Newest conversation");
+        assert.strictEqual(queries.length, 1);
+
+        const nativeAppend = Category.findById(6);
+        const nativeSource = [
+          Topic.create({ ...oldPin, category_id: 6 }),
+          Topic.create({ ...latest, category_id: 6, last_poster: user }),
+        ];
+        nativeAppend.set("topics", nativeSource);
+        originalList.push(nativeAppend);
+        assert.strictEqual(nativeAppend.featuredTopics.length, 1);
+        assert.strictEqual(nativeAppend.featuredTopics[0], nativeSource[1]);
+        await settled();
+        assert.strictEqual(nativeAppend.topics, nativeSource);
+        assert.strictEqual(
+          queries.length,
+          1,
+          "ordinary native append makes no request"
+        );
+      });
+
+      test("a fresh native array supersedes an earlier supplemental result", async function (assert) {
+        await visit("/categories");
+        assert.strictEqual(queries.length, 1);
+        const replacement = Topic.create({
+          ...latest,
+          id: 14000,
+          title: "Fresh native",
+          fancy_title: "Fresh native",
+          last_poster: user,
+        });
+        const source = [replacement];
+        Category.findById(1).set("topics", source);
+        await settled();
+        assert.dom(title).hasText("Fresh native");
+        assert.strictEqual(Category.findById(1).topics, source);
+        assert.strictEqual(queries.length, 1);
+      });
+
+      test("an in-flight supplemental response cannot overwrite a fresh native array", async function (assert) {
+        nativeTopics = [{ ...oldPin, last_poster: user }];
+        responseDelay = 2000;
+        const visiting = visit("/categories");
+        await waitUntil(
+          () => queries.length === 1 && find(`${topic} img.avatar`),
+          { timeout: 5000 }
+        );
+        const replacement = Topic.create({
+          ...latest,
+          id: 14001,
+          title: "Fresh while loading",
+          fancy_title: "Fresh while loading",
+          last_poster: user,
+        });
+        const source = [replacement];
+        Category.findById(1).set("topics", source);
+        await visiting;
+        await settled();
+        assert.dom(title).hasText("Fresh while loading");
+        assert.strictEqual(Category.findById(1).topics, source);
+        assert.strictEqual(queries.length, 1);
       });
 
       test("one latest topic replaces pinned server previews and keeps the last poster", async function (assert) {
@@ -326,7 +535,7 @@ for (const mobile of [false, true]) {
         assert
           .dom(`${metadata} .last-posted-at`)
           .hasAttribute("href", "/t/newest-conversation/11994/7");
-        assert.true(queries[0].includes(`=category:${categorySlug}`));
+        assert.true(queries[0].includes(`category:${categorySlug}`));
         assert.true(queries[0].includes("order:activity"));
         assert.true(queries[0].includes("status:listed"));
         assert.false(queries[0].includes("-topic:"));
@@ -359,7 +568,7 @@ for (const mobile of [false, true]) {
         assert.strictEqual(latestRequests.length, 1);
         assert.strictEqual(latestRequests[0].category, "1");
         assert.strictEqual(latestRequests[0].order, "bumped_at");
-        assert.strictEqual(latestRequests[0].no_subcategories, "true");
+        assert.notStrictEqual(latestRequests[0].no_subcategories, "true");
       });
 
       test("retains the newest global pin when no ordinary topics remain", async function (assert) {
@@ -452,7 +661,7 @@ for (const mobile of [false, true]) {
         assert.strictEqual(queries.length, 1);
         assert.deepEqual(
           queries[0]
-            .match(/=category:([^ ]+)/)[1]
+            .match(/=?category:([^ ]+)/)[1]
             .split(",")
             .sort(),
           ["bug", "feature", "support", "uncategorized"].sort(),
@@ -475,7 +684,7 @@ for (const mobile of [false, true]) {
         assert.strictEqual(queries.length, 2);
         assert.false(
           queries[1]
-            .match(/=category:([^ ]+)/)[1]
+            .match(/=?category:([^ ]+)/)[1]
             .split(",")
             .includes(categorySlug)
         );
@@ -499,7 +708,7 @@ for (const mobile of [false, true]) {
         assert.strictEqual(queries.length, 2);
         assert.true(
           queries[1]
-            .match(/=category:([^ ]+)/)[1]
+            .match(/=?category:([^ ]+)/)[1]
             .split(",")
             .includes(categorySlug)
         );
@@ -523,7 +732,7 @@ for (const mobile of [false, true]) {
         assert.strictEqual(queries.length, 3);
         assert.false(
           queries[2]
-            .match(/=category:([^ ]+)/)[1]
+            .match(/=?category:([^ ]+)/)[1]
             .split(",")
             .includes(categorySlug)
         );
@@ -551,7 +760,7 @@ for (const mobile of [false, true]) {
 
       test("known empty categories need no request and do not retain sticky previews", async function (assert) {
         knownEmpty = true;
-        nativeTopics = [oldPin];
+        nativeTopics = [];
         await visit("/categories");
         assert.strictEqual(queries.length, 0);
         assert.dom(topic).doesNotExist();
