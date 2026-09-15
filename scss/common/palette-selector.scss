@@ -32,19 +32,19 @@
     max-width: calc(100vw - 2rem);
     padding: 1rem;
 
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      min-width: 0;
-      margin: 0;
-    }
-
-    select {
+    .select-kit {
       width: 100%;
       min-width: 0;
       margin: 0;
     }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    margin: 0;
   }
 
   &__error {

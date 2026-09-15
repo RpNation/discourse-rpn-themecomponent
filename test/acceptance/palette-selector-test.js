@@ -12,13 +12,29 @@ import { currentThemeId } from "discourse/lib/theme-selector";
 import Session from "discourse/models/session";
 import Site from "discourse/models/site";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import selectKit from "discourse/tests/helpers/select-kit-helper";
 
 async function choose(selector, value) {
-  find(selector).value = value;
-  await triggerEvent(selector, "change");
+  const control = selectKit(selector);
+  if (!control.isExpanded()) {
+    await control.expand();
+  }
+  await control.selectRowByValue(value);
 }
 
 const trigger = ".rpn-palette-selector__trigger";
+
+function assertControlLabels(assert) {
+  for (const [control, label] of [
+    ["light", "Light palette"],
+    ["dark", "Dark palette"],
+    ["mode", "Appearance"],
+  ]) {
+    assert
+      .dom(`.rpn-palette-selector__${control} .select-kit-header`)
+      .hasAttribute("aria-label", label);
+  }
+}
 
 // DMenu renders its modal inline in QUnit. These tests cover touch lifecycle
 // and saved choices; portaled popup hit testing also needs a real browser.
@@ -86,11 +102,14 @@ acceptance("RPN Foundation | Color palettes | mobile modal", function (needs) {
     assert.dom(dialog).hasAttribute("aria-modal", "true");
     assert.dom(".rpn-palette-selector__light").exists();
 
-    for (const target of [panel, panel.querySelector("label span")]) {
+    for (const target of [
+      panel,
+      panel.querySelector(".rpn-palette-selector__field-label"),
+    ]) {
       await touchStart(target);
       assert.strictEqual(find(".rpn-palette-selector__panel"), panel);
       assert.strictEqual(find(".hamburger-panel"), sidebar);
-      assert.true(dialog.isConnected, "the portaled dialog remains mounted");
+      assert.true(dialog.isConnected, "the dialog remains mounted");
     }
 
     await touchStart(find(".header-cloak"));
@@ -108,6 +127,7 @@ acceptance("RPN Foundation | Color palettes | mobile modal", function (needs) {
     });
     await click(".hamburger-dropdown button");
     await click(trigger);
+    assertControlLabels(assert);
     const panel = find(".rpn-palette-selector__panel");
     const sidebar = find(".hamburger-panel");
 
@@ -117,7 +137,9 @@ acceptance("RPN Foundation | Color palettes | mobile modal", function (needs) {
       [".rpn-palette-selector__mode", "dark", "forced_color_mode"],
     ]) {
       const control = find(selector);
-      await touchStart(control);
+      const dropdown = selectKit(selector);
+      const header = dropdown.header().el();
+      await touchStart(header);
       assert.strictEqual(
         find(selector),
         control,
@@ -125,10 +147,20 @@ acceptance("RPN Foundation | Color palettes | mobile modal", function (needs) {
       );
       assert.strictEqual(find(".rpn-palette-selector__panel"), panel);
       assert.strictEqual(find(".hamburger-panel"), sidebar);
-      await triggerEvent(control, "pointerup", { pointerType: "touch" });
+      await triggerEvent(header, "pointerup", { pointerType: "touch" });
+      await dropdown.expand();
+      const row = dropdown.rowByValue(value).el();
+      assert.true(
+        panel.contains(row),
+        "choices render inside the palette panel"
+      );
+      await touchStart(row);
+      assert.strictEqual(find(".rpn-palette-selector__panel"), panel);
+      await triggerEvent(row, "pointerup", { pointerType: "touch" });
       await choose(selector, value);
       await waitUntil(() => cookie(cookieName) === value);
-      assert.dom(selector).hasValue(value).isNotDisabled();
+      assert.strictEqual(dropdown.header().value(), value);
+      assert.false(dropdown.isDisabled());
       assert.strictEqual(find(".rpn-palette-selector__panel"), panel);
       assert.strictEqual(find(".hamburger-panel"), sidebar);
     }
@@ -203,14 +235,32 @@ for (const signedIn of [false, true]) {
           userDarkSchemeId: 902,
         });
         await click(trigger);
-        assert.dom('.rpn-palette-selector__light option[value="901"]').exists();
+        assertControlLabels(assert);
+        assert.dom(".rpn-palette-selector__panel select").doesNotExist();
+        const light = selectKit(".rpn-palette-selector__light");
+        await light.expand();
         assert
-          .dom('.rpn-palette-selector__light option[value="902"]')
-          .doesNotExist();
-        assert.dom('.rpn-palette-selector__dark option[value="902"]').exists();
+          .dom('.rpn-palette-selector__light .select-kit-row[data-value="901"]')
+          .exists();
         assert
-          .dom('.rpn-palette-selector__dark option[value="901"]')
+          .dom('.rpn-palette-selector__light .select-kit-row[data-value="902"]')
           .doesNotExist();
+        assert.true(
+          find(".rpn-palette-selector__panel").contains(
+            light.rowByValue(901).el()
+          ),
+          "light choices render inside the palette panel"
+        );
+        await light.collapse();
+        const dark = selectKit(".rpn-palette-selector__dark");
+        await dark.expand();
+        assert
+          .dom('.rpn-palette-selector__dark .select-kit-row[data-value="902"]')
+          .exists();
+        assert
+          .dom('.rpn-palette-selector__dark .select-kit-row[data-value="901"]')
+          .doesNotExist();
+        await dark.collapse();
 
         for (const mode of ["dark", "light", "auto"]) {
           await choose(".rpn-palette-selector__mode", mode);
@@ -233,10 +283,29 @@ for (const signedIn of [false, true]) {
         await click(trigger);
         await choose(".rpn-palette-selector__light", "-1");
         assert.dom(".rpn-palette-selector__error").exists();
-        assert.dom(".rpn-palette-selector__light").hasValue("901");
-        assert.dom(".rpn-palette-selector__light").isNotDisabled();
+        const light = selectKit(".rpn-palette-selector__light");
+        assert.strictEqual(light.header().value(), "901");
+        assert.false(light.isDisabled());
         assert.strictEqual(cookie("color_scheme_id"), "901");
         assert.strictEqual(cookie("dark_scheme_id"), "902");
+      });
+
+      test("selects appearance with the ComboBox keyboard controls", async function (assert) {
+        cookie("forced_color_mode", "auto", { path: "/" });
+        await visit("/latest");
+        Session.current().setProperties({
+          darkModeAvailable: true,
+          defaultColorSchemeIsDark: false,
+        });
+        await click(trigger);
+        const mode = selectKit(".rpn-palette-selector__mode");
+        await mode.expand();
+        await mode.keyboard("down", ".select-kit-header");
+        await mode.keyboard("enter", ".select-kit-header");
+        assert.strictEqual(mode.header().value(), "light");
+        assert.strictEqual(cookie("forced_color_mode"), "light");
+        assert.false(mode.isExpanded());
+        assert.dom(".rpn-palette-selector__panel").exists();
       });
 
       test("a dark base default keeps native dark-base mode metadata", async function (assert) {
