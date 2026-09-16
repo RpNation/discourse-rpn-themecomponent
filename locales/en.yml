@@ -36,7 +36,7 @@ en:
               label: URL
               description: "Use / for Home, a site path such as /categories, or a full http:// or https:// URL. Leave blank until the destination is ready."
       post_marker_colors:
-        description: "Set post-header marker colors by group. The first matching valid rule wins; unmatched posts keep the theme's blue accent. Custom groups match the author's primary group only. Admins, moderators, and staff match their roles. Uses native post data without extra requests. In private messages, only your own posts show a marker."
+        description: "Set post-header marker colors by group. The first matching valid rule wins; unmatched posts keep the theme's blue accent. Custom groups match the author's primary group only. Admins, moderators, and staff match their roles. Uses native post data without extra requests. In personal messages, only your own posts show a marker."
         schema:
           properties:
             name:
