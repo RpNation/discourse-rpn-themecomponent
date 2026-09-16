@@ -78,3 +78,33 @@ category_sections:
         required: true
         validations:
           min: 1
+
+category_groups:
+  type: objects
+  default: []
+  refresh: true
+  schema:
+    name: category group
+    identifier: name
+    properties:
+      name:
+        type: string
+        required: true
+        validations:
+          min_length: 1
+          max_length: 120
+      description:
+        type: string
+        validations:
+          max_length: 1000
+      icon:
+        type: icon
+      color:
+        type: string
+        validations:
+          max_length: 7
+      category_ids:
+        type: categories
+        required: true
+        validations:
+          min: 1
