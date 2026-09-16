@@ -242,9 +242,10 @@ rows as the main Categories page. Each project has its description, child forum
 links, and native topic count, plus one native latest-topic preview when the
 layout includes featured topics. Projects remain separate rather than sharing a
 combined topic feed. The directory URL is shareable: for example,
-`/categories?rpn_group=Hosted%20Projects`. Each project or child link opens its
-real category, and **All categories** returns to the full list. The compact group
-row on the main Categories page keeps its native latest-topic preview.
+`/categories?c_group=Hosted%20Projects`. Previously shared `rpn_group` links
+remain supported. Each project or child link opens its real category, and
+**All categories** returns to the full list. The compact group row on the main
+Categories page keeps its native latest-topic preview.
 
 The group only changes how categories are displayed. Existing categories are
 not reparented automatically. If your projects are currently children of a real

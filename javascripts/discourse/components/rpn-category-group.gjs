@@ -46,7 +46,7 @@ export default class RpnCategoryGroup extends Component {
 
   get directoryUrl() {
     return getURL(
-      `/categories?rpn_group=${encodeURIComponent(this.args.group.name)}`
+      `/categories?c_group=${encodeURIComponent(this.args.group.name)}`
     );
   }
 

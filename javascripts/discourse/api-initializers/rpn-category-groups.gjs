@@ -69,7 +69,9 @@ class RpnCategoryGroups extends Component {
   }
 
   get selectedGroup() {
-    const name = this.router.currentRoute?.queryParams.rpn_group;
+    const queryParams = this.router.currentRoute?.queryParams;
+    // Keep previously shared directory links working under the old name.
+    const name = queryParams?.c_group ?? queryParams?.rpn_group;
     return this.entries.find((entry) => entry.group?.name === name)?.group;
   }
 
@@ -185,7 +187,8 @@ class RpnCategoryGroups extends Component {
 export default apiInitializer((api) => {
   api.modifyClass("controller:discovery/categories", {
     pluginId: "rpn-category-groups",
-    queryParams: ["rpn_group"],
+    queryParams: ["c_group", "rpn_group"],
+    c_group: null,
     rpn_group: null,
   });
   api.modifyClass("route:discovery/categories", {
@@ -193,7 +196,7 @@ export default apiInitializer((api) => {
     resetController(controller, isExiting) {
       this._super(...arguments);
       if (isExiting) {
-        controller.set("rpn_group", null);
+        controller.setProperties({ c_group: null, rpn_group: null });
       }
     },
   });
