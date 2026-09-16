@@ -30,6 +30,8 @@ standalone theme and no longer requires Graceful.
   in topic lists on desktop and mobile, following each user's pin dismissals.
 - Subtle topic-list shading and separated post cards with neutral borders
   and compact author headers on desktop and mobile.
+- Configurable group colors for post-header markers, with red admins and purple
+  moderators by default.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
 - Existing custom icon sprite and optional RpNation content styling retained.
@@ -126,6 +128,7 @@ and reply boxes.
 | `desktop_logo_height` | `110`   | Maximum logo height above navigation on desktop, in pixels. Range: 48–200.                     |
 | `mobile_logo_height`  | `56`    | Maximum logo height above navigation on phones, in pixels. Range: 32–96.                       |
 | `header_links`        | Home, Gallery, Staff Contact | Ordered navbar buttons with editable labels, icons, and URLs.                    |
+| `post_marker_colors`  | Admins red, moderators purple | Ordered group/color rules for post-header markers; other posts keep the theme's blue accent. |
 | `category_sections`   | Empty   | A list of your own section headings and the category IDs they appear above.                    |
 | `category_groups`     | Empty   | Parent-style rows containing selected real top-level categories, with an optional description and icon. |
 
@@ -151,6 +154,33 @@ rounded square corners as the category previews.
 Dates, reply context, moderation controls, post menus, and user cards continue to
 use Discourse's native components. Embedded replies keep their compact layout.
 The cards follow the selected light/dark palette and the Full width preference.
+
+### Post marker colors
+
+In **Admin → Appearance → Themes & components**, open this component and edit
+**Post marker colors**. Add, remove, or reorder rules with:
+
+- **Name**: a label for the rule in settings; it is not displayed on posts.
+- **Groups**: one or more groups that should share the color.
+- **Color**: a three- or six-digit hex color, with or without `#`.
+
+The first matching valid rule wins. The defaults put **Admins** first with
+`#FF0000`, followed by **Moderators** with `#9735CA`, so an author with both roles
+gets the admin color. Add **Staff** to match either admins or moderators, or use
+your own groups. Invalid colors are ignored; posts without a matching rule keep
+the theme's blue accent. Clear the list to use that accent for every marker.
+
+Custom groups match the author's **primary group**. Set the group as primary for
+the members who should receive its color. The group must also be visible to the
+reader; otherwise the normal accent applies. Admins, moderators, and staff match
+their native role flags regardless of primary group. Discourse's post response
+does not include every group an author belongs to, so these rules use the data
+already present and make no extra membership requests.
+
+Markers appear on topic posts. In private messages, only the current user's own
+posts have a marker; assigning a group color does not add markers to other
+participants' messages. These rules change the marker color only, not group
+permissions, names, or avatars.
 
 ### Adding category sections
 

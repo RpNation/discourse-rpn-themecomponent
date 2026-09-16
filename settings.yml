@@ -59,6 +59,39 @@ header_links:
         validations:
           max_length: 2048
 
+post_marker_colors:
+  type: objects
+  refresh: true
+  default:
+    - name: "Admins"
+      group_ids: [1]
+      color: "#FF0000"
+    - name: "Moderators"
+      group_ids: [2]
+      color: "#9735CA"
+  schema:
+    name: post marker color
+    identifier: name
+    properties:
+      name:
+        type: string
+        required: true
+        validations:
+          min_length: 1
+          max_length: 60
+      group_ids:
+        type: groups
+        required: true
+        disallowed_groups: "0|4|5|10|11|12|13|14"
+        validations:
+          min: 1
+      color:
+        type: string
+        required: true
+        validations:
+          min_length: 3
+          max_length: 7
+
 category_sections:
   type: objects
   default: []
