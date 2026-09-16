@@ -182,14 +182,16 @@ body:is(.archetype-regular, .archetype-private_message) {
   &.archetype-private_message
     .post-stream
     > .topic-post.current-user-post:not(.moderator, .whisper, .deleted) {
-    > article.boxed > .row > .topic-body > .topic-meta-data::before {
-      content: "";
-      position: absolute;
-      inset-block: 0.75rem;
-      inset-inline-start: 0;
-      width: 3px;
-      border-radius: 0 2px 2px 0;
-      background: var(--rpn-section-accent);
+    > article.boxed > .row > .topic-body > .topic-meta-data {
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block: 0.75rem;
+        inset-inline-start: 0;
+        width: 3px;
+        border-radius: 0 2px 2px 0;
+        background: var(--rpn-post-marker-color, var(--rpn-section-accent));
+      }
     }
   }
 

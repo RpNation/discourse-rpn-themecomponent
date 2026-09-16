@@ -35,6 +35,19 @@ en:
             url:
               label: URL
               description: "Use / for Home, a site path such as /categories, or a full http:// or https:// URL. Leave blank until the destination is ready."
+      post_marker_colors:
+        description: "Set post-header marker colors by group. The first matching valid rule wins; unmatched posts keep the theme's blue accent. Custom groups match the author's primary group only. Admins, moderators, and staff match their roles. Uses native post data without extra requests. In personal messages, only your own posts show a marker."
+        schema:
+          properties:
+            name:
+              label: Name
+              description: "A name to identify this rule in settings. It is not displayed on posts."
+            group_ids:
+              label: Groups
+              description: "Choose one or more groups that share this color. A custom group must be the author's primary group and visible to the reader. Admins, moderators, and staff work regardless of primary group. Move this rule above others to give it priority."
+            color:
+              label: Color
+              description: "Enter a 3- or 6-digit hex color, with or without #, such as #FF0000. Rules with invalid colors are ignored."
       category_sections:
         description: "Add collapsible headings above category rows on desktop and mobile. Each browser remembers which sections are collapsed. Starts empty. Category order and permissions are unchanged. Remove an entry to remove its heading."
         schema:
