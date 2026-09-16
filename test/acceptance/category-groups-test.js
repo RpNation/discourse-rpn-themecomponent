@@ -17,7 +17,9 @@ const group = {
   icon: "globe",
   category_ids: [1, 2],
 };
-const directoryUrl = `/categories?rpn_group=${encodeURIComponent(group.name)}`;
+const directoryUrl = `/categories?c_group=${encodeURIComponent(group.name)}`;
+const legacyDirectoryUrl = `/categories?rpn_group=${encodeURIComponent(group.name)}`;
+const combinedDirectoryUrl = `${directoryUrl}&rpn_group=${encodeURIComponent(group.name)}`;
 
 function categoriesResponse() {
   const response = cloneJSON(discoveryFixtures["/categories.json"]);
@@ -102,11 +104,12 @@ for (const mobile of [false, true]) {
         const groupUrl = new URL(find(headingLinkSelector).href);
         assert.strictEqual(groupUrl.pathname, "/categories");
         assert.strictEqual(
-          groupUrl.searchParams.get("rpn_group"),
+          groupUrl.searchParams.get("c_group"),
           "Hosted Projects",
           "the heading opens the project directory"
         );
         assert.false(groupUrl.searchParams.has("q"));
+        assert.false(groupUrl.searchParams.has("rpn_group"));
         assert.dom(groupSelector).includesText(group.description);
         assert.dom(groupSelector).hasAttribute("data-category-id", "1");
         assert
@@ -148,7 +151,7 @@ for (const mobile of [false, true]) {
 
         assert.strictEqual(
           new URL(currentURL(), window.location.origin).searchParams.get(
-            "rpn_group"
+            "c_group"
           ),
           group.name
         );
@@ -253,47 +256,132 @@ for (const mobile of [false, true]) {
         assert.strictEqual(latest.last_poster, poster);
       });
 
-      test("native Categories navigation leaves the directory", async function (assert) {
-        await visit(directoryUrl);
-        if (mobile) {
-          await click(".list-control-toggle-link-trigger");
-        }
-        await click(".nav-item_categories a");
+      test("legacy directories load without redirecting and All categories clears both parameters", async function (assert) {
+        for (const url of [legacyDirectoryUrl, combinedDirectoryUrl]) {
+          await visit(url);
 
-        assert.strictEqual(currentURL(), "/categories");
-        assert.dom(directorySelector).doesNotExist();
-        assert.dom(groupSelector).exists();
-        assert.dom(nativeRow(3)).exists();
-        if (mobile) {
+          assert.strictEqual(currentURL(), url);
+          assert.dom(directorySelector).exists();
+          assert.dom(`${directorySelector} h1`).hasText(group.name);
+          assert.dom(projectSelector).exists({ count: 2 });
           assert
-            .dom(".nav-item_categories a")
-            .doesNotExist(
-              "the native mobile navigation menu closes after leaving the directory"
-            );
+            .dom(`${directorySelector} .rpn-category-directory__back`)
+            .hasAttribute("href", "/categories");
+
+          await click(`${directorySelector} .rpn-category-directory__back`);
+
+          assert.strictEqual(currentURL(), "/categories");
+          assert.dom(directorySelector).doesNotExist();
+          assert.dom(groupSelector).exists();
+
+          const groupUrl = new URL(find(headingLinkSelector).href);
+          assert.strictEqual(groupUrl.searchParams.get("c_group"), group.name);
+          assert.false(groupUrl.searchParams.has("rpn_group"));
+          await click(headingLinkSelector);
+
+          assert.strictEqual(currentURL(), directoryUrl);
+          assert.dom(`${directorySelector} h1`).hasText(group.name);
         }
-
-        await click(headingLinkSelector);
-
-        assert.dom(directorySelector).exists();
       });
 
-      test("sidebar All categories clears the active group", async function (assert) {
-        await visit(directoryUrl);
-        if (mobile) {
-          await click(".hamburger-dropdown button");
+      test("the canonical group takes precedence over the legacy group even when unknown", async function (assert) {
+        const otherGroup = {
+          ...group,
+          name: "Other projects",
+          category_ids: [3],
+        };
+        settings.category_groups = [cloneJSON(group), otherGroup];
+        await visit(
+          `${directoryUrl}&rpn_group=${encodeURIComponent(otherGroup.name)}`
+        );
+
+        assert.dom(`${directorySelector} h1`).hasText(group.name);
+        assert.dom(projectSelector).exists({ count: 2 });
+        assert.dom(`${projectSelector}[data-category-id="3"]`).doesNotExist();
+
+        await visit(`${legacyDirectoryUrl}&c_group=Missing%20group`);
+
+        assert.dom(directorySelector).doesNotExist();
+        assert.dom(groupSelector).exists({ count: 2 });
+      });
+
+      test("native Categories navigation clears canonical and legacy groups", async function (assert) {
+        for (const url of [
+          directoryUrl,
+          legacyDirectoryUrl,
+          combinedDirectoryUrl,
+        ]) {
+          await visit(url);
+          if (mobile) {
+            await click(".list-control-toggle-link-trigger");
+          }
+          await click(".nav-item_categories a");
+
+          assert.strictEqual(currentURL(), "/categories");
+          assert.dom(directorySelector).doesNotExist();
+          assert.dom(groupSelector).exists();
+          assert.dom(nativeRow(3)).exists();
+          if (mobile) {
+            assert
+              .dom(".nav-item_categories a")
+              .doesNotExist(
+                "the native mobile navigation menu closes after leaving the directory"
+              );
+          }
+
+          await click(headingLinkSelector);
+
+          assert.strictEqual(currentURL(), directoryUrl);
+          assert.dom(directorySelector).exists();
         }
-        await click('a.sidebar-section-link[data-link-name="all-categories"]');
+      });
+
+      test("sidebar All categories clears canonical and legacy groups", async function (assert) {
+        for (const url of [
+          directoryUrl,
+          legacyDirectoryUrl,
+          combinedDirectoryUrl,
+        ]) {
+          await visit(url);
+          if (mobile) {
+            await click(".hamburger-dropdown button");
+          }
+          await click(
+            'a.sidebar-section-link[data-link-name="all-categories"]'
+          );
+
+          assert.strictEqual(currentURL(), "/categories");
+          assert.dom(directorySelector).doesNotExist();
+          assert.dom(groupSelector).exists();
+          assert.dom(nativeRow(3)).exists();
+          if (mobile) {
+            assert.dom(".hamburger-panel").doesNotExist();
+          }
+
+          await click(headingLinkSelector);
+
+          assert.strictEqual(currentURL(), directoryUrl);
+          assert.dom(directorySelector).exists();
+        }
+      });
+
+      test("leaving the categories route resets both group parameters", async function (assert) {
+        await visit(combinedDirectoryUrl);
+        assert.dom(directorySelector).exists();
+
+        await visit("/about");
+        await this.container
+          .lookup("service:router")
+          .transitionTo("discovery.categories");
+        await settled();
 
         assert.strictEqual(currentURL(), "/categories");
         assert.dom(directorySelector).doesNotExist();
         assert.dom(groupSelector).exists();
-        assert.dom(nativeRow(3)).exists();
-        if (mobile) {
-          assert.dom(".hamburger-panel").doesNotExist();
-        }
 
         await click(headingLinkSelector);
 
+        assert.strictEqual(currentURL(), directoryUrl);
         assert.dom(directorySelector).exists();
       });
 
@@ -323,7 +411,7 @@ for (const mobile of [false, true]) {
           { ...group, name: "Unavailable projects", category_ids: [999999] },
         ];
         for (const name of ["Missing group", "Unavailable projects"]) {
-          await visit(`/categories?rpn_group=${encodeURIComponent(name)}`);
+          await visit(`/categories?c_group=${encodeURIComponent(name)}`);
 
           assert.dom(directorySelector).doesNotExist();
           assert.dom(groupSelector).exists({ count: 1 });
@@ -405,7 +493,7 @@ for (const mobile of [false, true]) {
         assert.dom(`${groupSelector} b`).doesNotExist();
         assert.dom(`${groupSelector} img[onerror]`).doesNotExist();
         assert.strictEqual(
-          new URL(find(headingLinkSelector).href).searchParams.get("rpn_group"),
+          new URL(find(headingLinkSelector).href).searchParams.get("c_group"),
           name,
           "the directory name retains punctuation as an encoded URL parameter"
         );

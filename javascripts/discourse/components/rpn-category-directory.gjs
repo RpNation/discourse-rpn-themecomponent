@@ -201,7 +201,7 @@ export default class RpnCategoryDirectory extends Component {
     // Let the event bubble so native menus still dismiss after navigation.
     event.preventDefault();
     this.router.transitionTo("discovery.categories", {
-      queryParams: { rpn_group: null },
+      queryParams: { c_group: null, rpn_group: null },
     });
   }
 
@@ -214,7 +214,7 @@ export default class RpnCategoryDirectory extends Component {
       <LinkTo
         class="rpn-category-directory__back"
         @route="discovery.categories"
-        @query={{hash rpn_group=null}}
+        @query={{hash c_group=null rpn_group=null}}
       >
         {{dIcon "arrow-left"}}{{i18n "sidebar.all_categories"}}
       </LinkTo>
