@@ -262,28 +262,6 @@ a:visited {
   }
 }
 
-@include viewport.until(sm) {
-  body:is(.archetype-regular, .archetype-private_message) {
-    .topic-post > article.boxed {
-      box-sizing: border-box;
-      padding-inline: 1rem;
-
-      // Core places unread dots outside the post; use its new inner gutter.
-      .read-state {
-        right: auto;
-        left: auto;
-        inset-inline-end: 0.25rem;
-        max-width: none;
-
-        .d-icon {
-          right: auto;
-          left: auto;
-        }
-      }
-    }
-  }
-}
-
 @import "common/compact-categories";
 @import "common/category-section-toggle";
 @import "common/pinned-topic-divider";
@@ -295,3 +273,4 @@ a:visited {
 @import "common/masthead";
 @import "common/header-navigation";
 @import "common/chat-channel-info";
+@import "common/topic-posts";
