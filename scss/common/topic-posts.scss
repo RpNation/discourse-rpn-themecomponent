@@ -178,7 +178,35 @@ body:is(.archetype-regular, .archetype-private_message) {
     }
   }
 
+  &.archetype-regular .post-stream > .topic-post,
+  &.archetype-private_message
+    .post-stream
+    > .topic-post.current-user-post:not(.moderator, .whisper, .deleted) {
+    > article.boxed > .row > .topic-body > .topic-meta-data::before {
+      content: "";
+      position: absolute;
+      inset-block: 0.75rem;
+      inset-inline-start: 0;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+      background: var(--rpn-section-accent);
+    }
+  }
+
   &.archetype-private_message {
+    // Keep ordinary messages on the same neutral surface as public posts.
+    // Native staff, whisper, and deleted-message states retain their own colors.
+    .post-stream
+      > .topic-post.current-user-post:not(.moderator, .whisper, .deleted)
+      > article.boxed
+      > .row
+      > .topic-body {
+      > .regular.contents {
+        background: transparent;
+        border-color: transparent;
+      }
+    }
+
     // Native messages extend into the avatar gutter; cards already contain it.
     .post-stream
       > .topic-post
