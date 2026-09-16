@@ -24,6 +24,8 @@ standalone theme and no longer requires Graceful.
 - All-time category totals with native unread/new badges, without weekly rates.
 - Hidden sidebar Tags section.
 - Collapsible category-section headings for any category ID, with saved browser preferences.
+- Optional parent-style category groups that collect real top-level categories
+  into one row while letting each keep its own subcategories.
 - Pinned topics and Normal topics header bars separate the leading pinned group
   in topic lists on desktop and mobile, following each user's pin dismissals.
 - Subtle topic-list shading and separated post cards with neutral borders
@@ -53,7 +55,8 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    **Number of topics shown on the categories page** at its native default of
    `3` so the component can select the newest activity from those previews. A
    value of `1` displays that one native preview.
-6. Optionally add your own category sections in the component settings below.
+6. Optionally add your own category sections and category groups in the component
+   settings below.
 
 The component selects one topic from Discourse's native featured topics before
 rows first render on desktop or mobile. It keeps the server's topic arrays,
@@ -124,6 +127,7 @@ and reply boxes.
 | `mobile_logo_height`  | `56`    | Maximum logo height above navigation on phones, in pixels. Range: 32–96.                       |
 | `header_links`        | Home, Gallery, Staff Contact | Ordered navbar buttons with editable labels, icons, and URLs.                    |
 | `category_sections`   | Empty   | A list of your own section headings and the category IDs they appear above.                    |
+| `category_groups`     | Empty   | Parent-style rows containing selected real top-level categories, with an optional description and icon. |
 
 ### Navbar buttons
 
@@ -182,6 +186,66 @@ remain site administration settings. Headings are plain text, not HTML.
 
 Version 1.1 removes the six old, site-specific ID settings and their defaults.
 They are intentionally not migrated; add any sections you want in the new list.
+
+### Adding category groups
+
+In **Admin → Appearance → Themes & components**, open this component and edit
+**Category groups**. Add an entry with:
+
+- **Name**: the group label, for example `Hosted Projects`.
+- **Description**: optional plain text explaining the group.
+- **Icon**: an optional icon chosen with Discourse's icon picker.
+- **Color**: an optional three- or six-digit hex color, with or without `#`
+  (for example, `#0088cc`), for the group icon and accent. Leave it blank to use
+  the first visible member's category color.
+- **Categories**: the real top-level categories to collect into this row.
+
+For example, make `Amaranth`, `Robotech: Broadsword`, and `Spellsword` real
+top-level categories, each with any native subcategories it needs. Select these
+categories in a group named `Hosted Projects`. The main Categories page displays
+one Hosted Projects row with links to those projects, a combined topic total,
+and one latest-topic preview selected from their native previews when the layout
+includes featured topics.
+
+Clicking the group name opens a project directory with the same compact category
+rows as the main Categories page. Each project has its description, child forum
+links, and native topic count, plus one native latest-topic preview when the
+layout includes featured topics. Projects remain separate rather than sharing a
+combined topic feed. The directory URL is shareable: for example,
+`/categories?rpn_group=Hosted%20Projects`. Each project or child link opens its
+real category, and **All categories** returns to the full list. The compact group
+row on the main Categories page keeps its native latest-topic preview.
+
+The group only changes how categories are displayed. Existing categories are
+not reparented automatically. If your projects are currently children of a real
+Hosted Projects category, move each project to the top level in its category
+settings before using this group so it can have its own native subcategories.
+Permissions, notification preferences, and topic creation continue to use the
+real categories.
+
+Groups appear on the main Categories page in **Categories only**, **Categories
+with featured topics**, and **Categories and latest/top topics** layouts, on
+desktop and mobile. Use `categories_with_featured_topics` for the compact rows
+with latest activity. The **Subcategories with featured topics** layout,
+category boxes, and individual category pages retain their native organization.
+
+A group takes the position of its first visible member in the site's category
+order. Its optional color applies to the compact group row and the directory
+heading; blank or invalid colors fall back to that first member's color. Each
+real project's own category color stays unchanged. The group belongs to the
+section at its position when **Category sections** is configured. Member
+categories remain in their normal site order inside the group.
+
+Only members delivered in the current category list that are visible and
+unmuted contribute links, counts, or topic previews. Inaccessible, missing, and
+invalid category IDs are ignored; groups without visible members are hidden.
+Muted categories stay in Discourse's native muted-category area. Latest topics
+use the same native response as ordinary rows, with no additional requests or
+background preview replacements.
+
+The setting starts empty. Remove a group or clear the list to restore its
+members' ordinary category rows. No categories or topics are created, deleted,
+or moved by this setting.
 
 ## Upgrading from the Graceful-era component
 

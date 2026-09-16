@@ -8,6 +8,9 @@ en:
   category_sections:
     collapse: "Collapse %{heading}"
     expand: "Expand %{heading}"
+  category_groups:
+    members_label: "Categories in %{name}"
+    subcategories_label: "Subforums in %{name}"
   palette_selector:
     title: "Color palettes"
     light: "Light palette"
@@ -42,3 +45,22 @@ en:
             category_id:
               label: Category ID
               description: "The positive numeric ID of the category that starts this section. Find it in the category URL, for example 123 in /c/category-name/123. Use each ID once; the first matching entry wins."
+      category_groups:
+        description: "Group top-level categories into one parent-style row on the main Categories page. Supports Categories only, Categories with featured topics, and Categories and latest/top topics on desktop and mobile. Real category parents, permissions, and URLs stay unchanged. Starts empty."
+        schema:
+          properties:
+            name:
+              label: Name
+              description: "The group name to display as plain text, for example Hosted Projects."
+            description:
+              label: Description
+              description: "Optional plain text beneath the group name."
+            icon:
+              label: Icon
+              description: "Optional icon beside the group name."
+            color:
+              label: Color
+              description: "Optional color for the group's icon and accent. Enter a 3- or 6-digit hex color, with or without #, such as #0088cc. Leave blank to use the first visible member category's color."
+            category_ids:
+              label: Categories
+              description: "Select real top-level categories to display as links in this group. The group appears at its first visible member's position. Subcategories remain within their real parent categories."
