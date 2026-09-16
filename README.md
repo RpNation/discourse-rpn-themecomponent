@@ -26,7 +26,8 @@ standalone theme and no longer requires Graceful.
 - Collapsible category-section headings for any category ID, with saved browser preferences.
 - Pinned topics and Normal topics header bars separate the leading pinned group
   in topic lists on desktop and mobile, following each user's pin dismissals.
-- Subtle topic-list shading and post dividers, without boxed posts.
+- Subtle topic-list shading and separated post cards with neutral borders
+  and compact author headers on desktop and mobile.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
 - Existing custom icon sprite and optional RpNation content styling retained.
@@ -135,6 +136,17 @@ or `http://` URL. Leave the URL blank to keep a button as a disabled placeholder
 adding its destination activates it. Unsupported URL formats also stay disabled.
 Clearing the list removes the custom buttons. Long lists scroll horizontally
 within the navbar, and narrow screens display icons with accessible labels.
+
+### Topic posts
+
+Each post has a bordered card with a clear gap before the next reply. On desktop
+and mobile, the native author name, title, and status appear beside a 48px avatar
+in a compact header above the post text. Main post avatars use the same slightly
+rounded square corners as the category previews.
+
+Dates, reply context, moderation controls, post menus, and user cards continue to
+use Discourse's native components. Embedded replies keep their compact layout.
+The cards follow the selected light/dark palette and the Full width preference.
 
 ### Adding category sections
 

@@ -1,0 +1,203 @@
+body:is(.archetype-regular, .archetype-private_message) {
+  --rpn-post-padding: 1.5rem;
+
+  .container.posts > .row {
+    max-width: 100%;
+  }
+
+  // Core's fixed moderation panel assumes a narrower post column. Keep it in
+  // the grid so it cannot cover selection buttons, dates, or post content.
+  .container.posts:has(> .selected-posts:not(.hidden)) {
+    > .selected-posts:not(.hidden) {
+      position: relative;
+      grid-column: 1 / -1;
+      grid-row: 1;
+      inset: auto;
+      width: auto;
+      margin: 0 0 1rem;
+
+      button {
+        width: auto;
+      }
+    }
+
+    > .row,
+    > .topic-navigation {
+      grid-row: 2;
+    }
+  }
+
+  .post-stream {
+    width: 100%;
+    max-width: calc(
+      var(--topic-body-width) + var(--topic-avatar-width) +
+        (var(--topic-body-width-padding) * 2)
+    );
+  }
+
+  .post-stream > .topic-post {
+    // Include the gap in the height core measures when it cloaks long streams.
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+
+    > article.boxed {
+      box-sizing: border-box;
+      max-width: 100%;
+      padding: 0;
+      border: 1px solid var(--rpn-row-divider);
+      border-radius: 4px;
+      background: var(--rpn-row-background);
+
+      // Menus, user cards, and focus outlines can extend beyond a post.
+      overflow: visible;
+
+      > .row > .post-notice {
+        max-width: 100%;
+        margin: 0;
+        border-top: 0;
+        border-bottom: 1px solid var(--rpn-row-divider);
+      }
+
+      > .row:has(> .topic-avatar) {
+        position: relative;
+
+        > .topic-avatar {
+          box-sizing: border-box;
+          float: none;
+          position: absolute;
+          inset-block-start: 0.75rem;
+          inset-inline-start: 1rem;
+          width: 48px;
+          height: auto;
+          margin: 0;
+          padding: 0;
+          border: 0;
+
+          .post-avatar {
+            width: fit-content;
+            margin-inline: auto;
+          }
+
+          .main-avatar img.avatar {
+            border-radius: 3px;
+          }
+        }
+
+        > .topic-body {
+          box-sizing: border-box;
+          float: none;
+          width: 100%;
+          min-width: 0;
+          margin: 0;
+          padding: 0;
+          border: 0;
+
+          > .topic-meta-data {
+            box-sizing: border-box;
+            position: relative;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 4.5rem;
+            margin: 0;
+            padding: 0.75rem 1rem 0.75rem calc(48px + 1.75rem);
+            background: var(--rpn-section-background);
+            border-bottom: 1px solid var(--rpn-row-divider);
+
+            > .names {
+              min-width: 0;
+              flex-wrap: wrap;
+              gap: 0.1rem 0.3rem;
+
+              .first {
+                flex-shrink: 1;
+              }
+            }
+
+            .read-state {
+              inset-inline-end: 0.25rem;
+              max-width: none;
+
+              .d-icon {
+                right: auto;
+              }
+            }
+          }
+
+          > .contents > .cooked {
+            padding: 1.25rem var(--rpn-post-padding);
+          }
+
+          > .contents > .post-menu-area {
+            margin: 0;
+            padding: 0.5rem var(--rpn-post-padding) 0.75rem;
+            border-top: 1px solid var(--rpn-panel-border);
+
+            .post-controls {
+              margin: 0;
+              padding: 0;
+            }
+          }
+
+          > .post-actions:not(:empty) {
+            margin: 0;
+            padding: 0.5rem var(--rpn-post-padding);
+          }
+        }
+      }
+
+      > .topic-map {
+        max-width: 100%;
+        margin: 0;
+        padding: 0.5rem 1rem;
+        background: var(--rpn-section-background);
+        border-top: 1px solid var(--rpn-row-divider);
+        border-radius: 0 0 3px 3px;
+      }
+
+      > .row > .embedded-posts.top {
+        box-sizing: border-box;
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-top: 0;
+      }
+    }
+
+    &.selected > article.boxed {
+      border-color: var(--tertiary);
+      box-shadow: 0 0 0 1px var(--tertiary);
+    }
+
+    &.whisper > article.boxed {
+      border-top-color: var(--primary-medium);
+    }
+
+    &.deleted > article.boxed {
+      border-top-color: var(--danger);
+    }
+  }
+
+  &.archetype-private_message {
+    // Native messages extend into the avatar gutter; cards already contain it.
+    .post-stream
+      > .topic-post
+      > article.boxed
+      > .row
+      > .topic-body
+      > .contents {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  @include viewport.until(sm) {
+    --rpn-post-padding: 1rem;
+  }
+
+  @include viewport.from(lg) {
+    .container.posts {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+}
