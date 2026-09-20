@@ -1,0 +1,33 @@
+.rpn-whisper-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: light-dark(#573704, #ffe2a0);
+  background: light-dark(#fff0c2, #4a350e);
+  border-block: 1px solid light-dark(#d6aa43, #a67b22);
+  border-inline-start: 4px solid light-dark(#9c6500, #eab34c);
+
+  > .d-icon {
+    flex: 0 0 auto;
+    color: inherit;
+    font-size: 1.25rem;
+  }
+
+  &__text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.75rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__title {
+    font-weight: 700;
+  }
+
+  &__audience {
+    font-size: var(--font-down-1);
+  }
+}
