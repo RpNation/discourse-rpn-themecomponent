@@ -32,6 +32,7 @@ standalone theme and no longer requires Graceful.
   and compact author headers on desktop and mobile.
 - Configurable group colors for post-header markers, with red admins and purple
   moderators by default.
+- Prominent amber banners label staff whispers and show their configured audience.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
 - Existing custom icon sprite and optional RpNation content styling retained.

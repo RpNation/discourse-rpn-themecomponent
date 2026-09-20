@@ -1,4 +1,8 @@
 en:
+  whisper_banner:
+    title: "Staff whisper"
+    audience: "Visible to: %{groups}"
+    private_discussion: "Private discussion"
   header_navigation:
     label: "Main navigation"
     coming_soon: "%{label} (coming soon)"
