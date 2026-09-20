@@ -32,5 +32,5 @@ class WhisperBanner extends Component {
 }
 
 export default apiInitializer((api) => {
-  api.renderBeforeWrapperOutlet("post-content-cooked-html", WhisperBanner);
+  api.renderAfterWrapperOutlet("post-meta-data-poster-name", WhisperBanner);
 });

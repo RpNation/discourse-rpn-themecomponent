@@ -1,24 +1,32 @@
 .rpn-whisper-banner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  flex: 0 1 auto;
+  order: 6;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  margin-inline-start: auto;
+  padding: 0.3rem 0.6rem;
   color: light-dark(#573704, #ffe2a0);
   background: light-dark(#fff0c2, #4a350e);
-  border-block: 1px solid light-dark(#d6aa43, #a67b22);
-  border-inline-start: 4px solid light-dark(#9c6500, #eab34c);
+  border: 1px solid light-dark(#d6aa43, #a67b22);
+  border-inline-start: 3px solid light-dark(#9c6500, #eab34c);
+  border-radius: 3px;
+  font-size: var(--font-down-1);
 
   > .d-icon {
     flex: 0 0 auto;
     color: inherit;
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 
   &__text {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.2rem 0.75rem;
+    gap: 0.1rem 0.5rem;
     min-width: 0;
     overflow-wrap: anywhere;
   }
@@ -28,6 +36,11 @@
   }
 
   &__audience {
-    font-size: var(--font-down-1);
+    margin: 0;
+    font-size: inherit;
   }
+}
+
+.topic-meta-data:has(.rpn-whisper-banner) > .post-infos > .post-info.whisper {
+  display: none;
 }

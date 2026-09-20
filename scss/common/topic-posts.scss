@@ -169,10 +169,6 @@ body:is(.archetype-regular, .archetype-private_message) {
       box-shadow: 0 0 0 1px var(--tertiary);
     }
 
-    &.whisper > article.boxed {
-      border-top-color: var(--primary-medium);
-    }
-
     &.deleted > article.boxed {
       border-top-color: var(--danger);
     }
