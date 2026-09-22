@@ -34,6 +34,8 @@ standalone theme and no longer requires Graceful.
   moderators by default.
 - Amber labels in post author headers identify staff whispers and show their
   configured audience.
+- Palette-aware RollMaster cards in posts, roll history, and the rich text
+  composer, with subdued accents for historical rolls.
 - Desktop layout adjustments for topic timelines, the composer, user pages, and
   full-page chat. Chat stays beside the sidebar inside the centered site layout.
 - Existing custom icon sprite and optional RpNation content styling retained.

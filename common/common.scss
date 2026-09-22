@@ -1,5 +1,6 @@
 @use "lib/viewport";
 @import "common/integrations";
+@import "integrations";
 
 :root {
   // Derive the RPN surfaces from the selected Discourse palette. The actual
