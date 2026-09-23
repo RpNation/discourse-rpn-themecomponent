@@ -1,7 +1,7 @@
 import { get } from "@ember/object";
 
 // The optional latest-topics plugin supplies a separately authorized winner.
-// An empty plugin result stays empty; falling back could reintroduce a pin.
+// An empty plugin result stays empty to preserve the server's filtering.
 // Otherwise select from native previews. Preserve Topic and poster identities.
 export function nativeCategoryPreview(category) {
   const definition = Number(

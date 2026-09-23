@@ -72,11 +72,12 @@ list, install the optional [Categories with latest topics plugin](https://github
 `categories_with_latest_topics` separately for `desktop_category_page_style`
 and `mobile_category_page_style`. The desktop and mobile choices are independent.
 
-This mode uses the plugin's server-selected latest visible, unpinned topic,
+This mode uses the plugin's server-selected visible topic with the newest activity,
 including eligible descendants. It keeps the same category rows, avatars,
 sections, virtual groups, and project directory. A virtual group selects the
 newest of its members' server previews; each project still keeps its own preview.
-Categories with no eligible topic stay empty rather than falling back to a pin.
+Pins compete by activity like other topics. Categories with no eligible topic
+stay empty instead of falling back to the featured pool.
 The result does not depend on the native featured-topic count, even when that
 count is zero. Topics arrive with the category response; there are no additional
 topic requests. Discourse's simpler layout fallback for more than 1,000
@@ -260,7 +261,7 @@ top-level categories, each with any native subcategories it needs. Select these
 categories in a group named `Hosted Projects`. The main Categories page displays
 one Hosted Projects row with links to those projects, a combined topic total,
 and one latest-topic preview when the layout supports it. The optional plugin
-supplies its server-selected unpinned previews; other layouts use native previews.
+supplies its server-selected activity previews; other layouts use native previews.
 
 Clicking the group name opens a project directory with the same compact category
 rows as the main Categories page. Each project has its description, child forum
@@ -283,7 +284,8 @@ Groups appear on the main Categories page in **Categories only**, **Categories
 with featured topics**, the optional **Categories with latest topics**, and
 **Categories and latest/top topics** layouts, on desktop and mobile. Use
 `categories_with_latest_topics` with its plugin for compact rows with the latest
-unpinned activity, or `categories_with_featured_topics` for native previews.
+activity without pin priority, or `categories_with_featured_topics` for native
+previews.
 The **Subcategories with featured topics** layout, category boxes, and individual
 category pages retain their native organization.
 
