@@ -1,12 +1,15 @@
 import { get } from "@ember/object";
 
-// Select from the authorized previews core attached to this row, including
-// descendants. Preserve its Topic objects, posters, and native response array.
+// The optional latest-topics plugin supplies a separately authorized winner.
+// An empty plugin result stays empty; falling back could reintroduce a pin.
+// Otherwise select from native previews. Preserve Topic and poster identities.
 export function nativeCategoryPreview(category) {
   const definition = Number(
     category.topic_id || category.topic_url?.match(/\/(\d+)\/?$/)?.[1]
   );
-  const supplied = get(category, "topics");
+  const supplied = get(category, "categoryLatestTopicsActive")
+    ? get(category, "latestTopics")
+    : get(category, "topics");
   const displayable = (Array.isArray(supplied) ? supplied : []).filter(
     (topic) => topic.id !== definition && topic.visible !== false
   );

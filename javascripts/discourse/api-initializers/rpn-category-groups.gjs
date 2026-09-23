@@ -82,7 +82,11 @@ class RpnCategoryGroups extends Component {
     const style = this.site.mobileView
       ? this.siteSettings.mobile_category_page_style
       : this.siteSettings.desktop_category_page_style;
-    return style === "categories_with_featured_topics";
+    return (
+      style === "categories_with_featured_topics" ||
+      (style === "categories_with_latest_topics" &&
+        this.siteSettings.discourse_category_latest_topics_enabled)
+    );
   }
 
   get mutedCategories() {
