@@ -69,7 +69,7 @@ that hidden and expanded muted-category lists preserve their normal behavior.
 ### Latest activity per category
 
 For a preview selected from the full category instead of the limited featured
-list, install the optional [Latest activity per category plugin](https://github.com/RpNation/discourse-category-latest-topics). Enable
+list, install the optional [Latest activity per category plugin](https://github.com/RpNation/discourse-latest-activity-per-category). Enable
 `discourse_category_latest_topics_enabled`, then choose
 **Latest activity per category** (`categories_with_latest_topics`) separately
 for `desktop_category_page_style` and `mobile_category_page_style`. The desktop
