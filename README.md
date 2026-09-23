@@ -66,13 +66,14 @@ that hidden and expanded muted-category lists preserve their normal behavior.
 6. Optionally add your own category sections and category groups in the component
    settings below.
 
-### Categories with latest topics
+### Latest activity per category
 
 For a preview selected from the full category instead of the limited featured
-list, install the optional [Categories with latest topics plugin](https://github.com/RpNation/discourse-category-latest-topics). Enable
+list, install the optional [Latest activity per category plugin](https://github.com/RpNation/discourse-category-latest-topics). Enable
 `discourse_category_latest_topics_enabled`, then choose
-`categories_with_latest_topics` separately for `desktop_category_page_style`
-and `mobile_category_page_style`. The desktop and mobile choices are independent.
+**Latest activity per category** (`categories_with_latest_topics`) separately
+for `desktop_category_page_style` and `mobile_category_page_style`. The desktop
+and mobile choices are independent.
 
 This mode uses the plugin's server-selected visible topic with the newest activity,
 including eligible descendants. It keeps the same category rows, avatars,
@@ -283,7 +284,7 @@ Permissions, notification preferences, and topic creation continue to use the
 real categories.
 
 Groups appear on the main Categories page in **Categories only**, **Categories
-with featured topics**, the optional **Categories with latest topics**, and
+with featured topics**, the optional **Latest activity per category**, and
 **Categories and latest/top topics** layouts, on desktop and mobile. Use
 `categories_with_latest_topics` with its plugin for compact rows with the latest
 activity without pin priority, or `categories_with_featured_topics` for native
