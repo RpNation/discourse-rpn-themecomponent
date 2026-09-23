@@ -49,22 +49,46 @@ that hidden and expanded muted-category lists preserve their normal behavior.
    component:
    `https://github.com/RpNation/discourse-rpn-themecomponent`.
 2. Under **Include component on these themes**, select **Foundation**.
-3. Set `desktop_category_page_style` to `categories_with_featured_topics` to show
-   the category table with latest topics and their last-poster avatars. The
-   separate two-column categories/latest layout is not this layout.
+3. For the optional latest-topic plugin, follow the instructions below.
+   Otherwise set `desktop_category_page_style` to
+   `categories_with_featured_topics` to show the category table with latest
+   topics and their last-poster avatars. The separate two-column
+   categories/latest layout is not this layout.
    For mobile featured-topic avatars, set `mobile_category_page_style` to
    `categories_with_featured_topics` or `subcategories_with_featured_topics`.
    Category-only layouts have no featured topics to display avatars beside.
 4. To use Categories as the homepage, put `categories` first in the site's
    `top_menu` setting.
-5. The component displays one topic per row on desktop and mobile. Keep
-   **Number of topics shown on the categories page** at its native default of
-   `3` so the component can select the newest activity from those previews. A
-   value of `1` displays that one native preview.
+5. The component displays one topic per row on desktop and mobile. For native
+   featured-topic layouts, keep **Number of topics shown on the categories page**
+   at its native default of `3` so the component can select the newest activity
+   from those previews. A value of `1` displays that one native preview.
 6. Optionally add your own category sections and category groups in the component
    settings below.
 
-The component selects one topic from Discourse's native featured topics before
+### Categories with latest topics
+
+For a preview selected from the full category instead of the limited featured
+list, install the optional [Categories with latest topics plugin](https://github.com/RpNation/discourse-category-latest-topics). Enable
+`discourse_category_latest_topics_enabled`, then choose
+`categories_with_latest_topics` separately for `desktop_category_page_style`
+and `mobile_category_page_style`. The desktop and mobile choices are independent.
+
+This mode uses the plugin's server-selected visible topic with the newest activity,
+including eligible descendants. It keeps the same category rows, avatars,
+sections, virtual groups, and project directory. A virtual group selects the
+newest of its members' server previews; each project still keeps its own preview.
+Pins compete by activity like other topics. Categories with no eligible topic
+stay empty instead of falling back to the featured pool.
+The result does not depend on the native featured-topic count, even when that
+count is zero. Topics arrive with the category response; there are no additional
+topic requests. Discourse's simpler layout fallback for more than 1,000
+categories is retained.
+
+### Native featured-topic layouts
+
+Without the optional plugin, or when a device uses a featured-topic layout,
+the component selects one topic from Discourse's native featured topics before
 rows first render on desktop or mobile. It keeps the server's topic arrays,
 Topic objects, last-poster avatars, and unread data intact. Parent rows include
 the descendant topics Discourse attaches to them, even when the parent has no
@@ -73,7 +97,7 @@ direct topics. Missing topic category IDs do not discard those previews.
 The native category response is the only data source. The component makes no
 supplemental topic requests and never replaces a preview with a later lookup's
 topic or avatar. A genuinely new native category response is reflected normally.
-There is no request queue, retry UI, or companion plugin.
+There is no request queue or retry UI, and these layouts do not require a plugin.
 
 Selection uses activity time, without preferring pins. It follows Discourse's
 permissions, cache, and each user's dismissed-pin behavior. It can only choose
@@ -238,18 +262,18 @@ For example, make `Amaranth`, `Robotech: Broadsword`, and `Spellsword` real
 top-level categories, each with any native subcategories it needs. Select these
 categories in a group named `Hosted Projects`. The main Categories page displays
 one Hosted Projects row with links to those projects, a combined topic total,
-and one latest-topic preview selected from their native previews when the layout
-includes featured topics.
+and one latest-topic preview when the layout supports it. The optional plugin
+supplies its server-selected activity previews; other layouts use native previews.
 
 Clicking the group name opens a project directory with the same compact category
 rows as the main Categories page. Each project has its description, child forum
-links, and native topic count, plus one native latest-topic preview when the
-layout includes featured topics. Projects remain separate rather than sharing a
-combined topic feed. The directory URL is shareable: for example,
+links, and native topic count, plus one latest-topic preview when the layout
+supports it. Projects remain separate rather than sharing a combined topic feed.
+The directory URL is shareable: for example,
 `/categories?c_group=Hosted%20Projects`. Previously shared `rpn_group` links
 remain supported. Each project or child link opens its real category, and
 **All categories** returns to the full list. The compact group row on the main
-Categories page keeps its native latest-topic preview.
+Categories page keeps its combined latest-topic preview.
 
 The group only changes how categories are displayed. Existing categories are
 not reparented automatically. If your projects are currently children of a real
@@ -259,10 +283,13 @@ Permissions, notification preferences, and topic creation continue to use the
 real categories.
 
 Groups appear on the main Categories page in **Categories only**, **Categories
-with featured topics**, and **Categories and latest/top topics** layouts, on
-desktop and mobile. Use `categories_with_featured_topics` for the compact rows
-with latest activity. The **Subcategories with featured topics** layout,
-category boxes, and individual category pages retain their native organization.
+with featured topics**, the optional **Categories with latest topics**, and
+**Categories and latest/top topics** layouts, on desktop and mobile. Use
+`categories_with_latest_topics` with its plugin for compact rows with the latest
+activity without pin priority, or `categories_with_featured_topics` for native
+previews.
+The **Subcategories with featured topics** layout, category boxes, and individual
+category pages retain their native organization.
 
 A group takes the position of its first visible member in the site's category
 order. Its optional color applies to the compact group row and the directory

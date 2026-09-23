@@ -12,6 +12,55 @@ function topic(id, overrides = {}) {
 }
 
 module("Unit | RpNation native category previews", function () {
+  test("uses the active plugin's server winner without changing either source array", function (assert) {
+    const pinned = Object.freeze(
+      topic(1, { pinned: true, bumped_at: "2026-12-01T12:00:00Z" })
+    );
+    const poster = Object.freeze({ username: "latest_replier" });
+    const winner = Object.freeze(topic(2, { last_poster: poster }));
+    const topics = Object.freeze([pinned]);
+    const latestTopics = Object.freeze([winner]);
+    const category = Object.freeze({
+      categoryLatestTopicsActive: true,
+      latestTopics,
+      topics,
+      num_featured_topics: 0,
+    });
+
+    assert.strictEqual(nativeCategoryPreview(category), winner);
+    assert.strictEqual(nativeCategoryPreview(category).last_poster, poster);
+    assert.strictEqual(category.topics, topics);
+    assert.strictEqual(category.latestTopics, latestTopics);
+  });
+
+  test("empty active plugin results never fall back to native pinned previews", function (assert) {
+    for (const latestTopics of [[], null, undefined]) {
+      assert.strictEqual(
+        nativeCategoryPreview({
+          categoryLatestTopicsActive: true,
+          latestTopics,
+          topics: [topic(1, { pinned: true })],
+        }),
+        null
+      );
+    }
+  });
+
+  test("inactive plugin data leaves the native preview selection unchanged", function (assert) {
+    const native = topic(1, { pinned: true });
+    const winner = topic(2, { bumped_at: "2026-12-01T12:00:00Z" });
+    for (const categoryLatestTopicsActive of [false, undefined]) {
+      assert.strictEqual(
+        nativeCategoryPreview({
+          categoryLatestTopicsActive,
+          latestTopics: [winner],
+          topics: [native],
+        }),
+        native
+      );
+    }
+  });
+
   test("ordinary activity outranks an older pinned preview", function (assert) {
     const pinned = topic(1, {
       pinned: true,

@@ -149,6 +149,13 @@ class RpnCategorySection extends Component {
       return 2;
     }
 
+    if (
+      this.siteSettings.desktop_category_page_style ===
+      "categories_with_latest_topics"
+    ) {
+      return this.siteSettings.discourse_category_latest_topics_enabled ? 3 : 2;
+    }
+
     return [
       "categories_with_featured_topics",
       "subcategories_with_featured_topics",

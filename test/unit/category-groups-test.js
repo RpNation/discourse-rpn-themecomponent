@@ -18,6 +18,59 @@ function topic(id, overrides = {}) {
 }
 
 module("Unit | RpNation visual category groups", function () {
+  test("chooses the newest server winner across group members while preserving their individual previews", function (assert) {
+    const earlier = Object.freeze(topic(10));
+    const later = Object.freeze(
+      topic(20, { bumped_at: "2026-10-01T12:00:00Z" })
+    );
+    const pin = Object.freeze(
+      topic(30, { pinned: true, bumped_at: "2026-12-01T12:00:00Z" })
+    );
+    const first = Object.freeze(
+      category(1, {
+        categoryLatestTopicsActive: true,
+        latestTopics: Object.freeze([earlier]),
+        topics: Object.freeze([pin]),
+      })
+    );
+    const second = Object.freeze(
+      category(2, {
+        categoryLatestTopicsActive: true,
+        latestTopics: Object.freeze([later]),
+        topics: Object.freeze([pin]),
+      })
+    );
+    const [{ group }] = buildCategoryGroups(
+      [first, second],
+      [definition([1, 2])]
+    );
+
+    assert.strictEqual(group.topic, later);
+    assert.strictEqual(group.members[0].latestTopics[0], earlier);
+    assert.strictEqual(group.members[1].latestTopics[0], later);
+    assert.strictEqual(group.members[0].topics[0], pin);
+  });
+
+  test("does not revive native pins for a group with empty server winners", function (assert) {
+    const [{ group }] = buildCategoryGroups(
+      [
+        category(1, {
+          categoryLatestTopicsActive: true,
+          latestTopics: [],
+          topics: [topic(10, { pinned: true })],
+        }),
+        category(2, {
+          categoryLatestTopicsActive: true,
+          latestTopics: [],
+          topics: [topic(20, { pinned: true })],
+        }),
+      ],
+      [definition([1, 2])]
+    );
+
+    assert.strictEqual(group.topic, null);
+  });
+
   test("places a group at its first member and preserves native member order and hierarchy", function (assert) {
     const before = category(1);
     const first = category(2, { subcategory_ids: [20], has_children: true });
